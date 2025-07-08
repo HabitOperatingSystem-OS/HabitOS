@@ -23,6 +23,7 @@ google-auth = "~=2.23.3"
 google-auth-oauthlib = "~=1.1.0"
 google-auth-httplib2 = "~=0.1.1"
 python-dotenv = "*"
+flask-login = "*"
 
 [dev-packages]
 pytest = "~=7.4.2"
