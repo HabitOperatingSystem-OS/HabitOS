@@ -6,7 +6,7 @@ load_dotenv()
 
 class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'postgresql://username:password@localhost:5432/habitos_db')
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'postgresql://azim:123@localhost:5432/habitos')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # JWT Configuration
@@ -35,6 +35,14 @@ class DevelopmentConfig(Config):
 class ProductionConfig(Config):
     DEBUG = False
     SQLALCHEMY_ECHO = False
+    
+    def __init__(self):
+        super().__init__()
+        # Warn if using default secrets in production
+        if self.SECRET_KEY == 'dev-secret-key-change-in-production':
+            raise ValueError("Must set SECRET_KEY in production!")
+        if self.JWT_SECRET_KEY == 'jwt-secret-change-in-production':
+            raise ValueError("Must set JWT_SECRET_KEY in production!")
 
 class TestingConfig(Config):
     TESTING = True
