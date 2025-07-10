@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: habitos_db
+      POSTGRES_USER: habitos_user
+      POSTGRES_PASSWORD: habitos_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql://habitos_user:habitos_pass@db:5432/habitos_db
+      FLASK_ENV: development
+    volumes:
+      - ./backend:/app
+
+volumes:
+  postgres_data:
