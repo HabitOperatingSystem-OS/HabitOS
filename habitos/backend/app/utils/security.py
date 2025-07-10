@@ -37,8 +37,7 @@ class RateLimiter:
                 logger.info("Redis connection established for rate limiting")
             except Exception as e:
                 # Only log warning if we're in a request context or during app startup
-                if hasattr(current_app, 'logger'):
-                    current_app.logger.warning(f"Redis connection for rate limiting failed: {e}")
+                logger.warning(f"Redis connection for rate limiting failed: {e}")
                 self.redis_client = None
     
     def _get_client_ip(self):
