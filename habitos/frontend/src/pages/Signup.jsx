@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, User, Check } from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -11,8 +12,9 @@ const Signup = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [apiError, setApiError] = useState("");
+  const { signup, loading } = useAuth();
 
   const handleChange = (e) => {
     setFormData({
@@ -26,6 +28,7 @@ const Signup = () => {
         [e.target.name]: "",
       });
     }
+    setApiError("");
   };
 
   const validateForm = () => {
@@ -59,20 +62,18 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setApiError("");
     if (!validateForm()) {
       return;
     }
-
-    setIsLoading(true);
-
-    // TODO: Implement signup logic
-    console.log("Signup attempt:", formData);
-
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
+    const { success, message } = await signup(
+      formData.username,
+      formData.email,
+      formData.password
+    );
+    if (!success) {
+      setApiError(message || "Signup failed. Please try again.");
+    }
   };
 
   return (
@@ -224,7 +225,7 @@ const Signup = () => {
               </label>
               <div className="mt-1 relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="h-5 w-5 text-gray-400" />
+                  <Check className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
                   id="confirmPassword"
@@ -261,42 +262,25 @@ const Signup = () => {
             </div>
           </div>
 
-          <div className="flex items-center">
-            <input
-              id="agree-terms"
-              name="agree-terms"
-              type="checkbox"
-              required
-              className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-            />
-            <label
-              htmlFor="agree-terms"
-              className="ml-2 block text-sm text-gray-900"
-            >
-              I agree to the{" "}
-              <a href="#" className="text-primary-600 hover:text-primary-500">
-                Terms of Service
-              </a>{" "}
-              and{" "}
-              <a href="#" className="text-primary-600 hover:text-primary-500">
-                Privacy Policy
-              </a>
-            </label>
-          </div>
+          {apiError && (
+            <div className="text-error-600 text-sm text-center mt-2">
+              {apiError}
+            </div>
+          )}
 
           <div>
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={loading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? (
+              {loading ? (
                 <div className="flex items-center">
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                   Creating account...
                 </div>
               ) : (
-                "Create account"
+                "Sign up"
               )}
             </button>
           </div>
