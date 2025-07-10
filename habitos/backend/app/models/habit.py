@@ -1,11 +1,10 @@
-from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime, timezone, timedelta
 from enum import Enum
 import uuid
-
-db = SQLAlchemy()
+from app import db
 
 class HabitCategory(Enum):
+    PERSONAL = "personal"
     HEALTH = "health"
     FITNESS = "fitness"
     PRODUCTIVITY = "productivity"
@@ -13,7 +12,6 @@ class HabitCategory(Enum):
     LEARNING = "learning"
     SOCIAL = "social"
     CREATIVE = "creative"
-    PERSONAL = "personal"
     OTHER = "other"
 
 class HabitFrequency(Enum):
@@ -22,41 +20,31 @@ class HabitFrequency(Enum):
     MONTHLY = "monthly"
     CUSTOM = "custom"
 
-class HabitStatus(Enum):
-    ACTIVE = "active"
-    PAUSED = "paused"
-    COMPLETED = "completed"
-    ARCHIVED = "archived"
-
 class Habit(db.Model):
     __tablename__ = 'habits'
     
-    id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    id = db.Column(db.String(36), primary_key=True, unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
     user_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
     
     # Core habit information
     title = db.Column(db.String(255), nullable=False)
-    description = db.Column(db.Text)
     category = db.Column(db.Enum(HabitCategory), nullable=False, default=HabitCategory.PERSONAL)
     
     # Frequency and goal settings
     frequency = db.Column(db.Enum(HabitFrequency), nullable=False, default=HabitFrequency.DAILY)
-    frequency_count = db.Column(db.Integer, default=1)  # e.g., 3 times per week
-    target_value = db.Column(db.Integer, default=1)  # e.g., 30 minutes, 10 pushups
-    target_unit = db.Column(db.String(50))  # e.g., "minutes", "reps", "pages"
+    frequency_count = db.Column(db.Integer, default=1)
     
     # Status and tracking
-    status = db.Column(db.Enum(HabitStatus), nullable=False, default=HabitStatus.ACTIVE)
     current_streak = db.Column(db.Integer, default=0)
     longest_streak = db.Column(db.Integer, default=0)
+    active = db.Column(db.Boolean, default=True)
     
     # Dates
     start_date = db.Column(db.Date, nullable=False, default=lambda: datetime.now(timezone.utc).date())
-    end_date = db.Column(db.Date)  # Optional end date for time-bound habits
     
     # Timestamps
-    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     
     # Relationships
     check_ins = db.relationship('CheckIn', backref='habit', lazy=True, cascade='all, delete-orphan')
@@ -131,12 +119,6 @@ class Habit(db.Model):
         """Check if habit is due today based on frequency"""
         today = datetime.now(timezone.utc).date()
         
-        if self.status != HabitStatus.ACTIVE:
-            return False
-        
-        if self.end_date and today > self.end_date:
-            return False
-        
         if today < self.start_date:
             return False
         
@@ -176,17 +158,13 @@ class Habit(db.Model):
             'id': self.id,
             'user_id': self.user_id,
             'title': self.title,
-            'description': self.description,
             'category': self.category.value,
             'frequency': self.frequency.value,
             'frequency_count': self.frequency_count,
-            'target_value': self.target_value,
-            'target_unit': self.target_unit,
-            'status': self.status.value,
             'current_streak': self.current_streak,
             'longest_streak': self.longest_streak,
+            'active': self.active,
             'start_date': self.start_date.isoformat(),
-            'end_date': self.end_date.isoformat() if self.end_date else None,
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat(),
             'is_due_today': self.is_due_today()

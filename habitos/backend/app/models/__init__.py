@@ -1,30 +1,14 @@
-from flask_sqlalchemy import SQLAlchemy
-
-# Initialize SQLAlchemy instance
-db = SQLAlchemy()
-
-# Import all models
+# Import all models to ensure they're registered with SQLAlchemy
 from .user import User
-from .habit import Habit, HabitCategory, HabitFrequency, HabitStatus
-from .check_in import CheckIn, MoodLevel
+from .habit import Habit, HabitCategory, HabitFrequency
+from .check_in import CheckIn
 from .goal import Goal, GoalType, GoalStatus, GoalPriority
-from .journal_entry import JournalEntry, SentimentType, JournalEntryType
+from .journal_entry import JournalEntry, SentimentType
 
-# Export all models and enums
 __all__ = [
-    'db',
     'User',
-    'Habit',
-    'HabitCategory',
-    'HabitFrequency', 
-    'HabitStatus',
+    'Habit', 'HabitCategory', 'HabitFrequency',
     'CheckIn',
-    'MoodLevel',
-    'Goal',
-    'GoalType',
-    'GoalStatus',
-    'GoalPriority',
-    'JournalEntry',
-    'SentimentType',
-    'JournalEntryType'
+    'Goal', 'GoalType', 'GoalStatus', 'GoalPriority',
+    'JournalEntry', 'SentimentType'
 ]
