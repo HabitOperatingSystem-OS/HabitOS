@@ -1,121 +1,120 @@
-from flask import Flask, request, g
+"""
+HabitOS Flask Application Factory
+"""
+
+import os
+import logging
+from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from flask_jwt_extended import JWTManager
 from flask_cors import CORS
-from flask_mail import Mail
-import uuid
-import time
+from flask_jwt_extended import JWTManager
 
 # Initialize extensions
 db = SQLAlchemy()
 migrate = Migrate()
 jwt = JWTManager()
-cors = CORS()
-mail = Mail()
 
-def create_app(config_name='default'):
+def create_app(config_name=None):
+    """
+    Application factory pattern for creating Flask app instances
+    
+    Args:
+        config_name (str): Configuration name (development, testing, production)
+    
+    Returns:
+        Flask: Configured Flask application instance
+    """
     app = Flask(__name__)
     
     # Load configuration
-    from app.config.config import config
-    app.config.from_object(config[config_name])
+    if config_name is None:
+        config_name = os.getenv('FLASK_ENV', 'development')
     
-    # Initialize configuration
-    config[config_name].init_app(app)
+    if config_name == 'production':
+        app.config.from_object('app.config.config.ProductionConfig')
+    elif config_name == 'testing':
+        app.config.from_object('app.config.config.TestingConfig')
+    else:
+        app.config.from_object('app.config.config.DevelopmentConfig')
+    
+    # Initialize logging
+    setup_logging(app)
     
     # Initialize extensions
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
-    cors.init_app(app)
-    mail.init_app(app)
     
-    # Setup logging
-    from app.utils.logger import setup_logging
-    setup_logging(app)
-    
-    # Setup security middleware
-    from app.utils.security import SecurityMiddleware
-    security_middleware = SecurityMiddleware(app)
-    
-    # Setup monitoring
-    from app.utils.monitoring import MetricsCollector
-    metrics_collector = MetricsCollector(app)
-    
-    # Import models to ensure they're registered
-    from app.models import User, Habit, CheckIn, JournalEntry, Goal
+    # Setup CORS
+    CORS(app, origins=app.config.get('CORS_ORIGINS', ['http://localhost:3000']))
     
     # Register blueprints
     from app.routes.auth import auth_bp
-    from app.routes.users import users_bp
     from app.routes.habits import habits_bp
     from app.routes.check_ins import check_ins_bp
-    from app.routes.journal import journal_bp
     from app.routes.goals import goals_bp
+    from app.routes.journal import journal_bp
+    from app.routes.users import users_bp
     
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
-    app.register_blueprint(users_bp, url_prefix='/api/users')
     app.register_blueprint(habits_bp, url_prefix='/api/habits')
-    app.register_blueprint(check_ins_bp, url_prefix='/api/checkins')
-    app.register_blueprint(journal_bp, url_prefix='/api/journal')
+    app.register_blueprint(check_ins_bp, url_prefix='/api/check-ins')
     app.register_blueprint(goals_bp, url_prefix='/api/goals')
+    app.register_blueprint(journal_bp, url_prefix='/api/journal')
+    app.register_blueprint(users_bp, url_prefix='/api/users')
     
-    # Register health check blueprint
-    from app.utils.monitoring import create_health_check_blueprint
-    health_bp = create_health_check_blueprint()
-    app.register_blueprint(health_bp, url_prefix='/api')
+    # Initialize security middleware (only in production or when explicitly enabled)
+    if app.config.get('ENABLE_SECURITY_MIDDLEWARE', False):
+        try:
+            from app.utils.security import SecurityMiddleware
+            with app.app_context():
+                security_middleware = SecurityMiddleware(app)
+                app.logger.info("Security middleware initialized successfully")
+        except Exception as e:
+            app.logger.warning(f"Security middleware initialization failed: {e}")
     
-    # Request processing middleware
-    @app.before_request
-    def before_request():
-        # Generate request ID for tracking
-        g.request_id = str(uuid.uuid4())
-        g.start_time = time.time()
-        
-        # Log request information
-        from app.utils.logger import log_request_info
-        log_request_info()
-        
-        # Store metrics collector in app context
-        g.metrics_collector = metrics_collector
+    # Health check endpoint
+    @app.route('/health')
+    def health_check():
+        """Health check endpoint for monitoring"""
+        return {
+            'status': 'healthy',
+            'service': 'HabitOS API',
+            'version': '1.0.0'
+        }
     
-    @app.after_request
-    def after_request(response):
-        # Record metrics
-        if hasattr(g, 'metrics_collector') and hasattr(g, 'start_time'):
-            duration = time.time() - g.start_time
-            g.metrics_collector.record_request_metric(
-                request.endpoint or 'unknown',
-                request.method,
-                response.status_code,
-                duration
-            )
-        
-        # Add request ID to response headers
-        if hasattr(g, 'request_id'):
-            response.headers['X-Request-ID'] = g.request_id
-        
-        return response
-    
+    # Error handlers
     @app.errorhandler(404)
     def not_found(error):
         return {'error': 'Not found', 'message': 'The requested resource was not found'}, 404
     
     @app.errorhandler(500)
     def internal_error(error):
-        # Log the error
-        from app.utils.logger import log_error
-        log_error(error, {'request_id': getattr(g, 'request_id', 'unknown')})
-        
+        app.logger.error(f"Internal server error: {error}")
         return {'error': 'Internal server error', 'message': 'An unexpected error occurred'}, 500
     
-    @app.errorhandler(Exception)
-    def handle_exception(error):
-        # Log the error
-        from app.utils.logger import log_error
-        log_error(error, {'request_id': getattr(g, 'request_id', 'unknown')})
-        
-        return {'error': 'Internal server error', 'message': 'An unexpected error occurred'}, 500
+    app.logger.info(f"HabitOS application initialized in {config_name} mode")
     
     return app
+
+def setup_logging(app):
+    """Setup application logging"""
+    if not app.debug:
+        # Production logging
+        if not os.path.exists('logs'):
+            os.mkdir('logs')
+        
+        file_handler = logging.FileHandler('logs/habitos.log')
+        file_handler.setFormatter(logging.Formatter(
+            '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+        ))
+        file_handler.setLevel(logging.INFO)
+        app.logger.addHandler(file_handler)
+        
+        app.logger.setLevel(logging.INFO)
+        app.logger.info('HabitOS startup')
+    else:
+        # Development logging
+        app.logger.setLevel(logging.DEBUG)
+        app.logger.info('HabitOS startup')
