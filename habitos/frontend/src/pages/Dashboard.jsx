@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   Target,
   TrendingUp,
@@ -8,68 +8,22 @@ import {
   Settings,
   LogOut,
   User,
+  Activity,
+  Award,
+  Target as TargetIcon,
+  BookOpen,
 } from "lucide-react";
+
+import { useDashboard } from "../hooks/useDashboard";
+import StreakChart from "../components/dashboard/StreakChart";
+import TodayHabits from "../components/dashboard/TodayHabits";
+import MoodSummary from "../components/dashboard/MoodSummary";
+import StatsCard from "../components/dashboard/StatsCard";
+import LoadingSpinner from "../components/common/LoadingSpinner";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
-
-  const stats = [
-    {
-      name: "Active Habits",
-      value: "12",
-      change: "+2",
-      changeType: "positive",
-    },
-    {
-      name: "Current Streak",
-      value: "7 days",
-      change: "+1",
-      changeType: "positive",
-    },
-    {
-      name: "Completion Rate",
-      value: "85%",
-      change: "+5%",
-      changeType: "positive",
-    },
-    {
-      name: "Goals Achieved",
-      value: "3",
-      change: "+1",
-      changeType: "positive",
-    },
-  ];
-
-  const recentHabits = [
-    {
-      id: 1,
-      name: "Morning Exercise",
-      category: "Fitness",
-      streak: 7,
-      completed: true,
-    },
-    {
-      id: 2,
-      name: "Read 30 minutes",
-      category: "Learning",
-      streak: 5,
-      completed: true,
-    },
-    {
-      id: 3,
-      name: "Drink 8 glasses water",
-      category: "Health",
-      streak: 3,
-      completed: false,
-    },
-    {
-      id: 4,
-      name: "Meditation",
-      category: "Mindfulness",
-      streak: 12,
-      completed: true,
-    },
-  ];
+  const { dashboardData, loading, error, refreshData } = useDashboard();
 
   const tabs = [
     { id: "overview", name: "Overview", icon: BarChart3 },
@@ -77,6 +31,58 @@ const Dashboard = () => {
     { id: "goals", name: "Goals", icon: TrendingUp },
     { id: "journal", name: "Journal", icon: Calendar },
   ];
+
+  const handleToggleHabit = (habitId) => {
+    // This would typically make an API call to update the habit status
+    console.log("Toggling habit:", habitId);
+    // For now, we'll just refresh the data
+    refreshData();
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <LoadingSpinner size="lg" text="Loading your dashboard..." />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <BarChart3 className="w-8 h-8 text-red-600" />
+          </div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            Error Loading Dashboard
+          </h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button onClick={refreshData} className="btn-primary">
+            Try Again
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!dashboardData) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <BarChart3 className="w-8 h-8 text-gray-400" />
+          </div>
+          <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            No Data Available
+          </h2>
+          <p className="text-gray-600">Unable to load dashboard data.</p>
+        </div>
+      </div>
+    );
+  }
+
+  const { stats, streakData, todaysHabits, moodSummary } = dashboardData;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -121,36 +127,45 @@ const Dashboard = () => {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {stats.map((stat, index) => (
-            <div key={index} className="card">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">
-                    {stat.name}
-                  </p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    {stat.value}
-                  </p>
-                </div>
-                <div
-                  className={`text-sm font-medium ${
-                    stat.changeType === "positive"
-                      ? "text-success-600"
-                      : "text-error-600"
-                  }`}
-                >
-                  {stat.change}
-                </div>
-              </div>
-            </div>
-          ))}
+          <StatsCard
+            title="Active Habits"
+            value={stats.activeHabits}
+            change="+2"
+            changeType="positive"
+            icon={TargetIcon}
+            color="blue"
+          />
+          <StatsCard
+            title="Current Streak"
+            value={`${stats.currentStreak} days`}
+            change="+1"
+            changeType="positive"
+            icon={TrendingUp}
+            color="green"
+          />
+          <StatsCard
+            title="Completion Rate"
+            value={`${stats.completionRate}%`}
+            change="+5%"
+            changeType="positive"
+            icon={Activity}
+            color="purple"
+          />
+          <StatsCard
+            title="Goals Achieved"
+            value={stats.goalsAchieved}
+            change="+1"
+            changeType="positive"
+            icon={Award}
+            color="orange"
+          />
         </div>
 
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Sidebar */}
           <div className="lg:col-span-1">
-            <div className="card">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
               <nav className="space-y-2">
                 {tabs.map((tab) => (
                   <button
@@ -174,47 +189,20 @@ const Dashboard = () => {
           <div className="lg:col-span-3">
             {activeTab === "overview" && (
               <div className="space-y-6">
-                {/* Today's Habits */}
-                <div className="card">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                    Today's Habits
-                  </h2>
-                  <div className="space-y-3">
-                    {recentHabits.map((habit) => (
-                      <div
-                        key={habit.id}
-                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                      >
-                        <div className="flex items-center space-x-3">
-                          <div
-                            className={`w-3 h-3 rounded-full ${
-                              habit.completed ? "bg-success-500" : "bg-gray-300"
-                            }`}
-                          />
-                          <div>
-                            <p className="font-medium text-gray-900">
-                              {habit.name}
-                            </p>
-                            <p className="text-sm text-gray-600">
-                              {habit.category}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm font-medium text-gray-900">
-                            {habit.streak} day streak
-                          </p>
-                          <p className="text-xs text-gray-600">
-                            {habit.completed ? "Completed" : "Pending"}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                {/* Streak Chart */}
+                <StreakChart data={streakData} />
+
+                {/* Today's Habits and Mood Summary Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <TodayHabits
+                    habits={todaysHabits}
+                    onToggleHabit={handleToggleHabit}
+                  />
+                  <MoodSummary moodData={moodSummary} />
                 </div>
 
                 {/* Quick Actions */}
-                <div className="card">
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                   <h2 className="text-xl font-semibold text-gray-900 mb-4">
                     Quick Actions
                   </h2>
@@ -241,9 +229,9 @@ const Dashboard = () => {
             )}
 
             {activeTab === "habits" && (
-              <div className="card">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                  Habits
+                  Habits Management
                 </h2>
                 <p className="text-gray-600">
                   Habits management interface will be implemented here.
@@ -252,9 +240,9 @@ const Dashboard = () => {
             )}
 
             {activeTab === "goals" && (
-              <div className="card">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                  Goals
+                  Goals Tracking
                 </h2>
                 <p className="text-gray-600">
                   Goals tracking interface will be implemented here.
@@ -263,9 +251,9 @@ const Dashboard = () => {
             )}
 
             {activeTab === "journal" && (
-              <div className="card">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                  Journal
+                  Journal Entries
                 </h2>
                 <p className="text-gray-600">
                   Journal interface will be implemented here.
