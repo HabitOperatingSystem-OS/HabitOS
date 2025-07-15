@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import {
   Target,
   TrendingUp,
@@ -98,10 +99,7 @@ const Dashboard = () => {
             </div>
 
             <div className="flex items-center space-x-4">
-              <button className="btn-primary">
-                <Plus className="w-4 h-4 mr-2" />
-                New Habit
-              </button>
+              <button className="btn-primary">+ New Habit</button>
 
               <div className="relative">
                 <button className="flex items-center space-x-2 text-gray-700 hover:text-gray-900">
@@ -230,12 +228,22 @@ const Dashboard = () => {
 
             {activeTab === "habits" && (
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                  Habits Management
-                </h2>
-                <p className="text-gray-600">
-                  Habits management interface will be implemented here.
-                </p>
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Target className="w-8 h-8 text-primary-600" />
+                  </div>
+                  <h2 className="text-xl font-semibold text-gray-900 mb-2">
+                    Habits Management
+                  </h2>
+                  <p className="text-gray-600 mb-6">
+                    Manage your habits, track progress, and view detailed
+                    analytics.
+                  </p>
+                  <Link to="/habits" className="btn-primary">
+                    <Target className="w-4 h-4 mr-2" />
+                    Go to Habits
+                  </Link>
+                </div>
               </div>
             )}
 
