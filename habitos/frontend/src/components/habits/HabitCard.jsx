@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import {
   Target,
@@ -55,6 +55,27 @@ const getFrequencyText = (frequency, frequencyCount) => {
 
 const HabitCard = ({ habit, viewMode, onEdit, onDelete }) => {
   const isGrid = viewMode === "grid";
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef(null);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setShowMenu(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const toggleMenu = (e) => {
+    e.stopPropagation();
+    setShowMenu(!showMenu);
+  };
 
   if (isGrid) {
     return (
@@ -84,33 +105,38 @@ const HabitCard = ({ habit, viewMode, onEdit, onDelete }) => {
             </div>
 
             {/* Actions Menu */}
-            <div className="relative">
-              <button className="p-1 rounded-lg hover:bg-gray-100 transition-colors">
+            <div className="relative" ref={menuRef}>
+              <button
+                onClick={toggleMenu}
+                className="p-1 rounded-lg hover:bg-gray-100 transition-colors"
+              >
                 <MoreVertical className="w-4 h-4 text-gray-400" />
               </button>
-              <div className="absolute right-0 top-8 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
-                <Link
-                  to={`/habits/${habit.id}`}
-                  className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                >
-                  <Eye className="w-4 h-4 mr-2" />
-                  View Details
-                </Link>
-                <button
-                  onClick={() => onEdit(habit)}
-                  className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                >
-                  <Edit className="w-4 h-4 mr-2" />
-                  Edit
-                </button>
-                <button
-                  onClick={() => onDelete(habit)}
-                  className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-                >
-                  <Trash2 className="w-4 h-4 mr-2" />
-                  Delete
-                </button>
-              </div>
+              {showMenu && (
+                <div className="absolute right-0 top-8 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
+                  <Link
+                    to={`/habits/${habit.id}`}
+                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    <Eye className="w-4 h-4 mr-2" />
+                    View Details
+                  </Link>
+                  <button
+                    onClick={() => onEdit(habit)}
+                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                  >
+                    <Edit className="w-4 h-4 mr-2" />
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => onDelete(habit)}
+                    className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 

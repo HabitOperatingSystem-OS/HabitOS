@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import React from "react";
 import {
   Target,
   TrendingUp,
@@ -23,15 +22,7 @@ import StatsCard from "../components/dashboard/StatsCard";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 
 const Dashboard = () => {
-  const [activeTab, setActiveTab] = useState("overview");
   const { dashboardData, loading, error, refreshData } = useDashboard();
-
-  const tabs = [
-    { id: "overview", name: "Overview", icon: BarChart3 },
-    { id: "habits", name: "Habits", icon: Target },
-    { id: "goals", name: "Goals", icon: TrendingUp },
-    { id: "journal", name: "Journal", icon: Calendar },
-  ];
 
   const handleToggleHabit = (habitId) => {
     // This would typically make an API call to update the habit status
@@ -42,7 +33,7 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50 pt-16">
         <LoadingSpinner size="lg" text="Loading your dashboard..." />
       </div>
     );
@@ -50,7 +41,7 @@ const Dashboard = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 pt-16 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <BarChart3 className="w-8 h-8 text-red-600" />
@@ -69,7 +60,7 @@ const Dashboard = () => {
 
   if (!dashboardData) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 pt-16 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <BarChart3 className="w-8 h-8 text-gray-400" />
@@ -86,34 +77,7 @@ const Dashboard = () => {
   const { stats, streakData, todaysHabits, moodSummary } = dashboardData;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Top Navigation */}
-      <div className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-                <Target className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold text-gray-900">HabitOS</span>
-            </div>
-
-            <div className="flex items-center space-x-4">
-              <button className="btn-primary">+ New Habit</button>
-
-              <div className="relative">
-                <button className="flex items-center space-x-2 text-gray-700 hover:text-gray-900">
-                  <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-                    <User className="w-4 h-4" />
-                  </div>
-                  <span className="hidden md:block">John Doe</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
+    <div className="min-h-screen bg-gray-50 pt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
@@ -160,114 +124,42 @@ const Dashboard = () => {
         </div>
 
         {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <nav className="space-y-2">
-                {tabs.map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      activeTab === tab.id
-                        ? "bg-primary-100 text-primary-700"
-                        : "text-gray-700 hover:bg-gray-100"
-                    }`}
-                  >
-                    <tab.icon className="w-5 h-5" />
-                    <span>{tab.name}</span>
-                  </button>
-                ))}
-              </nav>
-            </div>
+        <div className="space-y-6">
+          {/* Streak Chart */}
+          <StreakChart data={streakData} />
+
+          {/* Today's Habits and Mood Summary Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <TodayHabits
+              habits={todaysHabits}
+              onToggleHabit={handleToggleHabit}
+            />
+            <MoodSummary moodData={moodSummary} />
           </div>
 
-          {/* Main Content Area */}
-          <div className="lg:col-span-3">
-            {activeTab === "overview" && (
-              <div className="space-y-6">
-                {/* Streak Chart */}
-                <StreakChart data={streakData} />
-
-                {/* Today's Habits and Mood Summary Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <TodayHabits
-                    habits={todaysHabits}
-                    onToggleHabit={handleToggleHabit}
-                  />
-                  <MoodSummary moodData={moodSummary} />
-                </div>
-
-                {/* Quick Actions */}
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                  <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                    Quick Actions
-                  </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <button className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                      <Plus className="w-5 h-5 text-primary-600" />
-                      <span className="font-medium">Add New Habit</span>
-                    </button>
-                    <button className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                      <Calendar className="w-5 h-5 text-primary-600" />
-                      <span className="font-medium">View Calendar</span>
-                    </button>
-                    <button className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                      <BarChart3 className="w-5 h-5 text-primary-600" />
-                      <span className="font-medium">View Analytics</span>
-                    </button>
-                    <button className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                      <Settings className="w-5 h-5 text-primary-600" />
-                      <span className="font-medium">Settings</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === "habits" && (
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <div className="text-center py-8">
-                  <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Target className="w-8 h-8 text-primary-600" />
-                  </div>
-                  <h2 className="text-xl font-semibold text-gray-900 mb-2">
-                    Habits Management
-                  </h2>
-                  <p className="text-gray-600 mb-6">
-                    Manage your habits, track progress, and view detailed
-                    analytics.
-                  </p>
-                  <Link to="/habits" className="btn-primary">
-                    <Target className="w-4 h-4 mr-2" />
-                    Go to Habits
-                  </Link>
-                </div>
-              </div>
-            )}
-
-            {activeTab === "goals" && (
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                  Goals Tracking
-                </h2>
-                <p className="text-gray-600">
-                  Goals tracking interface will be implemented here.
-                </p>
-              </div>
-            )}
-
-            {activeTab === "journal" && (
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                  Journal Entries
-                </h2>
-                <p className="text-gray-600">
-                  Journal interface will be implemented here.
-                </p>
-              </div>
-            )}
+          {/* Quick Actions */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              Quick Actions
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <button className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <Plus className="w-5 h-5 text-primary-600" />
+                <span className="font-medium">Add New Habit</span>
+              </button>
+              <button className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <Calendar className="w-5 h-5 text-primary-600" />
+                <span className="font-medium">View Calendar</span>
+              </button>
+              <button className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <BarChart3 className="w-5 h-5 text-primary-600" />
+                <span className="font-medium">View Analytics</span>
+              </button>
+              <button className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <Settings className="w-5 h-5 text-primary-600" />
+                <span className="font-medium">Settings</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>

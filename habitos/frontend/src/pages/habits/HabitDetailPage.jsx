@@ -16,6 +16,7 @@ import {
   Plus,
 } from "lucide-react";
 import { habitsAPI, checkInsAPI } from "../../services/api";
+import { useHabitDetail } from "../../hooks/useHabitDetail";
 import LoadingSpinner from "../../components/common/LoadingSpinner";
 import DeleteConfirmModal from "../../components/common/DeleteConfirmModal";
 import HabitFormModal from "../../components/habits/HabitFormModal";
@@ -23,44 +24,16 @@ import HabitFormModal from "../../components/habits/HabitFormModal";
 const HabitDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [habit, setHabit] = useState(null);
-  const [checkIns, setCheckIns] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { habit, checkIns, loading, error, refreshData } = useHabitDetail(id);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
-
-  useEffect(() => {
-    fetchHabitData();
-  }, [id]);
-
-  const fetchHabitData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Fetch habit details
-      const habitResponse = await habitsAPI.getHabit(id);
-      setHabit(habitResponse.habit);
-
-      // Fetch check-ins for this habit
-      const checkInsResponse = await checkInsAPI.getCheckIns();
-      const habitCheckIns =
-        checkInsResponse.check_ins?.filter((ci) => ci.habit_id === id) || [];
-      setCheckIns(habitCheckIns);
-    } catch (err) {
-      setError(err.message || "Failed to fetch habit data");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleUpdateHabit = async (habitData) => {
     try {
       await habitsAPI.updateHabit(id, habitData);
       setShowEditModal(false);
-      fetchHabitData(); // Refresh data
+      refreshData(); // Refresh data
     } catch (err) {
       console.error("Failed to update habit:", err);
       throw err;
@@ -119,7 +92,7 @@ const HabitDetailPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 pt-16 flex items-center justify-center">
         <LoadingSpinner size="lg" text="Loading habit details..." />
       </div>
     );
@@ -127,7 +100,7 @@ const HabitDetailPage = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 pt-16 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Target className="w-8 h-8 text-red-600" />
@@ -136,7 +109,7 @@ const HabitDetailPage = () => {
             Error Loading Habit
           </h2>
           <p className="text-gray-600 mb-4">{error}</p>
-          <button onClick={fetchHabitData} className="btn-primary mr-2">
+          <button onClick={refreshData} className="btn-primary mr-2">
             Try Again
           </button>
           <Link to="/habits" className="btn-secondary">
@@ -149,7 +122,7 @@ const HabitDetailPage = () => {
 
   if (!habit) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 pt-16 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <Target className="w-8 h-8 text-gray-400" />
@@ -169,7 +142,7 @@ const HabitDetailPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 pt-16">
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
