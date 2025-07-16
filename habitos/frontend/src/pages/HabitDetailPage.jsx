@@ -15,11 +15,11 @@ import {
   Award,
   Plus,
 } from "lucide-react";
-import { habitsAPI, checkInsAPI } from "../../services/api";
-import { useHabitDetail } from "../../hooks/useHabitDetail";
-import LoadingSpinner from "../../components/common/LoadingSpinner";
-import DeleteConfirmModal from "../../components/common/DeleteConfirmModal";
-import HabitFormModal from "../../components/habits/HabitFormModal";
+import { habitsAPI, checkInsAPI } from "../services/api";
+import { useHabitDetail } from "../hooks/useHabitDetail";
+import LoadingSpinner from "../components/common/LoadingSpinner";
+import DeleteConfirmModal from "../components/common/DeleteConfirmModal";
+import HabitFormModal from "../components/habits/HabitFormModal";
 
 const HabitDetailPage = () => {
   const { id } = useParams();

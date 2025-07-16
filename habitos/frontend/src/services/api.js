@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Create axios instance with base configuration
 const api = axios.create({
-  baseURL: "/api",
+  baseURL: "http://localhost:5001/api",
   headers: {
     "Content-Type": "application/json",
   },
@@ -26,10 +26,20 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
+    // Only auto-logout on 401 for auth-related endpoints or if explicitly needed
     if (error.response?.status === 401) {
-      localStorage.removeItem("token");
-      window.location.href = "/login";
+      const isAuthEndpoint = error.config.url?.includes("/auth/");
+      const isLoginPage = window.location.pathname === "/login";
+
+      // Only auto-logout for non-auth endpoints and not on login page
+      if (!isAuthEndpoint && !isLoginPage) {
+        console.warn("Authentication failed, redirecting to login");
+        localStorage.removeItem("token");
+        window.location.href = "/login";
+      }
     }
+    // Log the error for debugging
+    console.error("API Error:", error.response?.status, error.response?.data);
     return Promise.reject(error);
   }
 );

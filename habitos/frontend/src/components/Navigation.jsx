@@ -1,9 +1,29 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
-import { BarChart3, Target, TrendingUp, Calendar, User } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import {
+  BarChart3,
+  Target,
+  TrendingUp,
+  Calendar,
+  User,
+  LogOut,
+} from "lucide-react";
+import { useAuth } from "../context/AuthContext";
 
 const Navigation = () => {
+  const { user, logout } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  // Don't render navigation if not authenticated
+  if (!user) {
+    return null;
+  }
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
 
   const tabs = [
     { id: "overview", name: "Overview", icon: BarChart3, path: "/dashboard" },
@@ -59,6 +79,13 @@ const Navigation = () => {
                 <span className="hidden md:block">John Doe</span>
               </button>
             </div>
+            <button
+              onClick={handleLogout}
+              className="flex items-center space-x-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+              <span className="hidden md:block">Logout</span>
+            </button>
           </div>
         </div>
       </div>

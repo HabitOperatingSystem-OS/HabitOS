@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, User, Check } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
@@ -15,6 +15,7 @@ const Signup = () => {
   const [errors, setErrors] = useState({});
   const [apiError, setApiError] = useState("");
   const { signup, loading } = useAuth();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
@@ -71,7 +72,9 @@ const Signup = () => {
       formData.email,
       formData.password
     );
-    if (!success) {
+    if (success) {
+      navigate("/dashboard");
+    } else {
       setApiError(message || "Signup failed. Please try again.");
     }
   };

@@ -4,7 +4,7 @@ HabitOS Flask Application Factory
 
 import os
 import logging
-from flask import Flask
+from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_cors import CORS
@@ -46,8 +46,34 @@ def create_app(config_name=None):
     migrate.init_app(app, db)
     jwt.init_app(app)
     
-    # Setup CORS
-    CORS(app, origins=app.config.get('CORS_ORIGINS', ['http://localhost:3000']))
+    # JWT error handlers
+    @jwt.expired_token_loader
+    def expired_token_callback(jwt_header, jwt_payload):
+        return jsonify({
+            'error': 'Token has expired',
+            'message': 'The token has expired. Please log in again.'
+        }), 401
+    
+    @jwt.invalid_token_loader
+    def invalid_token_callback(error):
+        return jsonify({
+            'error': 'Invalid token',
+            'message': 'The token is invalid. Please log in again.'
+        }), 401
+    
+    @jwt.unauthorized_loader
+    def missing_token_callback(error):
+        return jsonify({
+            'error': 'Authorization required',
+            'message': 'Request does not contain an access token.'
+        }), 401
+    
+    # Setup CORS with proper preflight handling
+    CORS(app, 
+         origins=app.config.get('CORS_ORIGINS', ['http://localhost:3000']),
+         supports_credentials=True,
+         methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+         allow_headers=['Content-Type', 'Authorization', 'X-Requested-With'])
     
     # Register blueprints
     from app.routes.auth import auth_bp

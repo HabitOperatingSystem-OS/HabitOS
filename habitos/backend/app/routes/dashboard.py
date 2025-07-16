@@ -10,7 +10,19 @@ from app import db
 
 dashboard_bp = Blueprint('dashboard', __name__)
 
+@dashboard_bp.route('/api/dashboard', methods=['OPTIONS'])
+@dashboard_bp.route('/api/dashboard/', methods=['OPTIONS'])
+def handle_dashboard_preflight():
+    """Handle preflight OPTIONS requests for dashboard"""
+    response = jsonify({'status': 'ok'})
+    response.headers.add('Access-Control-Allow-Origin', 'http://localhost:3000')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
+    response.headers.add('Access-Control-Allow-Credentials', 'true')
+    return response, 200
+
 @dashboard_bp.route('/api/dashboard', methods=['GET'])
+@dashboard_bp.route('/api/dashboard/', methods=['GET'])
 @jwt_required()
 def get_dashboard_data():
     """Get dashboard data for the authenticated user"""
@@ -28,7 +40,7 @@ def get_dashboard_data():
         # Get active habits count
         active_habits_count = Habit.query.filter_by(
             user_id=current_user_id, 
-            is_active=True
+            active=True
         ).count()
 
         # Get current streak (simplified - you might want to implement more complex logic)
@@ -45,7 +57,7 @@ def get_dashboard_data():
         
         today_habits = Habit.query.filter_by(
             user_id=current_user_id, 
-            is_active=True
+            active=True
         ).count()
         
         completion_rate = round((today_check_ins / today_habits * 100) if today_habits > 0 else 0)
@@ -53,7 +65,7 @@ def get_dashboard_data():
         # Get goals achieved count
         goals_achieved = Goal.query.filter_by(
             user_id=current_user_id, 
-            status='completed'
+            status='COMPLETED'
         ).count()
 
         # Get streak data for the last 7 days
@@ -76,7 +88,7 @@ def get_dashboard_data():
         today_habits_list = []
         habits = Habit.query.filter_by(
             user_id=current_user_id, 
-            is_active=True
+            active=True
         ).all()
         
         for habit in habits:
@@ -90,18 +102,18 @@ def get_dashboard_data():
             ).first()
             
             # Get mood from check-in if exists
-            mood = check_in.mood if check_in else None
+            mood = check_in.mood_rating if check_in else None
             
             # Calculate streak (simplified)
             streak = 5  # Placeholder - you'd implement actual streak calculation
             
             today_habits_list.append({
                 'id': habit.id,
-                'name': habit.name,
-                'category': habit.category,
+                'name': habit.title,
+                'category': habit.category.value,
                 'streak': streak,
                 'completed': check_in is not None,
-                'time': habit.reminder_time.strftime('%H:%M') if habit.reminder_time else 'Throughout day',
+                'time': 'Throughout day',
                 'mood': mood
             })
 
@@ -114,8 +126,8 @@ def get_dashboard_data():
         total_check_ins = len(recent_check_ins)
         
         for check_in in recent_check_ins:
-            if check_in.mood:
-                mood_counts[check_in.mood] = mood_counts.get(check_in.mood, 0) + 1
+            if check_in.mood_rating:
+                mood_counts[check_in.mood_rating] = mood_counts.get(check_in.mood_rating, 0) + 1
         
         recent_moods = []
         for mood, count in mood_counts.items():

@@ -1,24 +1,22 @@
 import { useState, useEffect } from "react";
 import { habitsAPI } from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
 export const useHabits = () => {
   const [habits, setHabits] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { user } = useAuth();
 
   const fetchHabits = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      // Try to fetch from API first, fallback to mock data if API is not available
-      try {
-        const response = await habitsAPI.getHabits();
-        setHabits(response.habits || []);
-      } catch (apiError) {
-        console.warn("API not available, using mock data:", apiError.message);
-
-        // Fallback to mock data
+      // Check if user is authenticated
+      if (!user || !user.token) {
+        console.warn("No authentication token found, using mock data");
+        // Fallback to mock data when not authenticated
         const mockHabits = [
           {
             id: "1",
@@ -91,7 +89,17 @@ export const useHabits = () => {
             is_due_today: false,
           },
         ];
+        setHabits(mockHabits);
+        return;
+      }
 
+      // Only make API call if authenticated
+      try {
+        const response = await habitsAPI.getHabits();
+        setHabits(response.habits || []);
+      } catch (apiError) {
+        console.warn("API not available, using mock data:", apiError.message);
+        // Fallback to mock data
         setHabits(mockHabits);
       }
     } catch (err) {
@@ -103,7 +111,7 @@ export const useHabits = () => {
 
   useEffect(() => {
     fetchHabits();
-  }, []);
+  }, [user]); // Re-run when user changes
 
   const refreshHabits = () => {
     fetchHabits();

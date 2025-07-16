@@ -1,59 +1,129 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
+import { Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 import Navigation from "./components/Navigation";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import Home from "./pages/Home";
-import HabitsPage from "./pages/habits/HabitsPage";
-import HabitDetailPage from "./pages/habits/HabitDetailPage";
+import HabitsPage from "./pages/HabitsPage";
+import HabitDetailPage from "./pages/HabitDetailPage";
 import GoalsPage from "./pages/GoalsPage";
 import JournalPage from "./pages/JournalPage";
 
-// Layout component for pages that need navigation
-const ProtectedLayout = ({ children }) => (
-  <>
-    <Navigation />
-    {children}
-  </>
-);
+// Protected route wrapper component
+const ProtectedRoute = ({ children }) => {
+  const { user, loading } = useAuth();
 
-// Route configuration for better maintainability
-const routes = [
-  // Public routes
-  { path: "/", element: <Home />, protected: false },
-  { path: "/login", element: <Login />, protected: false },
-  { path: "/signup", element: <Signup />, protected: false },
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
-  // Protected routes (with navigation)
-  { path: "/dashboard", element: <Dashboard />, protected: true },
-  { path: "/habits", element: <HabitsPage />, protected: true },
-  { path: "/habits/:id", element: <HabitDetailPage />, protected: true },
-  { path: "/goals", element: <GoalsPage />, protected: true },
-  { path: "/journal", element: <JournalPage />, protected: true },
-];
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return (
+    <>
+      <Navigation />
+      {children}
+    </>
+  );
+};
+
+// Public route wrapper for auth pages
+const PublicRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  // Redirect authenticated users away from login/signup
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
+};
+
+// App content that uses auth context
+const AppContent = () => {
+  return (
+    <div className="App">
+      <Routes>
+        {/* Public routes */}
+        <Route path="/" element={<Home />} />
+        <Route
+          path="/login"
+          element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/signup"
+          element={
+            <PublicRoute>
+              <Signup />
+            </PublicRoute>
+          }
+        />
+
+        {/* Protected routes */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/habits"
+          element={
+            <ProtectedRoute>
+              <HabitsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/habits/:id"
+          element={
+            <ProtectedRoute>
+              <HabitDetailPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/goals"
+          element={
+            <ProtectedRoute>
+              <GoalsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/journal"
+          element={
+            <ProtectedRoute>
+              <JournalPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Catch-all route for 404 */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </div>
+  );
+};
 
 function App() {
   return (
     <AuthProvider>
-      <div className="App">
-        <Routes>
-          {routes.map(({ path, element, protected: isProtected }) => (
-            <Route
-              key={path}
-              path={path}
-              element={
-                isProtected ? (
-                  <ProtectedLayout>{element}</ProtectedLayout>
-                ) : (
-                  element
-                )
-              }
-            />
-          ))}
-        </Routes>
-      </div>
+      <AppContent />
     </AuthProvider>
   );
 }
