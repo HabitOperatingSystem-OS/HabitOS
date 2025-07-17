@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { dashboardAPI } from "../services/api";
+import { dashboardAPI, authAPI } from "../services/api";
 
 export const useDashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);
+  const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -13,8 +14,14 @@ export const useDashboard = () => {
 
       // Try to fetch from API first, fallback to mock data if API is not available
       try {
+        console.log("Fetching dashboard data...");
         const data = await dashboardAPI.getDashboardData();
         setDashboardData(data);
+
+        console.log("Fetching user data...");
+        const user = await authAPI.getCurrentUser();
+        console.log("User data received:", user);
+        setUserData(user.user);
       } catch (apiError) {
         console.warn("API not available, using mock data:", apiError.message);
 
@@ -101,6 +108,11 @@ export const useDashboard = () => {
         };
 
         setDashboardData(mockData);
+        // Set mock user data as fallback
+        setUserData({
+          username: "User",
+          email: "user@example.com",
+        });
       }
     } catch (err) {
       setError(err.message || "Failed to fetch dashboard data");
@@ -119,6 +131,7 @@ export const useDashboard = () => {
 
   return {
     dashboardData,
+    userData,
     loading,
     error,
     refreshData,

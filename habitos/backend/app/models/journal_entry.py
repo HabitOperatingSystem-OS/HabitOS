@@ -4,9 +4,11 @@ import uuid
 from app import db
 
 class SentimentType(Enum):
-    POSITIVE = "positive"
-    NEUTRAL = "neutral"
+    VERY_NEGATIVE = "very_negative"
     NEGATIVE = "negative"
+    NEUTRAL = "neutral"
+    POSITIVE = "positive"
+    VERY_POSITIVE = "very_positive"
 
 class JournalEntry(db.Model):
     __tablename__ = 'journal_entries'

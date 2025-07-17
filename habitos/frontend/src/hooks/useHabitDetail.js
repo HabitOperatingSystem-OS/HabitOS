@@ -18,12 +18,9 @@ export const useHabitDetail = (habitId) => {
         const habitResponse = await habitsAPI.getHabit(habitId);
         setHabit(habitResponse.habit);
 
-        // Fetch check-ins for this habit
-        const checkInsResponse = await checkInsAPI.getCheckIns();
-        const habitCheckIns =
-          checkInsResponse.check_ins?.filter((ci) => ci.habit_id === habitId) ||
-          [];
-        setCheckIns(habitCheckIns);
+        // Fetch check-ins for this specific habit
+        const checkInsResponse = await checkInsAPI.getHabitCheckIns(habitId);
+        setCheckIns(checkInsResponse.check_ins || []);
       } catch (apiError) {
         console.warn("API not available, using mock data:", apiError.message);
 

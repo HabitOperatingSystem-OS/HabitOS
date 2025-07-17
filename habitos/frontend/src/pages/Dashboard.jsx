@@ -22,7 +22,11 @@ import StatsCard from "../components/dashboard/StatsCard";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 
 const Dashboard = () => {
-  const { dashboardData, loading, error, refreshData } = useDashboard();
+  const { dashboardData, userData, loading, error, refreshData } =
+    useDashboard();
+
+  console.log("Dashboard render - userData:", userData);
+  console.log("Dashboard render - dashboardData:", dashboardData);
 
   const handleToggleHabit = (habitId) => {
     // This would typically make an API call to update the habit status
@@ -82,7 +86,7 @@ const Dashboard = () => {
         {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">
-            Welcome back, John!
+            Welcome back, {userData?.username || "User"}!
           </h1>
           <p className="text-gray-600 mt-2">Here's how you're doing today</p>
         </div>

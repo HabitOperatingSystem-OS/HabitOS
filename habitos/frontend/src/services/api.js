@@ -66,12 +66,20 @@ export const authAPI = {
     const response = await api.post("/auth/logout");
     return response.data;
   },
+  getCurrentUser: async () => {
+    const response = await api.get("/auth/me");
+    return response.data;
+  },
 };
 
 // Habits API calls
 export const habitsAPI = {
   getHabits: async () => {
     const response = await api.get("/habits");
+    return response.data;
+  },
+  getHabit: async (id) => {
+    const response = await api.get(`/habits/${id}`);
     return response.data;
   },
   createHabit: async (habitData) => {
@@ -92,6 +100,10 @@ export const habitsAPI = {
 export const checkInsAPI = {
   getCheckIns: async () => {
     const response = await api.get("/check-ins");
+    return response.data;
+  },
+  getHabitCheckIns: async (habitId) => {
+    const response = await api.get(`/check-ins/habit/${habitId}`);
     return response.data;
   },
   createCheckIn: async (checkInData) => {
