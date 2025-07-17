@@ -6,7 +6,19 @@ from app.models.habit import Habit, HabitCategory, HabitFrequency
 # Create blueprint for habit management routes
 habits_bp = Blueprint('habits', __name__)
 
+@habits_bp.route('/', methods=['OPTIONS'])
+@habits_bp.route('', methods=['OPTIONS'])
+def handle_preflight():
+    """Handle preflight OPTIONS requests"""
+    response = jsonify({'status': 'ok'})
+    response.headers.add('Access-Control-Allow-Origin', 'http://localhost:3000')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
+    response.headers.add('Access-Control-Allow-Credentials', 'true')
+    return response, 200
+
 @habits_bp.route('/', methods=['GET'])
+@habits_bp.route('', methods=['GET'])
 @jwt_required()
 def get_habits():
     """
@@ -29,6 +41,7 @@ def get_habits():
         return jsonify({'error': 'Failed to fetch habits', 'details': str(e)}), 500
 
 @habits_bp.route('/', methods=['POST'])
+@habits_bp.route('', methods=['POST'])
 @jwt_required()
 def create_habit():
     """

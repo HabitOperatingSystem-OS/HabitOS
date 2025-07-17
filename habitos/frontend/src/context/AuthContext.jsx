@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { authAPI } from "../services/api";
 
 const AuthContext = createContext();
 
@@ -7,11 +7,10 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(() => localStorage.getItem("token"));
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (token) {
-      // Optionally decode token to get user info
+      // Set user with token for now - could be enhanced to decode JWT
       setUser({ token });
     } else {
       setUser(null);
@@ -21,17 +20,10 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5001/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Login failed");
+      const data = await authAPI.login({ email, password });
       localStorage.setItem("token", data.access_token);
       setToken(data.access_token);
       setUser({ token: data.access_token });
-      navigate("/dashboard");
       return { success: true };
     } catch (err) {
       return { success: false, message: err.message };
@@ -43,17 +35,10 @@ export const AuthProvider = ({ children }) => {
   const signup = async (username, email, password) => {
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5001/api/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, email, password }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Signup failed");
+      const data = await authAPI.signup({ username, email, password });
       localStorage.setItem("token", data.access_token);
       setToken(data.access_token);
       setUser({ token: data.access_token });
-      navigate("/dashboard");
       return { success: true };
     } catch (err) {
       return { success: false, message: err.message };
@@ -66,7 +51,6 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("token");
     setToken(null);
     setUser(null);
-    navigate("/login");
   };
 
   return (

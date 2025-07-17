@@ -39,6 +39,7 @@ class Goal(db.Model):
     # Goal settings
     priority = db.Column(db.Enum(GoalPriority), default=GoalPriority.MEDIUM)
     status = db.Column(db.Enum(GoalStatus), default=GoalStatus.ACTIVE)
+    start_date = db.Column(db.Date, nullable=False, default=lambda: datetime.now(timezone.utc).date())
     due_date = db.Column(db.Date)
     completed_date = db.Column(db.Date)
     
@@ -95,6 +96,7 @@ class Goal(db.Model):
             'current_value': self.current_value,
             'priority': self.priority.value,
             'status': self.status.value,
+            'start_date': self.start_date.isoformat(),
             'due_date': self.due_date.isoformat() if self.due_date else None,
             'completed_date': self.completed_date.isoformat() if self.completed_date else None,
             'reminder_enabled': self.reminder_enabled,

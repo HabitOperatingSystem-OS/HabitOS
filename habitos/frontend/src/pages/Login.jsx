@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 
@@ -11,6 +11,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const { login, loading } = useAuth();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
@@ -23,9 +24,12 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    const { success, message } = await login(formData.email, formData.password);
-    if (!success) {
-      setError(message || "Login failed. Please try again.");
+
+    const result = await login(formData.email, formData.password);
+    if (result.success) {
+      navigate("/dashboard");
+    } else {
+      setError(result.message || "Login failed. Please try again.");
     }
   };
 
