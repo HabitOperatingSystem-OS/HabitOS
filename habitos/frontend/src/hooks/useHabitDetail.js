@@ -30,7 +30,7 @@ export const useHabitDetail = (habitId) => {
           title: "Morning Exercise",
           category: "fitness",
           frequency: "daily",
-          frequency_count: 1,
+          frequency_count: 0,
           current_streak: 7,
           longest_streak: 12,
           active: true,

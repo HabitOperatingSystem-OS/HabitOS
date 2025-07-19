@@ -75,7 +75,7 @@ export const authAPI = {
 // Habits API calls
 export const habitsAPI = {
   getHabits: async () => {
-    const response = await api.get("/habits");
+    const response = await api.get("/habits/");
     return response.data;
   },
   getHabit: async (id) => {
@@ -83,7 +83,7 @@ export const habitsAPI = {
     return response.data;
   },
   createHabit: async (habitData) => {
-    const response = await api.post("/habits", habitData);
+    const response = await api.post("/habits/", habitData);
     return response.data;
   },
   updateHabit: async (id, habitData) => {
@@ -99,7 +99,7 @@ export const habitsAPI = {
 // Check-ins API calls
 export const checkInsAPI = {
   getCheckIns: async () => {
-    const response = await api.get("/check-ins");
+    const response = await api.get("/check-ins/");
     return response.data;
   },
   getHabitCheckIns: async (habitId) => {
@@ -107,8 +107,21 @@ export const checkInsAPI = {
     return response.data;
   },
   createCheckIn: async (checkInData) => {
-    const response = await api.post("/check-ins", checkInData);
+    const response = await api.post("/check-ins/", checkInData);
     return response.data;
+  },
+  createBulkCheckIn: async (bulkCheckInData) => {
+    console.log("Sending bulk check-in request:", bulkCheckInData);
+    try {
+      const response = await api.post("/check-ins/bulk", bulkCheckInData);
+      console.log("Bulk check-in response:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Bulk check-in error:", error);
+      console.error("Error response:", error.response?.data);
+      console.error("Error status:", error.response?.status);
+      throw error;
+    }
   },
   updateCheckIn: async (id, checkInData) => {
     const response = await api.put(`/check-ins/${id}`, checkInData);

@@ -5,6 +5,7 @@ import {
   Target,
   TrendingUp,
   Calendar,
+  CheckSquare,
   User,
   LogOut,
 } from "lucide-react";
@@ -28,6 +29,12 @@ const Navigation = () => {
   const tabs = [
     { id: "overview", name: "Overview", icon: BarChart3, path: "/dashboard" },
     { id: "habits", name: "Habits", icon: Target, path: "/habits" },
+    {
+      id: "check-ins",
+      name: "Check-Ins",
+      icon: CheckSquare,
+      path: "/check-ins",
+    },
     { id: "goals", name: "Goals", icon: TrendingUp, path: "/goals" },
     { id: "journal", name: "Journal", icon: Calendar, path: "/journal" },
   ];

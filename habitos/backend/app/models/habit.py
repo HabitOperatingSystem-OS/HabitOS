@@ -32,7 +32,7 @@ class Habit(db.Model):
     
     # Frequency and goal settings
     frequency = db.Column(db.Enum(HabitFrequency), nullable=False, default=HabitFrequency.DAILY)
-    frequency_count = db.Column(db.Integer, default=1)
+    frequency_count = db.Column(db.Integer, default=0)
     
     # Status and tracking
     current_streak = db.Column(db.Integer, default=0)
@@ -75,8 +75,13 @@ class Habit(db.Model):
                     total_expected += 1
                 elif self.frequency == HabitFrequency.WEEKLY:
                     if current_date.weekday() == 0:  # Monday
-                        total_expected += self.frequency_count
-                # Add more frequency logic as needed
+                        total_expected += max(self.frequency_count, 1)  # At least 1 expected per week
+                elif self.frequency == HabitFrequency.MONTHLY:
+                    if current_date.day == 1:  # First day of month
+                        total_expected += max(self.frequency_count, 1)  # At least 1 expected per month
+                elif self.frequency == HabitFrequency.CUSTOM:
+                    # For custom frequency, assume daily but with custom count
+                    total_expected += max(self.frequency_count, 1)  # At least 1 expected per day
             current_date += timedelta(days=1)
         
         # Count completed check-ins

@@ -83,9 +83,9 @@ const HabitDetailPage = () => {
   const getFrequencyText = (frequency, frequencyCount) => {
     const texts = {
       daily: "Daily",
-      weekly: `Weekly (${frequencyCount}x)`,
-      monthly: `Monthly (${frequencyCount}x)`,
-      custom: `Custom (${frequencyCount}x)`,
+      weekly: frequencyCount > 0 ? `Weekly (${frequencyCount}x)` : "Weekly",
+      monthly: frequencyCount > 0 ? `Monthly (${frequencyCount}x)` : "Monthly",
+      custom: frequencyCount > 0 ? `Custom (${frequencyCount}x)` : "Custom",
     };
     return texts[frequency] || "Daily";
   };
