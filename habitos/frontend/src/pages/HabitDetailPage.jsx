@@ -7,13 +7,10 @@ import {
   Target,
   TrendingUp,
   Calendar,
-  Clock,
   CheckCircle,
-  Circle,
   BarChart3,
   Activity,
   Award,
-  Plus,
 } from "lucide-react";
 import { habitsAPI, checkInsAPI } from "../services/api";
 import { useHabitDetail } from "../hooks/useHabitDetail";
@@ -269,7 +266,6 @@ const HabitDetailPage = () => {
               {[
                 { id: "overview", name: "Overview", icon: BarChart3 },
                 { id: "history", name: "History", icon: Activity },
-                { id: "settings", name: "Settings", icon: Target },
               ].map((tab) => (
                 <button
                   key={tab.id}
@@ -434,10 +430,20 @@ const HabitDetailPage = () => {
                   <h3 className="text-lg font-semibold text-gray-900">
                     Check-in History
                   </h3>
-                  <button className="btn-primary">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Check-in
-                  </button>
+                </div>
+
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-start space-x-3">
+                    <div className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-blue-600 text-xs">ℹ</span>
+                    </div>
+                    <div>
+                      <p className="text-sm text-blue-700">
+                        To add a new check-in, use the "Go to Check-ins" button
+                        below or visit the Check-ins page from the navigation.
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
                 {checkIns.length === 0 ? (
@@ -449,25 +455,28 @@ const HabitDetailPage = () => {
                       No check-ins yet
                     </h3>
                     <p className="text-gray-600 mb-6">
-                      Start tracking your progress to see your history here.
+                      Start tracking your progress using the daily check-in
+                      page.
                     </p>
-                    <button className="btn-primary">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Add Your First Check-in
-                    </button>
+                    <Link
+                      to="/check-ins"
+                      className="btn-primary px-6 py-3 whitespace-nowrap"
+                    >
+                      + Go to Check-ins
+                    </Link>
                   </div>
                 ) : (
                   <div className="space-y-3">
                     {checkIns.map((checkIn) => (
                       <div
                         key={checkIn.id}
-                        className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                        className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200"
                       >
                         <div className="flex items-center space-x-3">
                           <CheckCircle className="w-5 h-5 text-green-500" />
                           <div>
                             <p className="font-medium text-gray-900">
-                              Completed
+                              Daily Check-in Completed
                             </p>
                             <p className="text-sm text-gray-600">
                               {new Date(
@@ -478,12 +487,20 @@ const HabitDetailPage = () => {
                                 checkIn.created_at
                               ).toLocaleTimeString()}
                             </p>
+                            {checkIn.actual_value && (
+                              <p className="text-sm text-gray-500 mt-1">
+                                Value: {checkIn.actual_value}
+                                {habit.category === "fitness"
+                                  ? " minutes"
+                                  : " units"}
+                              </p>
+                            )}
                           </div>
                         </div>
                         <div className="flex items-center space-x-2">
-                          {checkIn.mood && (
+                          {checkIn.mood_rating && (
                             <span className="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                              {checkIn.mood}
+                              Mood: {checkIn.mood_rating}/10
                             </span>
                           )}
                         </div>
@@ -491,57 +508,6 @@ const HabitDetailPage = () => {
                     ))}
                   </div>
                 )}
-              </div>
-            )}
-
-            {activeTab === "settings" && (
-              <div className="space-y-6">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  Habit Settings
-                </h3>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    <div>
-                      <p className="font-medium text-gray-900">Habit Status</p>
-                      <p className="text-sm text-gray-600">
-                        Enable or disable this habit
-                      </p>
-                    </div>
-                    <button className="btn-outline">
-                      {habit.active ? "Disable" : "Enable"}
-                    </button>
-                  </div>
-
-                  <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    <div>
-                      <p className="font-medium text-gray-900">Edit Habit</p>
-                      <p className="text-sm text-gray-600">
-                        Modify habit details and settings
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => setShowEditModal(true)}
-                      className="btn-outline"
-                    >
-                      Edit
-                    </button>
-                  </div>
-
-                  <div className="flex items-center justify-between p-4 bg-red-50 rounded-lg">
-                    <div>
-                      <p className="font-medium text-red-900">Delete Habit</p>
-                      <p className="text-sm text-red-600">
-                        Permanently remove this habit and all data
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => setShowDeleteModal(true)}
-                      className="btn bg-red-600 text-white hover:bg-red-700 focus:ring-red-500"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
               </div>
             )}
           </div>
