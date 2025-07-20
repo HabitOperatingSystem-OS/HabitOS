@@ -16,9 +16,6 @@ import SuccessModal from "../components/common/SuccessModal";
 const CheckInsPage = () => {
   const navigate = useNavigate();
 
-  // TEMPORARY: Disable one check-in per day for testing
-  const TESTING_MODE = true; // Set to false to re-enable the feature
-
   const [habits, setHabits] = useState([]);
   const [checkInData, setCheckInData] = useState({});
   const [moodRating, setMoodRating] = useState(5);
@@ -92,7 +89,7 @@ const CheckInsPage = () => {
       setTodayCheckIns(todayCheckIns);
 
       // Check if user has already checked in today
-      const hasCheckedIn = TESTING_MODE ? false : todayCheckIns.length > 0;
+      const hasCheckedIn = todayCheckIns.length > 0;
       setHasCheckedInToday(hasCheckedIn);
 
       // Initialize check-in data with existing data or defaults
@@ -193,7 +190,7 @@ const CheckInsPage = () => {
   };
 
   const handleSubmit = async () => {
-    if (!TESTING_MODE && hasCheckedInToday) {
+    if (hasCheckedInToday) {
       setMessage({
         type: "warning",
         text: "You have already checked in for today. Come back tomorrow!",
@@ -235,10 +232,7 @@ const CheckInsPage = () => {
       // Show success modal
       setShowSuccessModal(true);
 
-      // Only set hasCheckedInToday to true if not in testing mode
-      if (!TESTING_MODE) {
-        setHasCheckedInToday(true);
-      }
+      setHasCheckedInToday(true);
 
       if (response.sentiment) {
         setSentiment(response.sentiment);
@@ -272,10 +266,8 @@ const CheckInsPage = () => {
 
   const handleSuccessModalClose = () => {
     setShowSuccessModal(false);
-    // Only redirect to dashboard if not in testing mode
-    if (!TESTING_MODE) {
-      navigate("/dashboard");
-    }
+    // Redirect to dashboard after modal is closed
+    navigate("/dashboard");
   };
 
   if (loading) {
@@ -306,11 +298,6 @@ const CheckInsPage = () => {
               ? "Here's your progress for today"
               : "Log your progress for today and reflect on your day"}
           </p>
-          {TESTING_MODE && (
-            <div className="mt-2 p-2 bg-yellow-100 text-yellow-800 rounded-lg text-sm">
-              🧪 Testing Mode: Multiple check-ins per day enabled
-            </div>
-          )}
         </div>
 
         {/* Already Checked In Message */}

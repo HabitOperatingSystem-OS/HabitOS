@@ -285,10 +285,10 @@ const HabitCard = ({ habit, viewMode, onEdit, onDelete }) => {
           <div className="flex items-center space-x-2">
             <Link
               to={`/habits/${habit.id}`}
-              className="btn-outline text-sm px-3 py-1"
+              className="btn-outline text-sm px-3 py-1 flex items-center space-x-1 whitespace-nowrap"
             >
-              <Eye className="w-4 h-4 mr-1" />
-              View
+              <Eye className="w-4 h-4" />
+              <span>View</span>
             </Link>
 
             <button

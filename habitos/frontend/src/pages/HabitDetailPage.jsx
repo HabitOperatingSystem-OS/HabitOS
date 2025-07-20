@@ -176,17 +176,17 @@ const HabitDetailPage = () => {
             <div className="flex items-center space-x-2">
               <button
                 onClick={() => setShowEditModal(true)}
-                className="btn-outline"
+                className="btn-outline flex items-center space-x-2 whitespace-nowrap"
               >
-                <Edit className="w-4 h-4 mr-2" />
-                Edit
+                <Edit className="w-4 h-4" />
+                <span>Edit</span>
               </button>
               <button
                 onClick={() => setShowDeleteModal(true)}
-                className="btn bg-red-600 text-white hover:bg-red-700 focus:ring-red-500"
+                className="btn bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 flex items-center space-x-2 whitespace-nowrap"
               >
-                <Trash2 className="w-4 h-4 mr-2" />
-                Delete
+                <Trash2 className="w-4 h-4" />
+                <span>Delete</span>
               </button>
             </div>
           </div>
@@ -432,20 +432,6 @@ const HabitDetailPage = () => {
                   </h3>
                 </div>
 
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <div className="flex items-start space-x-3">
-                    <div className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <span className="text-blue-600 text-xs">ℹ</span>
-                    </div>
-                    <div>
-                      <p className="text-sm text-blue-700">
-                        To add a new check-in, use the "Go to Check-ins" button
-                        below or visit the Check-ins page from the navigation.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
                 {checkIns.length === 0 ? (
                   <div className="text-center py-12">
                     <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -454,15 +440,17 @@ const HabitDetailPage = () => {
                     <h3 className="text-lg font-medium text-gray-900 mb-2">
                       No check-ins yet
                     </h3>
-                    <p className="text-gray-600 mb-6">
-                      Start tracking your progress using the daily check-in
+                    <p className="text-gray-600 mb-4">
+                      Start tracking your progress using the daily check-ins
                       page.
                     </p>
+
                     <Link
                       to="/check-ins"
-                      className="btn-primary px-6 py-3 whitespace-nowrap"
+                      className="btn-primary px-6 py-3 whitespace-nowrap flex items-center justify-center space-x-2 min-w-fit"
                     >
-                      + Go to Check-ins
+                      <span className="text-lg">+</span>
+                      <span>Go to Check-ins</span>
                     </Link>
                   </div>
                 ) : (
