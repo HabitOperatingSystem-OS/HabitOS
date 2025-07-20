@@ -3,7 +3,9 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from app import db
 from app.models.check_in import CheckIn
 from app.models.habit import Habit
+from app.models.journal_entry import JournalEntry, SentimentType
 from datetime import datetime, date
+import openai
 
 # Create blueprint for check-in management routes
 check_ins_bp = Blueprint('check_ins', __name__)
@@ -320,3 +322,177 @@ def get_today_check_ins():
         
     except Exception as e:
         return jsonify({'error': 'Failed to fetch today\'s check-ins', 'details': str(e)}), 500
+
+@check_ins_bp.route('/bulk', methods=['POST'])
+@jwt_required()
+def create_bulk_check_in():
+    """
+    Create check-ins for multiple habits at once
+    Allows users to log check-ins for all habits with mood rating and optional journal
+    """
+    # Extract user ID from JWT token
+    current_user_id = get_jwt_identity()
+    data = request.get_json()
+    
+    # Add detailed logging for debugging
+    print(f"Bulk check-in request from user {current_user_id}")
+    print(f"Request data: {data}")
+    
+    # Validate required fields
+    if not data:
+        return jsonify({'error': 'Request body is required'}), 400
+    
+    if not data.get('date'):
+        return jsonify({'error': 'Date is required'}), 400
+    
+    if not data.get('habits'):
+        return jsonify({'error': 'Habits data is required'}), 400
+    
+    if not isinstance(data['habits'], list):
+        return jsonify({'error': 'Habits must be an array'}), 400
+    
+    try:
+        # Parse and validate the check-in date
+        try:
+            check_in_date = datetime.strptime(data['date'], '%Y-%m-%d').date()
+        except ValueError:
+            return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD'}), 400
+        
+        # Get all user's habits
+        user_habits = Habit.query.filter_by(user_id=current_user_id).all()
+        habit_ids = [habit.id for habit in user_habits]
+        
+        print(f"User has {len(habit_ids)} habits: {habit_ids}")
+        
+        # Validate that all provided habit IDs belong to the user
+        provided_habit_ids = [h.get('habit_id') for h in data['habits'] if h.get('habit_id')]
+        print(f"Provided habit IDs: {provided_habit_ids}")
+        
+        invalid_habit_ids = [hid for hid in provided_habit_ids if hid not in habit_ids]
+        if invalid_habit_ids:
+            return jsonify({'error': f'Invalid habit IDs: {invalid_habit_ids}'}), 400
+        
+        # Check for existing check-ins for today
+        existing_check_ins = CheckIn.query.filter_by(
+            user_id=current_user_id,
+            date=check_in_date
+        ).all()
+        
+        print(f"Found {len(existing_check_ins)} existing check-ins for {check_in_date}")
+        
+        # Create a map of existing check-ins by habit_id
+        existing_check_in_map = {ci.habit_id: ci for ci in existing_check_ins}
+        
+        created_check_ins = []
+        updated_check_ins = []
+        
+        # Process each habit check-in
+        for habit_data in data['habits']:
+            habit_id = habit_data.get('habit_id')
+            completed = habit_data.get('completed', False)
+            actual_value = habit_data.get('actual_value')
+            
+            print(f"Processing habit {habit_id}: completed={completed}, actual_value={actual_value}")
+            
+            # Check if check-in already exists for this habit and date
+            existing_check_in = existing_check_in_map.get(habit_id)
+            
+            if existing_check_in:
+                # Update existing check-in
+                existing_check_in.completed = completed
+                existing_check_in.actual_value = actual_value
+                existing_check_in.mood_rating = data.get('mood_rating')
+                updated_check_ins.append(existing_check_in)
+                print(f"Updated existing check-in for habit {habit_id}")
+            else:
+                # Create new check-in
+                check_in = CheckIn(
+                    habit_id=habit_id,
+                    user_id=current_user_id,
+                    date=check_in_date,
+                    completed=completed,
+                    actual_value=actual_value,
+                    mood_rating=data.get('mood_rating')
+                )
+                db.session.add(check_in)
+                created_check_ins.append(check_in)
+                print(f"Created new check-in for habit {habit_id}")
+        
+        # Create journal entry if content is provided
+        journal_entry = None
+        if data.get('journal_content'):
+            journal_entry = JournalEntry(
+                user_id=current_user_id,
+                content=data['journal_content'],
+                entry_date=check_in_date
+            )
+            
+            # Analyze sentiment if OpenAI is configured
+            if hasattr(db, 'app') and db.app.config.get('OPENAI_API_KEY'):
+                try:
+                    client = openai.OpenAI(api_key=db.app.config['OPENAI_API_KEY'])
+                    response = client.chat.completions.create(
+                        model=db.app.config.get('OPENAI_MODEL', 'gpt-3.5-turbo'),
+                        messages=[
+                            {
+                                "role": "system",
+                                "content": "Analyze the sentiment of the following journal entry. Respond with only one word: 'positive', 'negative', or 'neutral'."
+                            },
+                            {
+                                "role": "user",
+                                "content": data['journal_content']
+                            }
+                        ],
+                        max_tokens=10
+                    )
+                    sentiment = response.choices[0].message.content.strip().lower()
+                    
+                    # Map sentiment to enum values
+                    sentiment_map = {
+                        'positive': SentimentType.POSITIVE,
+                        'negative': SentimentType.NEGATIVE,
+                        'neutral': SentimentType.NEUTRAL
+                    }
+                    
+                    if sentiment in sentiment_map:
+                        journal_entry.sentiment = sentiment_map[sentiment]
+                        journal_entry.sentiment_score = 0.7 if sentiment == 'positive' else (-0.5 if sentiment == 'negative' else 0.0)
+                    
+                except Exception as e:
+                    # Log error but don't fail the request
+                    print(f"OpenAI sentiment analysis failed: {e}")
+            
+            db.session.add(journal_entry)
+            print("Created journal entry")
+        
+        # Commit all changes
+        print("Committing database changes...")
+        db.session.commit()
+        print("Database changes committed successfully")
+        
+        # Update habit streaks for completed check-ins
+        for check_in in created_check_ins + updated_check_ins:
+            if check_in.completed:
+                check_in.habit.update_streak()
+        
+        db.session.commit()
+        print("Habit streaks updated")
+        
+        response_data = {
+            'message': 'Bulk check-in created successfully',
+            'created_count': len(created_check_ins),
+            'updated_count': len(updated_check_ins),
+            'journal_created': journal_entry is not None,
+            'sentiment': journal_entry.sentiment.value if journal_entry and journal_entry.sentiment else None
+        }
+        
+        print(f"Returning response: {response_data}")
+        return jsonify(response_data), 201
+        
+    except Exception as e:
+        # Rollback database changes on error
+        print(f"Error in bulk check-in: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        db.session.rollback()
+        return jsonify({'error': 'Failed to create bulk check-in', 'details': str(e)}), 500

@@ -73,7 +73,7 @@ def create_habit():
             title=data['title'],
             category=HabitCategory(category),
             frequency=HabitFrequency(frequency),
-            frequency_count=data.get('frequency_count', 1)  # Default to 1
+            frequency_count=data.get('frequency_count', 0) if data.get('frequency_count') != "" else 0  # Default to 0
         )
         
         # Save habit to database
@@ -147,7 +147,7 @@ def update_habit(habit_id):
             habit.frequency = HabitFrequency(data['frequency'])
         
         if 'frequency_count' in data:
-            habit.frequency_count = data['frequency_count']
+            habit.frequency_count = data['frequency_count'] if data['frequency_count'] != "" else 0
         
         # Save changes to database
         db.session.commit()

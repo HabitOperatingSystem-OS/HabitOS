@@ -32,7 +32,7 @@ class Habit(db.Model):
     
     # Frequency and goal settings
     frequency = db.Column(db.Enum(HabitFrequency), nullable=False, default=HabitFrequency.DAILY)
-    frequency_count = db.Column(db.Integer, default=1)
+    frequency_count = db.Column(db.Integer, default=0)
     
     # Status and tracking
     current_streak = db.Column(db.Integer, default=0)
@@ -74,9 +74,16 @@ class Habit(db.Model):
                 if self.frequency == HabitFrequency.DAILY:
                     total_expected += 1
                 elif self.frequency == HabitFrequency.WEEKLY:
-                    if current_date.weekday() == 0:  # Monday
-                        total_expected += self.frequency_count
-                # Add more frequency logic as needed
+                    # Count weeks in the period
+                    if current_date.weekday() == 0:  # Start of week (Monday)
+                        total_expected += max(self.frequency_count, 1)  # At least 1 expected per week
+                elif self.frequency == HabitFrequency.MONTHLY:
+                    # Count months in the period
+                    if current_date.day == 1:  # Start of month
+                        total_expected += max(self.frequency_count, 1)  # At least 1 expected per month
+                elif self.frequency == HabitFrequency.CUSTOM:
+                    # For custom frequency, treat as daily with custom count
+                    total_expected += max(self.frequency_count, 1)  # At least 1 expected per day
             current_date += timedelta(days=1)
         
         # Count completed check-ins
@@ -116,7 +123,14 @@ class Habit(db.Model):
             self.longest_streak = self.current_streak
     
     def is_due_today(self):
-        """Check if habit is due today based on frequency"""
+        """
+        Check if habit is due today based on frequency.
+        
+        For weekly/monthly habits, this checks if the user hasn't completed
+        the required number of check-ins for the current period yet.
+        This allows users to complete their habits on any day within the period,
+        not just on specific days like Monday or the 1st of the month.
+        """
         today = datetime.now(timezone.utc).date()
         
         if today < self.start_date:
@@ -125,10 +139,57 @@ class Habit(db.Model):
         if self.frequency == HabitFrequency.DAILY:
             return True
         elif self.frequency == HabitFrequency.WEEKLY:
-            # Check if it's the right day of the week
-            return today.weekday() == 0  # Monday for now, make configurable
+            # Check if we haven't completed this habit this week yet
+            from .check_in import CheckIn
+            
+            # Get the start of the current week (Monday)
+            start_of_week = today - timedelta(days=today.weekday())
+            
+            # Check if there's already a completed check-in this week
+            this_week_check_ins = CheckIn.query.filter(
+                CheckIn.habit_id == self.id,
+                CheckIn.date >= start_of_week,
+                CheckIn.date <= today,
+                CheckIn.completed == True
+            ).count()
+            
+            # Allow if we haven't completed the required number of times this week
+            required_count = max(self.frequency_count, 1)  # At least 1 per week
+            return this_week_check_ins < required_count
+            
         elif self.frequency == HabitFrequency.MONTHLY:
-            return today.day == 1  # First day of month for now, make configurable
+            # Check if we haven't completed this habit this month yet
+            from .check_in import CheckIn
+            
+            # Get the start of the current month
+            start_of_month = today.replace(day=1)
+            
+            # Check if there's already a completed check-in this month
+            this_month_check_ins = CheckIn.query.filter(
+                CheckIn.habit_id == self.id,
+                CheckIn.date >= start_of_month,
+                CheckIn.date <= today,
+                CheckIn.completed == True
+            ).count()
+            
+            # Allow if we haven't completed the required number of times this month
+            # Users can complete monthly habits on any day of the month
+            required_count = max(self.frequency_count, 1)  # At least 1 per month
+            return this_month_check_ins < required_count
+            
+        elif self.frequency == HabitFrequency.CUSTOM:
+            # For custom frequency, treat it as daily but with custom count
+            from .check_in import CheckIn
+            
+            # Check if we haven't completed the required number of times today
+            today_check_ins = CheckIn.query.filter(
+                CheckIn.habit_id == self.id,
+                CheckIn.date == today,
+                CheckIn.completed == True
+            ).count()
+            
+            required_count = max(self.frequency_count, 1)  # At least 1 per day
+            return today_check_ins < required_count
         
         return False
     

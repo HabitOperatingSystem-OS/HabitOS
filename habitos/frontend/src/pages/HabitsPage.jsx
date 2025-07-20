@@ -150,8 +150,7 @@ const HabitsPage = () => {
                 onClick={() => setShowCreateModal(true)}
                 className="btn-primary"
               >
-                <Plus className="w-4 h-4 mr-2" />
-                New Habit
+                + New Habit
               </button>
             </div>
 

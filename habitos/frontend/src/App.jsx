@@ -10,6 +10,7 @@ import HabitsPage from "./pages/HabitsPage";
 import HabitDetailPage from "./pages/HabitDetailPage";
 import GoalsPage from "./pages/GoalsPage";
 import JournalPage from "./pages/JournalPage";
+import CheckInsPage from "./pages/CheckInsPage";
 
 // Protected route wrapper component
 const ProtectedRoute = ({ children }) => {
@@ -93,6 +94,14 @@ const AppContent = () => {
           element={
             <ProtectedRoute>
               <HabitDetailPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/check-ins"
+          element={
+            <ProtectedRoute>
+              <CheckInsPage />
             </ProtectedRoute>
           }
         />

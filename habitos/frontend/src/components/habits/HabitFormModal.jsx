@@ -12,7 +12,7 @@ const HabitFormModal = ({
     title: "",
     category: "personal",
     frequency: "daily",
-    frequency_count: 1,
+    frequency_count: "",
     goal: "",
   });
   const [errors, setErrors] = useState({});
@@ -43,7 +43,8 @@ const HabitFormModal = ({
         title: habit.title || "",
         category: habit.category || "personal",
         frequency: habit.frequency || "daily",
-        frequency_count: habit.frequency_count || 1,
+        frequency_count:
+          habit.frequency_count !== undefined ? habit.frequency_count : "",
         goal: habit.goal || "",
       });
     } else {
@@ -51,7 +52,7 @@ const HabitFormModal = ({
         title: "",
         category: "personal",
         frequency: "daily",
-        frequency_count: 1,
+        frequency_count: "",
         goal: "",
       });
     }
@@ -67,11 +68,11 @@ const HabitFormModal = ({
       newErrors.title = "Title must be at least 3 characters";
     }
 
-    if (formData.frequency_count < 1) {
-      newErrors.frequency_count = "Frequency count must be at least 1";
+    if (formData.frequency_count !== "" && formData.frequency_count < 0) {
+      newErrors.frequency_count = "Frequency count cannot be negative";
     }
 
-    if (formData.frequency_count > 100) {
+    if (formData.frequency_count !== "" && formData.frequency_count > 100) {
       newErrors.frequency_count = "Frequency count cannot exceed 100";
     }
 
@@ -217,19 +218,20 @@ const HabitFormModal = ({
                 htmlFor="frequency_count"
                 className="block text-sm font-medium text-gray-700 mb-2"
               >
-                How many times per {formData.frequency.slice(0, -2)}?
+                How many times per {formData.frequency.slice(0, -2)}? (optional)
               </label>
               <div className="relative">
                 <input
                   type="number"
                   id="frequency_count"
-                  min="1"
+                  min="0"
                   max="100"
+                  placeholder="0"
                   value={formData.frequency_count}
                   onChange={(e) =>
                     handleInputChange(
                       "frequency_count",
-                      parseInt(e.target.value) || 1
+                      e.target.value === "" ? "" : parseInt(e.target.value) || 0
                     )
                   }
                   className={`input ${
