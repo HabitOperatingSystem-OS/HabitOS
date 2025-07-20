@@ -17,6 +17,7 @@ const CheckInsPage = () => {
   const navigate = useNavigate();
 
   const [habits, setHabits] = useState([]);
+  const [allHabits, setAllHabits] = useState([]);
   const [checkInData, setCheckInData] = useState({});
   const [moodRating, setMoodRating] = useState(5);
   const [journalContent, setJournalContent] = useState("");
@@ -76,6 +77,7 @@ const CheckInsPage = () => {
       );
 
       setHabits(dueTodayHabits);
+      setAllHabits(allHabits);
 
       // Get today's check-ins
       const today = new Date().toISOString().split("T")[0];
@@ -342,7 +344,9 @@ const CheckInsPage = () => {
                 </span>
                 <div className="mt-2 space-y-2">
                   {todayCheckIns.map((checkIn) => {
-                    const habit = habits.find((h) => h.id === checkIn.habit_id);
+                    const habit = allHabits.find(
+                      (h) => h.id === checkIn.habit_id
+                    );
                     return (
                       <div
                         key={checkIn.id}
