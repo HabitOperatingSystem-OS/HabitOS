@@ -83,28 +83,6 @@ const JournalEditModal = ({ isOpen, onClose, entry, onSave }) => {
             </div>
           )}
 
-          {/* Date Field */}
-          <div className="mb-4">
-            <label
-              htmlFor="entry_date"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Date
-            </label>
-            <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <input
-                type="date"
-                id="entry_date"
-                name="entry_date"
-                value={formData.entry_date}
-                onChange={handleInputChange}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-            </div>
-          </div>
-
           {/* Content Field */}
           <div className="mb-6">
             <label
