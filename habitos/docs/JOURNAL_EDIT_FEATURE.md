@@ -8,7 +8,7 @@ The journal entry edit functionality allows users to modify the content of their
 
 ### Frontend Components
 
-1. **JournalEntryCard** - Added edit button with pencil icon
+1. **JournalEntryCard** - Added edit button with pencil icon and improved content display
 2. **JournalEditModal** - Modal form for editing journal entries
 3. **JournalPage** - Integrated edit functionality with state management
 
@@ -39,6 +39,29 @@ The backend already supported journal entry editing through the PUT endpoint:
 
 **Note**: The entry date cannot be modified to maintain data integrity and preserve the chronological order of journal entries.
 
+## UI Improvements
+
+### Consistent Card Sizes
+
+- **Fixed Height**: Cards maintain consistent height when collapsed (approximately 3 lines of text)
+- **Read More Functionality**: Long entries are truncated with a "Read More" button
+- **Character Count**: Shows total character count in the "Read More" button
+- **Smart Truncation**: Cuts at word boundaries to avoid breaking words
+
+### Content Display
+
+- **Collapsed State**: Shows first ~240 characters (approximately 3 lines)
+- **Expanded State**: Shows full content when user clicks "Read More"
+- **AI Data Management**: AI insights and summaries are hidden in collapsed state to reduce clutter
+- **AI Indicator**: Shows "AI analysis available - expand to view" when collapsed
+
+### Visual Enhancements
+
+- **Smooth Transitions**: Hover effects and color transitions
+- **Clear Indicators**: Visual cues for expandable content
+- **Consistent Spacing**: Uniform padding and margins across all cards
+- **Responsive Design**: Works well on different screen sizes
+
 ## Technical Implementation
 
 ### Frontend
@@ -53,22 +76,28 @@ The backend already supported journal entry editing through the PUT endpoint:
   <Edit className="w-4 h-4" />
 </button>;
 
-// JournalPage.jsx
-const handleEdit = (entry) => {
-  setEntryToEdit(entry);
-  setShowEditModal(true);
-};
+// Content truncation logic
+const maxChars = 240; // Approximately 3 lines
+const shouldTruncate = entry.content.length > maxChars;
 
-const handleSaveEdit = async (entryId, updatedData) => {
-  try {
-    await updateEntry(entryId, updatedData);
-    setShowEditModal(false);
-    setEntryToEdit(null);
-  } catch (error) {
-    console.error("Error updating entry:", error);
-    throw error;
+// Line clamping with CSS
+<div
+  className={`text-gray-700 leading-relaxed whitespace-pre-wrap ${
+    !isExpanded && shouldTruncate ? "overflow-hidden" : ""
+  }`}
+  style={
+    !isExpanded && shouldTruncate
+      ? {
+          display: "-webkit-box",
+          WebkitLineClamp: 3,
+          WebkitBoxOrient: "vertical",
+          overflow: "hidden",
+        }
+      : {}
   }
-};
+>
+  {displayText}
+</div>;
 ```
 
 ### Backend
@@ -115,3 +144,4 @@ Potential improvements could include:
 - Collaborative editing
 - Auto-save functionality
 - Edit conflict resolution
+- Advanced content formatting options

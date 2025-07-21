@@ -62,12 +62,20 @@ const JournalEntryCard = ({ entry, onEdit, onDelete, showAiData = true }) => {
     });
   };
 
-  const truncateText = (text, maxLength = 200) => {
+  // Calculate if content needs truncation (more than 3 lines at ~80 chars per line)
+  const maxChars = 150; // Reduced for more obvious testing
+  const shouldTruncate = entry.content.length > maxChars;
+
+  const truncateText = (text, maxLength = maxChars) => {
     if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + "...";
+    // Find the last space before the limit to avoid cutting words
+    const truncated = text.substring(0, maxLength);
+    const lastSpace = truncated.lastIndexOf(" ");
+    return lastSpace > maxLength * 0.8
+      ? truncated.substring(0, lastSpace) + "..."
+      : truncated + "...";
   };
 
-  const shouldTruncate = entry.content.length > 200;
   const displayText = isExpanded ? entry.content : truncateText(entry.content);
 
   return (
@@ -126,14 +134,30 @@ const JournalEntryCard = ({ entry, onEdit, onDelete, showAiData = true }) => {
 
       {/* Content */}
       <div className="mb-4">
-        <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-          {displayText}
-        </p>
+        {!isExpanded && shouldTruncate ? (
+          <div
+            className="text-gray-700 leading-relaxed overflow-hidden"
+            style={{
+              display: "-webkit-box",
+              WebkitLineClamp: 3,
+              WebkitBoxOrient: "vertical",
+              overflow: "hidden",
+              lineHeight: "1.6",
+              maxHeight: "4.8rem", // 3 lines * 1.6 line-height
+            }}
+          >
+            {displayText}
+          </div>
+        ) : (
+          <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+            {displayText}
+          </div>
+        )}
 
         {shouldTruncate && (
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="mt-2 text-blue-600 hover:text-blue-700 font-medium text-sm flex items-center space-x-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
+            className="mt-3 text-blue-600 hover:text-blue-700 font-medium text-sm flex items-center space-x-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded transition-colors"
           >
             {isExpanded ? (
               <>
@@ -150,8 +174,8 @@ const JournalEntryCard = ({ entry, onEdit, onDelete, showAiData = true }) => {
         )}
       </div>
 
-      {/* AI Summary */}
-      {showAiData && entry.ai_summary && (
+      {/* AI Summary - Only show when expanded or if content is short */}
+      {showAiData && entry.ai_summary && (isExpanded || !shouldTruncate) && (
         <div className="mb-4 p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border border-purple-100">
           <div className="flex items-center space-x-2 mb-2">
             <Sparkles className="w-4 h-4 text-purple-600" />
@@ -174,17 +198,32 @@ const JournalEntryCard = ({ entry, onEdit, onDelete, showAiData = true }) => {
         </div>
       )}
 
-      {/* AI Insights */}
-      {showAiData && entry.ai_insights && showAiSummary && (
-        <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
-          <p className="text-sm text-blue-700 leading-relaxed">
-            <strong>Insights:</strong> {entry.ai_insights}
-          </p>
-        </div>
-      )}
+      {/* AI Insights - Only show when expanded or if content is short */}
+      {showAiData &&
+        entry.ai_insights &&
+        showAiSummary &&
+        (isExpanded || !shouldTruncate) && (
+          <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
+            <p className="text-sm text-blue-700 leading-relaxed">
+              <strong>Insights:</strong> {entry.ai_insights}
+            </p>
+          </div>
+        )}
 
-      {/* Footer */}
-      {/* Remove created/updated date footer */}
+      {/* Show AI data indicator when collapsed */}
+      {showAiData &&
+        (entry.ai_summary || entry.ai_insights) &&
+        !isExpanded &&
+        shouldTruncate && (
+          <div className="mt-3 p-2 bg-gray-50 rounded-lg border border-gray-100">
+            <div className="flex items-center space-x-2">
+              <Sparkles className="w-4 h-4 text-gray-400" />
+              <span className="text-sm text-gray-600">
+                AI analysis available - expand to view
+              </span>
+            </div>
+          </div>
+        )}
     </div>
   );
 };
