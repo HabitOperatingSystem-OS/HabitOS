@@ -15,7 +15,7 @@ class JournalEntry(db.Model):
     
     id = db.Column(db.String(36), primary_key=True, unique=True, nullable=False, default=lambda: str(uuid.uuid4()))
     user_id = db.Column(db.String(36), db.ForeignKey('users.id'), nullable=False)
-    checkin_id = db.Column(db.String(36), db.ForeignKey('check_ins.id'))
+    checkin_id = db.Column(db.String(36), db.ForeignKey('check_ins.id'), nullable=False)
     
     # Journal content
     content = db.Column(db.Text, nullable=False)
@@ -86,6 +86,12 @@ class JournalEntry(db.Model):
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat()
         }
+        
+        # Include mood rating from associated check-in if available
+        if self.check_in and self.check_in.mood_rating:
+            data['mood_rating'] = self.check_in.mood_rating
+        else:
+            data['mood_rating'] = None
         
         if include_ai_data:
             data.update({

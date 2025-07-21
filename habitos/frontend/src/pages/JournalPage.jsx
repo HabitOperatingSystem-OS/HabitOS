@@ -1,122 +1,154 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
-  Calendar,
-  Plus,
-  Edit,
-  Trash2,
-  Heart,
-  MessageCircle,
   BookOpen,
-  Smile,
-  Frown,
-  Meh,
+  Plus,
+  Calendar,
+  TrendingUp,
+  MessageCircle,
+  Filter,
+  Search,
+  SortAsc,
+  SortDesc,
+  Trash2,
 } from "lucide-react";
-import { checkInsAPI } from "../services/api";
+import { useJournal } from "../hooks/useJournal";
+import JournalEntryCard from "../components/journal/JournalEntryCard";
+import JournalEditModal from "../components/journal/JournalEditModal";
+import JournalFilters from "../components/journal/JournalFilters";
+import LoadingSpinner from "../components/common/LoadingSpinner";
+import DeleteConfirmModal from "../components/common/DeleteConfirmModal";
+import Tag from "../components/common/Tag";
 
 const JournalPage = () => {
-  const [entries, setEntries] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({
-    totalEntries: 0,
-    thisMonth: 0,
-    streak: 0,
-  });
+  const {
+    entries,
+    loading,
+    error,
+    filters,
+    sentiments,
+    updateFilters,
+    clearFilters,
+    deleteEntry,
+    updateEntry,
+    refresh,
+  } = useJournal();
 
-  useEffect(() => {
-    loadJournalEntries();
-  }, []);
+  const [sortOrder, setSortOrder] = useState("desc"); // desc = newest first
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [entryToDelete, setEntryToDelete] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [entryToEdit, setEntryToEdit] = useState(null);
 
-  const loadJournalEntries = async () => {
+  // Calculate stats
+  const moodEntries = entries.filter(
+    (e) => typeof e.mood_rating === "number" && !isNaN(e.mood_rating)
+  );
+  const stats = {
+    totalEntries: entries.length,
+    thisMonth: entries.filter((entry) => {
+      const [year, month] = entry.entry_date.split("-");
+      const now = new Date();
+      return (
+        Number(year) === now.getFullYear() &&
+        Number(month) === now.getMonth() + 1
+      );
+    }).length,
+    averageMood:
+      moodEntries.length > 0
+        ? Math.round(
+            (moodEntries.reduce((sum, entry) => sum + entry.mood_rating, 0) /
+              moodEntries.length) *
+              10
+          ) / 10
+        : null,
+  };
+
+  // Filter and sort entries
+  const filteredAndSortedEntries = entries
+    .filter((entry) => {
+      if (!searchTerm) return true;
+      return (
+        entry.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        entry.ai_summary?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        entry.ai_insights?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    })
+    .sort((a, b) => {
+      const dateA = new Date(a.entry_date);
+      const dateB = new Date(b.entry_date);
+      return sortOrder === "desc" ? dateB - dateA : dateA - dateB;
+    });
+
+  const handleDelete = (entryId) => {
+    setEntryToDelete(entryId);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (entryToDelete) {
+      try {
+        await deleteEntry(entryToDelete);
+        setShowDeleteModal(false);
+        setEntryToDelete(null);
+      } catch (error) {
+        console.error("Error deleting entry:", error);
+      }
+    }
+  };
+
+  const handleEdit = (entry) => {
+    setEntryToEdit(entry);
+    setShowEditModal(true);
+  };
+
+  const handleSaveEdit = async (entryId, updatedData) => {
     try {
-      setLoading(true);
-      // For now, we'll use the check-ins API to get journal entries
-      // In a real implementation, you'd have a dedicated journal API
-      const response = await checkInsAPI.getCheckIns();
-
-      // Filter entries that have journal content (this would come from a proper journal API)
-      // For now, we'll use mock data but structure it to match the expected API response
-      const mockEntries = [
-        {
-          id: 1,
-          date: "2024-01-15",
-          content:
-            "Today was incredibly productive. I completed all my planned tasks and even had time to work on some personal projects. The morning routine really set the tone for the day.",
-          mood_rating: 8,
-          sentiment: "positive",
-          tags: ["productivity", "routine"],
-        },
-        {
-          id: 2,
-          date: "2024-01-14",
-          content:
-            "Spent the afternoon learning React hooks. It's amazing how much cleaner the code becomes with proper state management. Looking forward to applying this in my projects.",
-          mood_rating: 7,
-          sentiment: "positive",
-          tags: ["learning", "coding"],
-        },
-        {
-          id: 3,
-          date: "2024-01-13",
-          content:
-            "Had a relaxing weekend with family. It's important to take breaks and recharge. Ready to tackle the new week with fresh energy.",
-          mood_rating: 6,
-          sentiment: "neutral",
-          tags: ["family", "rest"],
-        },
-      ];
-
-      setEntries(mockEntries);
-      setStats({
-        totalEntries: mockEntries.length,
-        thisMonth: mockEntries.filter((entry) => {
-          const entryDate = new Date(entry.date);
-          const now = new Date();
-          return (
-            entryDate.getMonth() === now.getMonth() &&
-            entryDate.getFullYear() === now.getFullYear()
-          );
-        }).length,
-        streak: 3, // This would be calculated from actual data
-      });
+      await updateEntry(entryId, updatedData);
+      setShowEditModal(false);
+      setEntryToEdit(null);
     } catch (error) {
-      console.error("Error loading journal entries:", error);
-    } finally {
-      setLoading(false);
+      console.error("Error updating entry:", error);
+      throw error;
     }
   };
 
-  const getMoodIcon = (rating) => {
-    if (rating >= 8) return <Smile className="w-5 h-5 text-green-600" />;
-    if (rating >= 6) return <Smile className="w-5 h-5 text-yellow-600" />;
-    if (rating >= 4) return <Meh className="w-5 h-5 text-orange-600" />;
-    return <Frown className="w-5 h-5 text-red-600" />;
+  const getMoodEmoji = (rating) => {
+    if (rating >= 9) return "😍";
+    if (rating >= 8) return "😊";
+    if (rating >= 7) return "🙂";
+    if (rating >= 6) return "😐";
+    if (rating >= 5) return "😕";
+    if (rating >= 4) return "😟";
+    if (rating >= 3) return "😔";
+    if (rating >= 2) return "😢";
+    return "😭";
   };
 
-  const getSentimentColor = (sentiment) => {
-    switch (sentiment) {
-      case "positive":
-        return "text-green-600 bg-green-100";
-      case "negative":
-        return "text-red-600 bg-red-100";
-      case "neutral":
-        return "text-gray-600 bg-gray-100";
-      default:
-        return "text-gray-600 bg-gray-100";
-    }
+  const getMoodColor = (rating) => {
+    if (rating >= 9) return "text-green-600";
+    if (rating >= 8) return "text-blue-600";
+    if (rating >= 7) return "text-purple-600";
+    if (rating >= 6) return "text-yellow-600";
+    if (rating >= 5) return "text-orange-600";
+    if (rating >= 4) return "text-red-600";
+    if (rating >= 3) return "text-pink-600";
+    if (rating >= 2) return "text-gray-600";
+    return "text-gray-400";
+  };
+
+  const getSentimentVariant = (sentiment) => {
+    if (sentiment === "positive") return "success";
+    if (sentiment === "negative") return "danger";
+    if (sentiment === "neutral") return "info";
+    return "info"; // Default
   };
 
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 pt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
-            <div className="space-y-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="h-32 bg-gray-200 rounded"></div>
-              ))}
-            </div>
-          </div>
+          <LoadingSpinner />
         </div>
       </div>
     );
@@ -131,11 +163,12 @@ const JournalPage = () => {
             Daily Reflections
           </h1>
           <p className="text-gray-600 mt-2">
-            A log of your daily thoughts and experiences from your check-ins
+            A chronological log of your daily thoughts and experiences from your
+            check-ins
           </p>
         </div>
 
-        {/* Quick Stats */}
+        {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center">
@@ -170,122 +203,160 @@ const JournalPage = () => {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center">
               <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                <Heart className="w-6 h-6 text-purple-600" />
+                <TrendingUp className="w-6 h-6 text-purple-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Streak</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {stats.streak} days
-                </p>
+                <p className="text-sm font-medium text-gray-600">Avg Mood</p>
+                <div className="flex items-center space-x-2">
+                  <span className="text-2xl font-bold text-gray-900">
+                    {stats.averageMood !== null ? stats.averageMood : "—"}
+                  </span>
+                  {stats.averageMood !== null && (
+                    <span className="text-xl">
+                      {getMoodEmoji(Math.round(stats.averageMood))}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Main Content */}
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-gray-900">
-            Recent Reflections
-          </h2>
-          <button
-            onClick={() => (window.location.href = "/check-ins")}
-            className="flex items-center space-x-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            <span>New Reflection</span>
-          </button>
+        {/* Filters */}
+        <JournalFilters
+          filters={filters}
+          onUpdateFilters={updateFilters}
+          onClearFilters={clearFilters}
+          sentiments={sentiments}
+        />
+
+        {/* Search and Sort Controls */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 space-y-4 sm:space-y-0">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <input
+              type="text"
+              placeholder="Search entries..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-gray-600">Sort:</span>
+              <button
+                onClick={() =>
+                  setSortOrder(sortOrder === "desc" ? "asc" : "desc")
+                }
+                className="flex items-center space-x-1 px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              >
+                {sortOrder === "desc" ? (
+                  <>
+                    <SortDesc className="w-4 h-4" />
+                    <span>Newest First</span>
+                  </>
+                ) : (
+                  <>
+                    <SortAsc className="w-4 h-4" />
+                    <span>Oldest First</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            <button
+              onClick={() => (window.location.href = "/check-ins")}
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            >
+              <Plus className="w-4 h-4" />
+              <span>New Reflection</span>
+            </button>
+          </div>
         </div>
 
+        {/* Results Summary */}
+        {filteredAndSortedEntries.length > 0 && (
+          <div className="mb-6 flex items-center justify-between">
+            <p className="text-sm text-gray-600">
+              Showing {filteredAndSortedEntries.length} of {entries.length}{" "}
+              entries
+            </p>
+            {searchTerm && (
+              <Tag
+                variant="info"
+                size="sm"
+                removable
+                onRemove={() => setSearchTerm("")}
+              >
+                Search: "{searchTerm}"
+              </Tag>
+            )}
+          </div>
+        )}
+
+        {/* Error Display */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-800">{error}</p>
+          </div>
+        )}
+
+        {/* Journal Entries */}
         <div className="space-y-6">
-          {entries.length === 0 ? (
+          {filteredAndSortedEntries.length === 0 ? (
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
               <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 mb-2">
-                No reflections yet
+                {searchTerm ? "No entries found" : "No reflections yet"}
               </h3>
               <p className="text-gray-600 mb-4">
-                Start your daily check-ins to build a collection of meaningful
-                reflections.
+                {searchTerm
+                  ? "Try adjusting your search terms or filters."
+                  : "Start your daily check-ins to build a collection of meaningful reflections."}
               </p>
-              <button
-                onClick={() => (window.location.href = "/check-ins")}
-                className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
-              >
-                Start Your First Check-In
-              </button>
+              {!searchTerm && (
+                <button
+                  onClick={() => (window.location.href = "/check-ins")}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Start Your First Check-In
+                </button>
+              )}
             </div>
           ) : (
-            entries.map((entry) => (
-              <div
+            filteredAndSortedEntries.map((entry) => (
+              <JournalEntryCard
                 key={entry.id}
-                className="bg-white rounded-lg shadow-sm border border-gray-200 p-6"
-              >
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex items-center space-x-3">
-                    {getMoodIcon(entry.mood_rating)}
-                    <div>
-                      <h3 className="font-medium text-gray-900">
-                        {new Date(entry.date).toLocaleDateString("en-US", {
-                          weekday: "long",
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })}
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        Mood: {entry.mood_rating}/10
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    {entry.sentiment && (
-                      <span
-                        className={`px-2 py-1 text-xs rounded-full ${getSentimentColor(
-                          entry.sentiment
-                        )}`}
-                      >
-                        {entry.sentiment}
-                      </span>
-                    )}
-                    <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
-                      <Edit className="w-4 h-4" />
-                    </button>
-                    <button className="p-2 text-gray-400 hover:text-red-600 transition-colors">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-
-                <p className="text-gray-700 mb-4 leading-relaxed">
-                  {entry.content}
-                </p>
-
-                <div className="flex items-center justify-between">
-                  <div className="flex space-x-2">
-                    {entry.tags.map((tag, index) => (
-                      <span
-                        key={index}
-                        className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="flex items-center space-x-4 text-sm text-gray-500">
-                    <button className="flex items-center space-x-1 hover:text-gray-700 transition-colors">
-                      <Heart className="w-4 h-4" />
-                      <span>12</span>
-                    </button>
-                    <button className="flex items-center space-x-1 hover:text-gray-700 transition-colors">
-                      <MessageCircle className="w-4 h-4" />
-                      <span>3</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
+                entry={entry}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                showAiData={filters.includeAiData}
+              />
             ))
           )}
         </div>
+
+        {/* Delete Confirmation Modal */}
+        <DeleteConfirmModal
+          isOpen={showDeleteModal}
+          onClose={() => setShowDeleteModal(false)}
+          onConfirm={confirmDelete}
+          title="Delete Journal Entry"
+          message="Are you sure you want to delete this journal entry? This action cannot be undone."
+        />
+
+        {/* Edit Modal */}
+        <JournalEditModal
+          isOpen={showEditModal}
+          onClose={() => {
+            setShowEditModal(false);
+            setEntryToEdit(null);
+          }}
+          entry={entryToEdit}
+          onSave={handleSaveEdit}
+        />
       </div>
     </div>
   );
