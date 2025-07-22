@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import {
-  Target,
   TrendingUp,
   Calendar,
   MoreVertical,
@@ -73,166 +72,130 @@ const HabitCard = ({ habit, viewMode = "grid", onEdit, onDelete }) => {
     };
   }, []);
 
-  const toggleMenu = (e) => {
-    e.stopPropagation();
-    setShowMenu(!showMenu);
-  };
-
   if (isGrid) {
     return (
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200">
-        {/* Card Header */}
-        <div className="p-4 sm:p-6 border-b border-gray-100">
-          <div className="flex items-start justify-between mb-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
-                <span className="text-lg">
-                  {getCategoryIcon(habit.category)}
-                </span>
+        <Link
+          to={`/habits/${habit.id}`}
+          className="text-primary-600 hover:text-primary-700 font-medium"
+        >
+          {/* Card Header */}
+          <div className="p-4 sm:p-6 border-b border-gray-100">
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex items-center space-x-3 flex-1">
+                <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
+                  <span className="text-lg">
+                    {getCategoryIcon(habit.category)}
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-lg font-semibold text-gray-900 truncate">
+                    {habit.title}
+                  </h3>
+                  <span
+                    className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(
+                      habit.category
+                    )}`}
+                  >
+                    {habit.category.charAt(0).toUpperCase() +
+                      habit.category.slice(1)}
+                  </span>
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="text-lg font-semibold text-gray-900 truncate">
-                  {habit.title}
-                </h3>
-                <span
-                  className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(
-                    habit.category
-                  )}`}
+
+              {/* Status and Frequency - Top-right column */}
+              <div className="flex flex-col items-end space-y-2 ml-3">
+                {/* Status Indicator */}
+                <div
+                  className={`flex items-center space-x-1 ${
+                    habit.active ? "text-green-600" : "text-gray-400"
+                  }`}
                 >
-                  {habit.category.charAt(0).toUpperCase() +
-                    habit.category.slice(1)}
-                </span>
+                  {habit.active ? (
+                    <CheckCircle className="w-4 h-4" />
+                  ) : (
+                    <Circle className="w-4 h-4" />
+                  )}
+                  <span className="text-xs font-medium">
+                    {habit.active ? "Active" : "Inactive"}
+                  </span>
+                </div>
+
+                {/* Frequency Information */}
+                <div className="flex items-center space-x-1 text-sm text-gray-600">
+                  <Clock className="w-4 h-4" />
+                  <span className="text-xs">
+                    {getFrequencyText(habit.frequency, habit.frequency_count)}
+                  </span>
+                </div>
               </div>
             </div>
 
-            {/* Actions Menu */}
-            <div className="relative" ref={menuRef}>
-              <button
-                onClick={toggleMenu}
-                className="p-1 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <MoreVertical className="w-4 h-4 text-gray-400" />
-              </button>
-              {showMenu && (
-                <div className="absolute right-0 top-8 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
-                  <Link
-                    to={`/habits/${habit.id}`}
-                    className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    <Eye className="w-4 h-4 mr-2" />
-                    View Details
-                  </Link>
-                  <button
-                    onClick={() => onEdit(habit)}
-                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    <Edit className="w-4 h-4 mr-2" />
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => onDelete(habit)}
-                    className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-                  >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Delete
-                  </button>
+            {/* Card Body */}
+            <div className="p-4 sm:p-6">
+              {/* Streak Information */}
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-primary-600">
+                    {habit.current_streak}
+                  </p>
+                  <p className="text-xs text-gray-600">Current Streak</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-gray-900">
+                    {habit.longest_streak}
+                  </p>
+                  <p className="text-xs text-gray-600">Longest Streak</p>
+                </div>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="mb-4">
+                <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
+                  <span>Progress</span>
+                  <span>
+                    {Math.round(
+                      (habit.current_streak /
+                        Math.max(habit.longest_streak, 1)) *
+                        100
+                    )}
+                    %
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className="bg-primary-600 h-2 rounded-full transition-all duration-300"
+                    style={{
+                      width: `${Math.min(
+                        (habit.current_streak /
+                          Math.max(habit.longest_streak, 1)) *
+                          100,
+                        100
+                      )}%`,
+                    }}
+                  ></div>
+                </div>
+              </div>
+
+              {/* Due Today Indicator */}
+              {habit.is_due_today && (
+                <div className="flex items-center space-x-2 text-sm text-orange-600 bg-orange-50 px-3 py-2 rounded-lg">
+                  <Calendar className="w-4 h-4" />
+                  <span>Due today</span>
                 </div>
               )}
             </div>
-          </div>
 
-          {/* Frequency and Status */}
-          <div className="flex items-center justify-between text-sm text-gray-600">
-            <div className="flex items-center space-x-2">
-              <Clock className="w-4 h-4" />
-              <span>
-                {getFrequencyText(habit.frequency, habit.frequency_count)}
-              </span>
-            </div>
-            <div
-              className={`flex items-center space-x-1 ${
-                habit.active ? "text-green-600" : "text-gray-400"
-              }`}
-            >
-              {habit.active ? (
-                <CheckCircle className="w-4 h-4" />
-              ) : (
-                <Circle className="w-4 h-4" />
-              )}
-              <span className="text-xs font-medium">
-                {habit.active ? "Active" : "Inactive"}
-              </span>
+            {/* Card Footer */}
+            <div className="px-4 sm:px-6 py-4 bg-gray-50 rounded-b-lg">
+              <div className="flex items-center justify-between text-xs text-gray-500">
+                <span>
+                  Started {new Date(habit.start_date).toLocaleDateString()}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
-
-        {/* Card Body */}
-        <div className="p-4 sm:p-6">
-          {/* Streak Information */}
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div className="text-center">
-              <p className="text-2xl font-bold text-primary-600">
-                {habit.current_streak}
-              </p>
-              <p className="text-xs text-gray-600">Current Streak</p>
-            </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold text-gray-900">
-                {habit.longest_streak}
-              </p>
-              <p className="text-xs text-gray-600">Longest Streak</p>
-            </div>
-          </div>
-
-          {/* Progress Bar */}
-          <div className="mb-4">
-            <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
-              <span>Progress</span>
-              <span>
-                {Math.round(
-                  (habit.current_streak / Math.max(habit.longest_streak, 1)) *
-                    100
-                )}
-                %
-              </span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div
-                className="bg-primary-600 h-2 rounded-full transition-all duration-300"
-                style={{
-                  width: `${Math.min(
-                    (habit.current_streak / Math.max(habit.longest_streak, 1)) *
-                      100,
-                    100
-                  )}%`,
-                }}
-              ></div>
-            </div>
-          </div>
-
-          {/* Due Today Indicator */}
-          {habit.is_due_today && (
-            <div className="flex items-center space-x-2 text-sm text-orange-600 bg-orange-50 px-3 py-2 rounded-lg">
-              <Calendar className="w-4 h-4" />
-              <span>Due today</span>
-            </div>
-          )}
-        </div>
-
-        {/* Card Footer */}
-        <div className="px-4 sm:px-6 py-4 bg-gray-50 rounded-b-lg">
-          <div className="flex items-center justify-between text-xs text-gray-500">
-            <span>
-              Started {new Date(habit.start_date).toLocaleDateString()}
-            </span>
-            <Link
-              to={`/habits/${habit.id}`}
-              className="text-primary-600 hover:text-primary-700 font-medium"
-            >
-              View Details →
-            </Link>
-          </div>
-        </div>
+        </Link>
       </div>
     );
   }
