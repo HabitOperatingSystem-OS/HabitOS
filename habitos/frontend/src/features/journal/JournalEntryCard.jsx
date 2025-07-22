@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import PropTypes from "prop-types";
 import {
   Calendar,
   Edit,
@@ -7,7 +8,7 @@ import {
   ChevronUp,
   Sparkles,
 } from "lucide-react";
-import Tag from "../common/Tag";
+import { Tag } from "../../shared/components";
 
 const JournalEntryCard = ({ entry, onEdit, onDelete, showAiData = true }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -226,6 +227,24 @@ const JournalEntryCard = ({ entry, onEdit, onDelete, showAiData = true }) => {
         )}
     </div>
   );
+};
+
+JournalEntryCard.propTypes = {
+  entry: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    title: PropTypes.string.isRequired,
+    content: PropTypes.string.isRequired,
+    mood_rating: PropTypes.number,
+    sentiment: PropTypes.string,
+    tags: PropTypes.arrayOf(PropTypes.string),
+    ai_summary: PropTypes.string,
+    ai_insights: PropTypes.string,
+    created_at: PropTypes.string.isRequired,
+    updated_at: PropTypes.string,
+  }).isRequired,
+  onEdit: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
+  showAiData: PropTypes.bool,
 };
 
 export default JournalEntryCard;

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 import { X, Target, Clock, Hash } from "lucide-react";
 
 const HabitFormModal = ({
@@ -305,6 +306,21 @@ const HabitFormModal = ({
       </div>
     </div>
   );
+};
+
+HabitFormModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  habit: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+    title: PropTypes.string,
+    category: PropTypes.string,
+    frequency: PropTypes.string,
+    frequency_count: PropTypes.number,
+    goal: PropTypes.string,
+  }),
+  mode: PropTypes.oneOf(["create", "edit"]),
 };
 
 export default HabitFormModal;

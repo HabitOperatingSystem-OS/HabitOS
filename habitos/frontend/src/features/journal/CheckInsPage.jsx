@@ -10,8 +10,8 @@ import {
   AlertCircle,
   Calendar,
 } from "lucide-react";
-import { habitsAPI, checkInsAPI } from "../services/api";
-import SuccessModal from "../components/common/SuccessModal";
+import { habitsAPI, checkInsAPI } from "../../services/api";
+import { SuccessModal } from "../../shared/components";
 
 const CheckInsPage = () => {
   const navigate = useNavigate();

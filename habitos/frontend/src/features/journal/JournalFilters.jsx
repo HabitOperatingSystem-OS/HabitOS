@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Filter, X, Calendar, Smile } from "lucide-react";
-import Tag from "../common/Tag";
+import { Tag } from "../../shared/components";
 
 const JournalFilters = ({
   filters,

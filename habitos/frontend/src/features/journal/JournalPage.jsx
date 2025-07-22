@@ -11,13 +11,15 @@ import {
   SortDesc,
   Trash2,
 } from "lucide-react";
-import { useJournal } from "../hooks/useJournal";
-import JournalEntryCard from "../components/journal/JournalEntryCard";
-import JournalEditModal from "../components/journal/JournalEditModal";
-import JournalFilters from "../components/journal/JournalFilters";
-import LoadingSpinner from "../components/common/LoadingSpinner";
-import DeleteConfirmModal from "../components/common/DeleteConfirmModal";
-import Tag from "../components/common/Tag";
+import { useJournal } from "../../shared/hooks/useJournal";
+import JournalEntryCard from "./JournalEntryCard";
+import JournalEditModal from "./JournalEditModal";
+import JournalFilters from "./JournalFilters";
+import {
+  LoadingSpinner,
+  DeleteConfirmModal,
+  Tag,
+} from "../../shared/components";
 
 const JournalPage = () => {
   const {

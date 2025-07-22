@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { dashboardAPI, authAPI } from "../services/api";
+import { dashboardAPI, authAPI } from "../../services/api";
 
 export const useDashboard = () => {
   const [dashboardData, setDashboardData] = useState(null);

@@ -14,12 +14,12 @@ import {
   BookOpen,
 } from "lucide-react";
 
-import { useDashboard } from "../hooks/useDashboard";
-import StreakChart from "../components/dashboard/StreakChart";
-import TodayHabits from "../components/dashboard/TodayHabits";
-import MoodSummary from "../components/dashboard/MoodSummary";
-import StatsCard from "../components/dashboard/StatsCard";
-import LoadingSpinner from "../components/common/LoadingSpinner";
+import { useDashboard } from "../../shared/hooks/useDashboard";
+import StreakChart from "./StreakChart";
+import TodayHabits from "./TodayHabits";
+import MoodSummary from "./MoodSummary";
+import StatsCard from "./StatsCard";
+import { LoadingSpinner } from "../../shared/components";
 
 const Dashboard = () => {
   const { dashboardData, userData, loading, error, refreshData } =

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 import {
   Target,
@@ -53,7 +54,7 @@ const getFrequencyText = (frequency, frequencyCount) => {
   return texts[frequency] || "Daily";
 };
 
-const HabitCard = ({ habit, viewMode, onEdit, onDelete }) => {
+const HabitCard = ({ habit, viewMode = "grid", onEdit, onDelete }) => {
   const isGrid = viewMode === "grid";
   const [showMenu, setShowMenu] = useState(false);
   const menuRef = useRef(null);
@@ -81,7 +82,7 @@ const HabitCard = ({ habit, viewMode, onEdit, onDelete }) => {
     return (
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200">
         {/* Card Header */}
-        <div className="p-6 border-b border-gray-100">
+        <div className="p-4 sm:p-6 border-b border-gray-100">
           <div className="flex items-start justify-between mb-4">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center">
@@ -166,7 +167,7 @@ const HabitCard = ({ habit, viewMode, onEdit, onDelete }) => {
         </div>
 
         {/* Card Body */}
-        <div className="p-6">
+        <div className="p-4 sm:p-6">
           {/* Streak Information */}
           <div className="grid grid-cols-2 gap-4 mb-4">
             <div className="text-center">
@@ -219,7 +220,7 @@ const HabitCard = ({ habit, viewMode, onEdit, onDelete }) => {
         </div>
 
         {/* Card Footer */}
-        <div className="px-6 py-4 bg-gray-50 rounded-b-lg">
+        <div className="px-4 sm:px-6 py-4 bg-gray-50 rounded-b-lg">
           <div className="flex items-center justify-between text-xs text-gray-500">
             <span>
               Started {new Date(habit.start_date).toLocaleDateString()}
@@ -239,7 +240,7 @@ const HabitCard = ({ habit, viewMode, onEdit, onDelete }) => {
   // List View
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200">
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4 flex-1">
             <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
@@ -282,33 +283,51 @@ const HabitCard = ({ habit, viewMode, onEdit, onDelete }) => {
             </div>
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1 sm:space-x-2">
             <Link
               to={`/habits/${habit.id}`}
-              className="btn-outline text-sm px-3 py-1 flex items-center space-x-1 whitespace-nowrap"
+              className="btn-outline text-xs sm:text-sm px-2 sm:px-3 py-1 flex items-center space-x-1 whitespace-nowrap"
             >
-              <Eye className="w-4 h-4" />
-              <span>View</span>
+              <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
+              <span className="hidden sm:inline">View</span>
             </Link>
 
             <button
               onClick={() => onEdit(habit)}
-              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+              className="p-1 sm:p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
             >
-              <Edit className="w-4 h-4" />
+              <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
             </button>
 
             <button
               onClick={() => onDelete(habit)}
-              className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+              className="p-1 sm:p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
             >
-              <Trash2 className="w-4 h-4" />
+              <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
             </button>
           </div>
         </div>
       </div>
     </div>
   );
+};
+
+HabitCard.propTypes = {
+  habit: PropTypes.shape({
+    id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
+    title: PropTypes.string.isRequired,
+    category: PropTypes.string.isRequired,
+    frequency: PropTypes.string.isRequired,
+    frequency_count: PropTypes.number,
+    active: PropTypes.bool.isRequired,
+    current_streak: PropTypes.number.isRequired,
+    longest_streak: PropTypes.number.isRequired,
+    start_date: PropTypes.string.isRequired,
+    is_due_today: PropTypes.bool,
+  }).isRequired,
+  viewMode: PropTypes.oneOf(["grid", "list"]),
+  onEdit: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
 };
 
 export default HabitCard;

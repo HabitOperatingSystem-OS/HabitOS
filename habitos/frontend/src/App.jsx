@@ -1,23 +1,25 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { ErrorBoundary, LoadingSpinner } from "./shared/components";
 import Navigation from "./components/Navigation";
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
-import Dashboard from "./pages/Dashboard";
+import { Login, Signup } from "./features/auth";
+import { Dashboard } from "./features/dashboard";
 import Home from "./pages/Home";
-import HabitsPage from "./pages/HabitsPage";
-import HabitDetailPage from "./pages/HabitDetailPage";
-import GoalsPage from "./pages/GoalsPage";
-import JournalPage from "./pages/JournalPage";
-import CheckInsPage from "./pages/CheckInsPage";
+import { HabitsPage, HabitDetailPage } from "./features/habits";
+import { GoalsPage } from "./features/goals";
+import { JournalPage, CheckInsPage } from "./features/journal";
 
 // Protected route wrapper component
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <LoadingSpinner size="lg" text="Loading your dashboard..." />
+      </div>
+    );
   }
 
   if (!user) {
@@ -37,7 +39,11 @@ const PublicRoute = ({ children }) => {
   const { user, loading } = useAuth();
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <LoadingSpinner size="lg" text="Loading..." />
+      </div>
+    );
   }
 
   // Redirect authenticated users away from login/signup
@@ -131,9 +137,11 @@ const AppContent = () => {
 
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 

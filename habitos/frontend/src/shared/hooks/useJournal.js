@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { journalAPI } from "../services/api";
+import { journalAPI } from "../../services/api";
 
 export const useJournal = () => {
   const [entries, setEntries] = useState([]);
