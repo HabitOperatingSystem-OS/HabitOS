@@ -86,10 +86,12 @@ def create_journal_entry():
     try:
         # Validate check-in exists and belongs to user if provided
         checkin_id = data.get('checkin_id')
-        if checkin_id:
-            check_in = CheckIn.query.filter_by(id=checkin_id, user_id=current_user_id).first()
-            if not check_in:
-                return jsonify({'error': 'Check-in not found'}), 404
+        if not checkin_id:
+            return jsonify({'error': 'checkin_id is required'}), 400
+
+        check_in = CheckIn.query.filter_by(id=checkin_id, user_id=current_user_id).first()
+        if not check_in:
+            return jsonify({'error': 'Check-in not found'}), 404
         
         # Parse entry date if provided (default to today)
         entry_date = date.today()

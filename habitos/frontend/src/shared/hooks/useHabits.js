@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { habitsAPI } from "../services/api";
-import { useAuth } from "../context/AuthContext";
+import { useState, useEffect, useCallback } from "react";
+import { habitsAPI } from "../../services/api";
+import { useAuth } from "../../context/AuthContext";
 
 export const useHabits = () => {
   const [habits, setHabits] = useState([]);
@@ -8,7 +8,7 @@ export const useHabits = () => {
   const [error, setError] = useState(null);
   const { user } = useAuth();
 
-  const fetchHabits = async () => {
+  const fetchHabits = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -107,15 +107,15 @@ export const useHabits = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     fetchHabits();
-  }, [user]); // Re-run when user changes
+  }, [fetchHabits]); // Re-run when user changes
 
-  const refreshHabits = () => {
+  const refreshHabits = useCallback(() => {
     fetchHabits();
-  };
+  }, [fetchHabits]);
 
   return {
     habits,

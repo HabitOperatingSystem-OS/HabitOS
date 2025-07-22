@@ -120,6 +120,21 @@ def create_check_in():
         
         # Save check-in to database
         db.session.add(check_in)
+        db.session.flush()  # Get check_in.id before commit
+
+        # If a reflection is provided, create a linked journal entry
+        reflection = data.get('reflection')
+        if reflection:
+            journal_entry = JournalEntry(
+                user_id=current_user_id,
+                checkin_id=check_in.id,
+                content=reflection,
+                entry_date=check_in_date
+            )
+            journal_entry.analyze_sentiment()
+            journal_entry.generate_ai_insights()
+            db.session.add(journal_entry)
+
         db.session.commit()
         
         # Update habit streak if check-in is completed
@@ -418,11 +433,22 @@ def create_bulk_check_in():
                 created_check_ins.append(check_in)
                 print(f"Created new check-in for habit {habit_id}")
         
+        # Flush to get check-in IDs before creating journal entry
+        db.session.flush()
+        
         # Create journal entry if content is provided
         journal_entry = None
         if data.get('journal_content'):
+            # Link journal entry to the first check-in created/updated today
+            first_checkin = None
+            if created_check_ins:
+                first_checkin = created_check_ins[0]
+            elif updated_check_ins:
+                first_checkin = updated_check_ins[0]
+            
             journal_entry = JournalEntry(
                 user_id=current_user_id,
+                checkin_id=first_checkin.id if first_checkin else None,
                 content=data['journal_content'],
                 entry_date=check_in_date
             )

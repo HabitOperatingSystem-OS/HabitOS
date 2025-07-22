@@ -13,12 +13,11 @@ import {
   Trash2,
   Eye,
 } from "lucide-react";
-import { habitsAPI } from "../services/api";
-import { useHabits } from "../hooks/useHabits";
-import HabitCard from "../components/habits/HabitCard";
-import HabitFormModal from "../components/habits/HabitFormModal";
-import DeleteConfirmModal from "../components/common/DeleteConfirmModal";
-import LoadingSpinner from "../components/common/LoadingSpinner";
+import { habitsAPI } from "../../services/api";
+import { useHabits } from "../../shared/hooks/useHabits";
+import HabitCard from "./HabitCard";
+import HabitFormModal from "./HabitFormModal";
+import { DeleteConfirmModal, LoadingSpinner } from "../../shared/components";
 
 const HabitsPage = () => {
   const { habits, loading, error, refreshHabits } = useHabits();
@@ -307,8 +306,7 @@ const HabitsPage = () => {
                     onClick={() => setShowCreateModal(true)}
                     className="btn-primary"
                   >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Create Your First Habit
+                    + Create Your First Habit
                   </button>
                 )}
               </div>

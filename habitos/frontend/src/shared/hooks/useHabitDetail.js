@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { habitsAPI, checkInsAPI } from "../services/api";
+import { habitsAPI, checkInsAPI } from "../../services/api";
 
 export const useHabitDetail = (habitId) => {
   const [habit, setHabit] = useState(null);

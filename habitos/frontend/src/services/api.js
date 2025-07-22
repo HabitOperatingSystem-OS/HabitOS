@@ -129,4 +129,50 @@ export const checkInsAPI = {
   },
 };
 
+// Journal API calls
+export const journalAPI = {
+  getJournalEntries: async (filters = {}) => {
+    const params = new URLSearchParams();
+
+    if (filters.startDate) params.append("start_date", filters.startDate);
+    if (filters.endDate) params.append("end_date", filters.endDate);
+    if (filters.sentiment) params.append("sentiment", filters.sentiment);
+    if (filters.includeAiData) params.append("include_ai_data", "true");
+
+    const response = await api.get(`/journal/?${params.toString()}`);
+    return response.data;
+  },
+
+  getJournalEntry: async (id, includeAiData = false) => {
+    const params = includeAiData ? "?include_ai_data=true" : "";
+    const response = await api.get(`/journal/${id}${params}`);
+    return response.data;
+  },
+
+  createJournalEntry: async (entryData) => {
+    const response = await api.post("/journal/", entryData);
+    return response.data;
+  },
+
+  updateJournalEntry: async (id, entryData) => {
+    const response = await api.put(`/journal/${id}`, entryData);
+    return response.data;
+  },
+
+  deleteJournalEntry: async (id) => {
+    const response = await api.delete(`/journal/${id}`);
+    return response.data;
+  },
+
+  getSentiments: async () => {
+    const response = await api.get("/journal/sentiments");
+    return response.data;
+  },
+
+  analyzeSentiment: async (content) => {
+    const response = await api.post("/journal/sentiment-analysis", { content });
+    return response.data;
+  },
+};
+
 export default api;
