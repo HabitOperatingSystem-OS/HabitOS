@@ -4,12 +4,9 @@ import {
   Plus,
   Calendar,
   TrendingUp,
-  MessageCircle,
-  Filter,
   Search,
   SortAsc,
   SortDesc,
-  Trash2,
 } from "lucide-react";
 import { useJournal } from "../../shared/hooks/useJournal";
 import JournalEntryCard from "./JournalEntryCard";
@@ -32,7 +29,6 @@ const JournalPage = () => {
     clearFilters,
     deleteEntry,
     updateEntry,
-    refresh,
   } = useJournal();
 
   const [sortOrder, setSortOrder] = useState("desc"); // desc = newest first

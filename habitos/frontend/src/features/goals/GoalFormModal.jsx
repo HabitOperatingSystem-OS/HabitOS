@@ -9,6 +9,8 @@ const GoalFormModal = ({
   onSubmit,
   loading = false,
   habits = [], // Only needed for create
+  goals = [], // Existing goals to check for duplicates
+  checkHabitGoal = null, // Function to check if habit has goal
 }) => {
   const [formData, setFormData] = useState({
     habit_id: "",
@@ -19,6 +21,8 @@ const GoalFormModal = ({
     status: "active",
   });
   const [errors, setErrors] = useState({});
+  const [habitGoalInfo, setHabitGoalInfo] = useState(null);
+  const [checkingHabit, setCheckingHabit] = useState(false);
 
   // Pre-fill form in edit mode
   useEffect(() => {
@@ -54,6 +58,10 @@ const GoalFormModal = ({
     }
     if (mode === "create" && !formData.habit_id) {
       newErrors.habit_id = "Please select a habit";
+    }
+    if (mode === "create" && habitGoalInfo && habitGoalInfo.has_goal) {
+      newErrors.habit_id =
+        "This habit already has a goal. Please edit the existing goal instead.";
     }
     if (!formData.target_check_ins || formData.target_check_ins <= 0) {
       newErrors.target_check_ins = "Target check-ins must be greater than 0";
@@ -94,6 +102,24 @@ const GoalFormModal = ({
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: "" }));
+    }
+
+    // Check if habit has goal when habit is selected
+    if (field === "habit_id" && value && checkHabitGoal) {
+      setCheckingHabit(true);
+      checkHabitGoal(value)
+        .then((result) => {
+          setHabitGoalInfo(result);
+        })
+        .catch((error) => {
+          console.error("Failed to check habit goal:", error);
+          setHabitGoalInfo(null);
+        })
+        .finally(() => {
+          setCheckingHabit(false);
+        });
+    } else if (field === "habit_id" && !value) {
+      setHabitGoalInfo(null);
     }
   };
 
@@ -180,14 +206,39 @@ const GoalFormModal = ({
                 }`}
               >
                 <option value="">Choose a habit...</option>
-                {habits.map((habit) => (
-                  <option key={habit.id} value={habit.id}>
-                    {habit.title}
-                  </option>
-                ))}
+                {habits.map((habit) => {
+                  // Check if this habit has a goal by looking at existing goals
+                  const hasGoal = goals.some(
+                    (goal) => goal.habit_id === habit.id
+                  );
+                  return (
+                    <option key={habit.id} value={habit.id} disabled={hasGoal}>
+                      {habit.title} {hasGoal ? "(has goal)" : ""}
+                    </option>
+                  );
+                })}
               </select>
               {errors.habit_id && (
                 <p className="text-red-500 text-sm mt-1">{errors.habit_id}</p>
+              )}
+
+              {/* Show habit goal status */}
+              {checkingHabit && (
+                <p className="text-blue-500 text-sm mt-1">
+                  Checking habit goal status...
+                </p>
+              )}
+              {habitGoalInfo && habitGoalInfo.has_goal && (
+                <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                  <p className="text-yellow-800 text-sm">
+                    <strong>Note:</strong> This habit already has a goal: "
+                    {habitGoalInfo.goal.title}"
+                  </p>
+                  <p className="text-yellow-700 text-xs mt-1">
+                    You can edit the existing goal instead of creating a new
+                    one.
+                  </p>
+                </div>
               )}
             </div>
           )}
@@ -302,7 +353,10 @@ const GoalFormModal = ({
             </button>
             <button
               type="submit"
-              disabled={loading}
+              disabled={
+                loading ||
+                (mode === "create" && habitGoalInfo && habitGoalInfo.has_goal)
+              }
               className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading
@@ -311,6 +365,8 @@ const GoalFormModal = ({
                   : "Creating..."
                 : mode === "edit"
                 ? "Update Goal"
+                : habitGoalInfo && habitGoalInfo.has_goal
+                ? "Habit Has Goal"
                 : "Create Goal"}
             </button>
           </div>

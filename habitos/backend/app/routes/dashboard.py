@@ -5,7 +5,7 @@ from sqlalchemy import func, and_
 from app.models.user import User
 from app.models.habit import Habit
 from app.models.check_in import CheckIn
-from app.models.goal import Goal
+from app.models.goal import Goal, GoalStatus
 from app import db
 
 dashboard_bp = Blueprint('dashboard', __name__)
@@ -65,7 +65,7 @@ def get_dashboard_data():
         # Get goals achieved count
         goals_achieved = Goal.query.filter_by(
             user_id=current_user_id, 
-            status='COMPLETED'
+            status=GoalStatus.COMPLETED.value
         ).count()
 
         # Get streak data for the last 7 days

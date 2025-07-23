@@ -14,13 +14,13 @@ const GoalsPage = () => {
   const {
     goals,
     habits,
-    goalsByHabit,
     loading,
     error,
     fetchGoals,
     createGoal,
     patchGoal,
     deleteGoal,
+    checkHabitGoal,
   } = useGoals();
 
   const [modalMode, setModalMode] = useState("create"); // 'create' | 'edit'
@@ -242,35 +242,17 @@ const GoalsPage = () => {
               </button>
             </div>
           ) : (
-            <div className="space-y-6">
-              {Object.entries(goalsByHabit).map(([habitId, habitGoals]) => {
-                const habit = habits.find((h) => h.id === habitId);
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {goals.map((goal) => {
+                const habit = habits.find((h) => h.id === goal.habit_id);
                 return (
-                  <div
-                    key={habitId}
-                    className="border border-gray-200 rounded-lg p-4"
-                  >
-                    <div className="mb-4">
-                      <h3 className="text-lg font-medium text-gray-900 mb-1">
-                        {habit?.title || "Unknown Habit"}
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        {habitGoals.length} goal
-                        {habitGoals.length !== 1 ? "s" : ""}
-                      </p>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {habitGoals.map((goal) => (
-                        <GoalCard
-                          key={`${goal.id}-${goal.updated_at}`}
-                          goal={goal}
-                          habit={habit}
-                          onEdit={openEditModal}
-                          onDelete={handleDeleteGoal}
-                        />
-                      ))}
-                    </div>
-                  </div>
+                  <GoalCard
+                    key={`${goal.id}-${goal.updated_at}`}
+                    goal={goal}
+                    habit={habit}
+                    onEdit={openEditModal}
+                    onDelete={handleDeleteGoal}
+                  />
                 );
               })}
             </div>
@@ -286,6 +268,8 @@ const GoalsPage = () => {
         onSubmit={handleFormSubmit}
         loading={formLoading}
         habits={habits}
+        goals={goals}
+        checkHabitGoal={checkHabitGoal}
       />
       {/* Delete Confirmation Modal */}
       <DeleteConfirmModal

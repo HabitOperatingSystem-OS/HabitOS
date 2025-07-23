@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { goalsAPI, habitsAPI } from "../../services/api";
 
 export const useGoals = () => {
@@ -6,19 +6,6 @@ export const useGoals = () => {
   const [habits, setHabits] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
-  // Group goals by habit - memoized for better performance and reactivity
-  const goalsByHabit = useMemo(() => {
-    console.log("Recalculating goalsByHabit with goals:", goals);
-    return goals.reduce((acc, goal) => {
-      const habitId = goal.habit_id;
-      if (!acc[habitId]) {
-        acc[habitId] = [];
-      }
-      acc[habitId].push(goal);
-      return acc;
-    }, {});
-  }, [goals]);
 
   // Get habit details for each goal
   const getHabitForGoal = (goal) => {
@@ -110,6 +97,16 @@ export const useGoals = () => {
     }
   };
 
+  const checkHabitGoal = async (habitId) => {
+    try {
+      const response = await goalsAPI.checkHabitGoal(habitId);
+      return response;
+    } catch (err) {
+      console.error("Failed to check habit goal:", err);
+      throw err;
+    }
+  };
+
   useEffect(() => {
     fetchGoals();
   }, []);
@@ -117,7 +114,6 @@ export const useGoals = () => {
   return {
     goals,
     habits,
-    goalsByHabit,
     getHabitForGoal,
     loading,
     error,
@@ -127,5 +123,6 @@ export const useGoals = () => {
     patchGoal,
     deleteGoal,
     updateGoalProgress,
+    checkHabitGoal,
   };
 };

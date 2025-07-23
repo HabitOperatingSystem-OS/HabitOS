@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { X, Save, Calendar } from "lucide-react";
+import { X, Save } from "lucide-react";
 
 const JournalEditModal = ({ isOpen, onClose, entry, onSave }) => {
   const [formData, setFormData] = useState({

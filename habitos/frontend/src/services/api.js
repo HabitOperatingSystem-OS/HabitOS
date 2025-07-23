@@ -247,6 +247,11 @@ export const goalsAPI = {
     const response = await api.get("/goals/priorities");
     return response.data;
   },
+
+  checkHabitGoal: async (habitId) => {
+    const response = await api.get(`/goals/habit/${habitId}/check`);
+    return response.data;
+  },
 };
 
 export default api;
