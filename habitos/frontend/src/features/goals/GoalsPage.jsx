@@ -1,12 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  TrendingUp,
-  Plus,
-  Target,
-  Calendar,
-  Award,
-  RefreshCw,
-} from "lucide-react";
+import { TrendingUp, Plus, Target, Award } from "lucide-react";
 import { useGoals } from "../../shared/hooks";
 import {
   LoadingSpinner,
@@ -15,7 +8,6 @@ import {
   DeleteConfirmModal,
 } from "../../shared/components";
 import GoalFormModal from "./GoalFormModal";
-import GoalEditModal from "./GoalEditModal";
 import GoalCard from "./GoalCard";
 
 const GoalsPage = () => {
@@ -23,7 +15,6 @@ const GoalsPage = () => {
     goals,
     habits,
     goalsByHabit,
-    getHabitForGoal,
     loading,
     error,
     fetchGoals,
@@ -47,15 +38,6 @@ const GoalsPage = () => {
   useEffect(() => {
     fetchGoals();
   }, []);
-
-  // Debug modal states and goals - moved after all hooks
-  console.log("Modal states:", {
-    isModalOpen,
-    isDeleteModalOpen,
-    selectedGoal,
-  });
-  console.log("Current goals:", goals);
-  console.log("Goals by habit:", goalsByHabit);
 
   // Calculate stats
   const activeGoals = goals.filter((goal) => goal.status === "active");
