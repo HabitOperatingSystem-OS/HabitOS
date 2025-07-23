@@ -49,6 +49,9 @@ const GoalFormModal = ({
 
   const validateForm = () => {
     const newErrors = {};
+    if (!formData.title.trim()) {
+      newErrors.title = "Title is required";
+    }
     if (mode === "create" && !formData.habit_id) {
       newErrors.habit_id = "Please select a habit";
     }
@@ -136,6 +139,28 @@ const GoalFormModal = ({
         </div>
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Goal Title */}
+          <div>
+            <label
+              htmlFor="title"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Goal Title
+            </label>
+            <input
+              type="text"
+              id="title"
+              value={formData.title}
+              onChange={(e) => handleInputChange("title", e.target.value)}
+              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
+                errors.title ? "border-red-500" : "border-gray-300"
+              }`}
+              placeholder="e.g., Read 10 books, Run a marathon, etc."
+            />
+            {errors.title && (
+              <p className="text-red-500 text-sm mt-1">{errors.title}</p>
+            )}
+          </div>
           {/* Habit Selection (only in create mode) */}
           {mode === "create" && (
             <div>

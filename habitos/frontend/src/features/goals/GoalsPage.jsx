@@ -87,7 +87,7 @@ const GoalsPage = () => {
       if (modalMode === "create") {
         const payload = {
           habit_id: formData.habit_id,
-          title: `Complete ${formData.target_check_ins} check-ins`,
+          title: formData.title,
           goal_type: "count",
           target_value: parseInt(formData.target_check_ins),
           target_unit: "check-ins",
