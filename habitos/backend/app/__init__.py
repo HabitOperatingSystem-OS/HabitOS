@@ -72,7 +72,7 @@ def create_app(config_name=None):
     CORS(app, 
          origins=app.config.get('CORS_ORIGINS', ['http://localhost:3000']),
          supports_credentials=True,
-         methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+         methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
          allow_headers=['Content-Type', 'Authorization', 'X-Requested-With'])
     
     # Register blueprints

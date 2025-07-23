@@ -82,6 +82,29 @@ class Goal(db.Model):
             cls.due_date < today
         ).all()
     
+    def update_progress_from_checkins(self):
+        """Update goal progress based on completed check-ins"""
+        from app.models.check_in import CheckIn
+        
+        # Count completed check-ins for this habit since goal start date
+        completed_checkins = CheckIn.query.filter(
+            CheckIn.habit_id == self.habit_id,
+            CheckIn.user_id == self.user_id,
+            CheckIn.completed == True,
+            CheckIn.date >= self.start_date
+        ).count()
+        
+        # Update current value
+        self.current_value = completed_checkins
+        
+        # Check if goal is completed
+        if self.current_value >= self.target_value and self.status == GoalStatus.ACTIVE:
+            self.status = GoalStatus.COMPLETED
+            self.completed_date = date.today()
+        
+        # Update the updated_at timestamp
+        self.updated_at = datetime.now(timezone.utc)
+    
     def to_dict(self):
         """Convert goal to dictionary"""
         return {

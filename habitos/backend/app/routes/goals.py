@@ -154,7 +154,7 @@ def get_goal(goal_id):
     except Exception as e:
         return jsonify({'error': 'Failed to fetch goal', 'details': str(e)}), 500
 
-@goals_bp.route('/<goal_id>', methods=['PUT'])
+@goals_bp.route('/<goal_id>', methods=['PUT', 'PATCH'])
 @jwt_required()
 def update_goal(goal_id):
     """

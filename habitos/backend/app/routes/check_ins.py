@@ -140,6 +140,18 @@ def create_check_in():
         # Update habit streak if check-in is completed
         if check_in.completed:
             habit.update_streak()
+            
+            # Update goal progress for this habit
+            from app.models.goal import Goal
+            active_goals = Goal.query.filter_by(
+                habit_id=check_in.habit_id,
+                user_id=current_user_id,
+                status='active'
+            ).all()
+            
+            for goal in active_goals:
+                goal.update_progress_from_checkins()
+            
             db.session.commit()
         
         return jsonify({
@@ -211,6 +223,18 @@ def update_check_in(check_in_id):
         # Update habit streak if completion status changed
         if completion_changed:
             check_in.habit.update_streak()
+            
+            # Update goal progress for this habit
+            from app.models.goal import Goal
+            active_goals = Goal.query.filter_by(
+                habit_id=check_in.habit_id,
+                user_id=current_user_id,
+                status='active'
+            ).all()
+            
+            for goal in active_goals:
+                goal.update_progress_from_checkins()
+            
             db.session.commit()
         
         return jsonify({
@@ -249,6 +273,18 @@ def delete_check_in(check_in_id):
         
         # Recalculate habit streak after deletion
         habit.update_streak()
+        
+        # Update goal progress for this habit
+        from app.models.goal import Goal
+        active_goals = Goal.query.filter_by(
+            habit_id=habit.id,
+            user_id=current_user_id,
+            status='active'
+        ).all()
+        
+        for goal in active_goals:
+            goal.update_progress_from_checkins()
+        
         db.session.commit()
         
         return jsonify({'message': 'Check-in deleted successfully'}), 200
@@ -501,8 +537,25 @@ def create_bulk_check_in():
             if check_in.completed:
                 check_in.habit.update_streak()
         
+        # Update goal progress for all affected habits
+        from app.models.goal import Goal
+        affected_habit_ids = set()
+        for check_in in created_check_ins + updated_check_ins:
+            if check_in.completed:
+                affected_habit_ids.add(check_in.habit_id)
+        
+        for habit_id in affected_habit_ids:
+            active_goals = Goal.query.filter_by(
+                habit_id=habit_id,
+                user_id=current_user_id,
+                status='active'
+            ).all()
+            
+            for goal in active_goals:
+                goal.update_progress_from_checkins()
+        
         db.session.commit()
-        print("Habit streaks updated")
+        print("Habit streaks and goal progress updated")
         
         response_data = {
             'message': 'Bulk check-in created successfully',
