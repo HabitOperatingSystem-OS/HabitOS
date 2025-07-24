@@ -91,7 +91,6 @@ const GoalFormModal = ({
         title: "",
         target_check_ins: "",
         due_date: "",
-        priority: "medium",
         status: "active",
       });
       setErrors({});
@@ -293,27 +292,6 @@ const GoalFormModal = ({
               <p className="text-red-500 text-sm mt-1">{errors.due_date}</p>
             )}
           </div>
-          {/* Priority (edit mode only) */}
-          {mode === "edit" && (
-            <div>
-              <label
-                htmlFor="priority"
-                className="block text-sm font-medium text-gray-700 mb-2"
-              >
-                Priority
-              </label>
-              <select
-                id="priority"
-                value={formData.priority}
-                onChange={(e) => handleInputChange("priority", e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              >
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-              </select>
-            </div>
-          )}
           {/* Status (edit mode only) */}
           {mode === "edit" && (
             <div>

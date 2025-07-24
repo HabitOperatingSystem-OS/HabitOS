@@ -14,11 +14,8 @@ class GoalStatus(Enum):
     IN_PROGRESS = "in_progress"
     COMPLETED = "completed"
     ABANDONED = "abandoned"
-
-class GoalPriority(Enum):
-    LOW = "low"
-    MEDIUM = "medium"
-    HIGH = "high"
+    PAUSED = "paused"
+    CANCELLED = "cancelled"
 
 class Goal(db.Model):
     __tablename__ = 'goals'
@@ -39,7 +36,6 @@ class Goal(db.Model):
     current_value = db.Column(db.Float, default=0)
     
     # Goal settings
-    priority = db.Column(db.Enum(GoalPriority, values_callable=lambda obj: [e.value for e in obj]), default=GoalPriority.MEDIUM.value)
     status = db.Column(db.Enum(GoalStatus, values_callable=lambda obj: [e.value for e in obj]), default=GoalStatus.IN_PROGRESS.value)
     start_date = db.Column(db.Date, nullable=False, default=lambda: datetime.now(timezone.utc).date())
     due_date = db.Column(db.Date)
@@ -119,7 +115,6 @@ class Goal(db.Model):
             'target_value': self.target_value,
             'target_unit': self.target_unit,
             'current_value': self.current_value,
-            'priority': self.priority.value,
             'status': self.status.value,
             'start_date': self.start_date.isoformat(),
             'due_date': self.due_date.isoformat() if self.due_date else None,

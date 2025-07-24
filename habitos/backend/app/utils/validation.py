@@ -57,7 +57,9 @@ def validate_goal_status(status: str) -> str:
         'active': 'in_progress',  # Frontend sends 'active', backend expects 'in_progress'
         'in_progress': 'in_progress',
         'completed': 'completed',
-        'abandoned': 'abandoned'
+        'abandoned': 'abandoned',
+        'paused': 'paused',
+        'cancelled': 'cancelled',
     }
     
     # Convert the status to the expected backend value

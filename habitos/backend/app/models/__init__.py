@@ -2,13 +2,13 @@
 from .user import User
 from .habit import Habit, HabitCategory, HabitFrequency
 from .check_in import CheckIn
-from .goal import Goal, GoalType, GoalStatus, GoalPriority
+from .goal import Goal, GoalType, GoalStatus
 from .journal_entry import JournalEntry, SentimentType
 
 __all__ = [
     'User',
     'Habit', 'HabitCategory', 'HabitFrequency',
     'CheckIn',
-    'Goal', 'GoalType', 'GoalStatus', 'GoalPriority',
+    'Goal', 'GoalType', 'GoalStatus',
     'JournalEntry', 'SentimentType'
 ]
