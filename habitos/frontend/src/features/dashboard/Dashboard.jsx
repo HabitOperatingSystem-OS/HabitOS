@@ -2,10 +2,6 @@ import React from "react";
 import {
   Target,
   TrendingUp,
-  Calendar,
-  BarChart3,
-  Plus,
-  Settings,
   Activity,
   Award,
   Target as TargetIcon,
@@ -22,14 +18,7 @@ import TodayHabits from "./TodayHabits";
 import MoodSummary from "./MoodSummary";
 import StatsCard from "./StatsCard";
 import { LoadingSpinner } from "../../shared/components";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../../components/ui/card";
-import { Button } from "../../components/ui/button";
+import { Card, CardContent } from "../../components/ui/card";
 import { motion } from "framer-motion";
 
 const Dashboard = () => {
@@ -67,7 +56,7 @@ const Dashboard = () => {
           <Card className="max-w-md text-center">
             <CardContent className="pt-6">
               <div className="w-16 h-16 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <BarChart3 className="w-8 h-8 text-red-600 dark:text-red-400" />
+                <Target className="w-8 h-8 text-red-600 dark:text-red-400" />
               </div>
               <h2 className="text-xl font-semibold mb-2">
                 Error Loading Dashboard
@@ -90,7 +79,7 @@ const Dashboard = () => {
           <Card className="max-w-md text-center">
             <CardContent className="pt-6">
               <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                <BarChart3 className="w-8 h-8 text-gray-400" />
+                <Target className="w-8 h-8 text-gray-400" />
               </div>
               <h2 className="text-xl font-semibold mb-2">No Data Available</h2>
               <p className="text-muted-foreground">
@@ -285,52 +274,6 @@ const Dashboard = () => {
                 onToggleHabit={handleToggleHabit}
               />
               <MoodSummary moodData={moodSummary} />
-            </motion.div>
-
-            {/* Quick Actions */}
-            <motion.div variants={itemVariants}>
-              <Card className="card-glass">
-                <CardHeader>
-                  <CardTitle className="text-gradient-wellness">
-                    Quick Actions
-                  </CardTitle>
-                  <CardDescription>
-                    Accelerate your wellness journey with these quick actions
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid-premium-2">
-                    <Button
-                      variant="wellness"
-                      className="h-16 text-lg font-semibold"
-                    >
-                      <Plus className="w-5 h-5 mr-3" />
-                      Add New Habit
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="h-16 text-lg font-semibold"
-                    >
-                      <Calendar className="w-5 h-5 mr-3" />
-                      View Calendar
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="h-16 text-lg font-semibold"
-                    >
-                      <BarChart3 className="w-5 h-5 mr-3" />
-                      View Analytics
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="h-16 text-lg font-semibold"
-                    >
-                      <Settings className="w-5 h-5 mr-3" />
-                      Settings
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
             </motion.div>
           </div>
         </motion.div>

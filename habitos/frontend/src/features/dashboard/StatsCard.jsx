@@ -91,7 +91,7 @@ const StatsCard = ({
                   </motion.div>
                 )}
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">
+                  <p className="text-sm font-medium text-muted-foreground whitespace-nowrap">
                     {title}
                   </p>
                   <p className="text-3xl font-bold text-gradient-wellness">
