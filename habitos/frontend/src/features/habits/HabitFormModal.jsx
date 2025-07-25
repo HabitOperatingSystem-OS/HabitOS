@@ -252,28 +252,6 @@ const HabitFormModal = ({
               )}
             </div>
           )}
-
-          {/* Goal (Optional) */}
-          <div>
-            <label
-              htmlFor="goal"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Goal (Optional)
-            </label>
-            <textarea
-              id="goal"
-              value={formData.goal}
-              onChange={(e) => handleInputChange("goal", e.target.value)}
-              rows={3}
-              className="input"
-              placeholder="e.g., Build a consistent morning routine, Read 12 books this year"
-            />
-            <p className="mt-1 text-xs text-gray-500">
-              Optional: Add a specific goal or motivation for this habit
-            </p>
-          </div>
-
           {/* Form Actions */}
           <div className="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200">
             <button

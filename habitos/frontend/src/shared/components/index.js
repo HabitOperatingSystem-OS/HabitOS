@@ -6,3 +6,4 @@ export { default as PageLoader } from "./PageLoader";
 export { default as DeleteConfirmModal } from "./DeleteConfirmModal";
 export { default as SuccessModal } from "./SuccessModal";
 export { default as Tag } from "./Tag";
+export { default as Toast } from "./Toast";

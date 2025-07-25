@@ -175,4 +175,83 @@ export const journalAPI = {
   },
 };
 
+// Goals API calls
+export const goalsAPI = {
+  getGoals: async (filters = {}) => {
+    const params = new URLSearchParams();
+
+    if (filters.habit_id) params.append("habit_id", filters.habit_id);
+    if (filters.status) params.append("status", filters.status);
+    if (filters.priority) params.append("priority", filters.priority);
+
+    const response = await api.get(`/goals/?${params.toString()}`);
+    return response.data;
+  },
+
+  getGoal: async (id) => {
+    const response = await api.get(`/goals/${id}`);
+    return response.data;
+  },
+
+  createGoal: async (goalData) => {
+    const response = await api.post("/goals/", goalData);
+    return response.data;
+  },
+
+  updateGoal: async (id, goalData) => {
+    const response = await api.put(`/goals/${id}`, goalData);
+    return response.data;
+  },
+
+  patchGoal: async (id, goalData) => {
+    const response = await api.patch(`/goals/${id}`, goalData);
+    return response.data;
+  },
+
+  deleteGoal: async (id) => {
+    const response = await api.delete(`/goals/${id}`);
+    return response.data;
+  },
+
+  updateGoalProgress: async (id, progressData) => {
+    const response = await api.put(`/goals/${id}/progress`, progressData);
+    return response.data;
+  },
+
+  getHabitGoals: async (habitId) => {
+    const response = await api.get(`/goals/habit/${habitId}`);
+    return response.data;
+  },
+
+  getActiveGoals: async () => {
+    const response = await api.get("/goals/active");
+    return response.data;
+  },
+
+  getOverdueGoals: async () => {
+    const response = await api.get("/goals/overdue");
+    return response.data;
+  },
+
+  getGoalTypes: async () => {
+    const response = await api.get("/goals/types");
+    return response.data;
+  },
+
+  getGoalStatuses: async () => {
+    const response = await api.get("/goals/statuses");
+    return response.data;
+  },
+
+  getGoalPriorities: async () => {
+    const response = await api.get("/goals/priorities");
+    return response.data;
+  },
+
+  checkHabitGoal: async (habitId) => {
+    const response = await api.get(`/goals/habit/${habitId}/check`);
+    return response.data;
+  },
+};
+
 export default api;

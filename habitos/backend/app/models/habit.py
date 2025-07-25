@@ -28,10 +28,10 @@ class Habit(db.Model):
     
     # Core habit information
     title = db.Column(db.String(255), nullable=False)
-    category = db.Column(db.Enum(HabitCategory), nullable=False, default=HabitCategory.PERSONAL)
+    category = db.Column(db.Enum(HabitCategory, values_callable=lambda obj: [e.value for e in obj]), nullable=False, default=HabitCategory.PERSONAL)
     
     # Frequency and goal settings
-    frequency = db.Column(db.Enum(HabitFrequency), nullable=False, default=HabitFrequency.DAILY)
+    frequency = db.Column(db.Enum(HabitFrequency, values_callable=lambda obj: [e.value for e in obj]), nullable=False, default=HabitFrequency.DAILY)
     frequency_count = db.Column(db.Integer, default=0)
     
     # Status and tracking

@@ -232,7 +232,7 @@ const JournalEntryCard = ({ entry, onEdit, onDelete, showAiData = true }) => {
 JournalEntryCard.propTypes = {
   entry: PropTypes.shape({
     id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
-    title: PropTypes.string.isRequired,
+    title: PropTypes.string, // Made optional since backend doesn't provide title
     content: PropTypes.string.isRequired,
     mood_rating: PropTypes.number,
     sentiment: PropTypes.string,

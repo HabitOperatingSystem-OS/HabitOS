@@ -210,6 +210,9 @@ class TestingConfig(Config):
     ENABLE_GOOGLE_OAUTH = False
     ENABLE_RATE_LIMITING = False
     ENABLE_CACHING = False
+    
+    # Override engine options for SQLite testing
+    SQLALCHEMY_ENGINE_OPTIONS = {}
 
 # Configuration dictionary
 config = {

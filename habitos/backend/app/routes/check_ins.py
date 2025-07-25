@@ -3,6 +3,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from app import db
 from app.models.check_in import CheckIn
 from app.models.habit import Habit
+from app.models.goal import Goal, GoalStatus
 from app.models.journal_entry import JournalEntry, SentimentType
 from datetime import datetime, date
 import openai
@@ -140,6 +141,18 @@ def create_check_in():
         # Update habit streak if check-in is completed
         if check_in.completed:
             habit.update_streak()
+            
+            # Update goal progress for this habit
+            from app.models.goal import Goal, GoalStatus
+            active_goals = Goal.query.filter_by(
+                habit_id=check_in.habit_id,
+                user_id=current_user_id,
+                status=GoalStatus.IN_PROGRESS.value
+            ).all()
+            
+            for goal in active_goals:
+                goal.update_progress_from_checkins()
+            
             db.session.commit()
         
         return jsonify({
@@ -211,6 +224,18 @@ def update_check_in(check_in_id):
         # Update habit streak if completion status changed
         if completion_changed:
             check_in.habit.update_streak()
+            
+            # Update goal progress for this habit
+            from app.models.goal import Goal, GoalStatus
+            active_goals = Goal.query.filter_by(
+                habit_id=check_in.habit_id,
+                user_id=current_user_id,
+                status=GoalStatus.IN_PROGRESS.value
+            ).all()
+            
+            for goal in active_goals:
+                goal.update_progress_from_checkins()
+            
             db.session.commit()
         
         return jsonify({
@@ -249,6 +274,18 @@ def delete_check_in(check_in_id):
         
         # Recalculate habit streak after deletion
         habit.update_streak()
+        
+        # Update goal progress for this habit
+        from app.models.goal import Goal, GoalStatus
+        active_goals = Goal.query.filter_by(
+            habit_id=habit.id,
+            user_id=current_user_id,
+            status=GoalStatus.IN_PROGRESS.value
+        ).all()
+        
+        for goal in active_goals:
+            goal.update_progress_from_checkins()
+        
         db.session.commit()
         
         return jsonify({'message': 'Check-in deleted successfully'}), 200
@@ -501,8 +538,28 @@ def create_bulk_check_in():
             if check_in.completed:
                 check_in.habit.update_streak()
         
+        # Update goal progress for all affected habits
+        affected_habit_ids = set()
+        for check_in in created_check_ins + updated_check_ins:
+            if check_in.completed:
+                affected_habit_ids.add(check_in.habit_id)
+        
+        for habit_id in affected_habit_ids:
+            try:
+                active_goals = Goal.query.filter_by(
+                    habit_id=habit_id,
+                    user_id=current_user_id,
+                    status=GoalStatus.IN_PROGRESS.value
+                ).all()
+                
+                for goal in active_goals:
+                    goal.update_progress_from_checkins()
+            except Exception as e:
+                print(f"Error updating goal progress for habit {habit_id}: {str(e)}")
+                # Continue with other goals even if one fails
+        
         db.session.commit()
-        print("Habit streaks updated")
+        print("Habit streaks and goal progress updated")
         
         response_data = {
             'message': 'Bulk check-in created successfully',
@@ -521,4 +578,14 @@ def create_bulk_check_in():
         import traceback
         traceback.print_exc()
         db.session.rollback()
-        return jsonify({'error': 'Failed to create bulk check-in', 'details': str(e)}), 500
+        
+        # Provide more specific error messages for common issues
+        error_message = 'Failed to create bulk check-in'
+        if 'InvalidTextRepresentation' in str(e) and 'goalstatus' in str(e):
+            error_message = 'Invalid goal status value. Please contact support.'
+        elif 'ForeignKeyViolation' in str(e):
+            error_message = 'Invalid habit ID provided.'
+        elif 'UniqueViolation' in str(e):
+            error_message = 'Check-in already exists for this date and habit.'
+        
+        return jsonify({'error': error_message, 'details': str(e)}), 500
