@@ -135,8 +135,8 @@ const GoalsPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 pt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 pt-20">
+        <div className="container-premium section-padding">
           <LoadingSpinner />
         </div>
       </div>
@@ -145,8 +145,8 @@ const GoalsPage = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 pt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 pt-20">
+        <div className="container-premium section-padding">
           <ErrorMessage message={error} onRetry={fetchGoals} />
         </div>
       </div>
@@ -154,57 +154,61 @@ const GoalsPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 pt-20">
+      <div className="container-premium section-padding">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Goals</h1>
-          <p className="text-gray-600 mt-2">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Goals
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">
             Track and manage your habit goals
           </p>
         </div>
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="card-premium p-6">
             <div className="flex items-center">
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <Target className="w-6 h-6 text-blue-600" />
+              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
+                <Target className="w-6 h-6 text-blue-600 dark:text-blue-400" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
                   Active Goals
                 </p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">
                   {activeGoals.length}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="card-premium p-6">
             <div className="flex items-center">
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <Award className="w-6 h-6 text-green-600" />
+              <div className="w-12 h-12 bg-green-100 dark:bg-green-900/20 rounded-lg flex items-center justify-center">
+                <Award className="w-6 h-6 text-green-600 dark:text-green-400" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Completed</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  Completed
+                </p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">
                   {completedGoals.length}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="card-premium p-6">
             <div className="flex items-center">
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-purple-600" />
+              <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center">
+                <TrendingUp className="w-6 h-6 text-purple-600 dark:text-purple-400" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
                   Success Rate
                 </p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">
                   {successRate}%
                 </p>
               </div>
@@ -212,12 +216,14 @@ const GoalsPage = () => {
           </div>
         </div>
         {/* Main Content */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="card-premium p-6">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold text-gray-900">Your Goals</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+              Your Goals
+            </h2>
             <button
               onClick={openCreateModal}
-              className="flex items-center space-x-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+              className="btn-primary flex items-center space-x-2"
             >
               <Plus className="w-4 h-4" />
               <span>Add Goal</span>
@@ -227,15 +233,15 @@ const GoalsPage = () => {
           {goals.length === 0 ? (
             <div className="text-center py-12">
               <Target className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                 No goals yet
               </h3>
-              <p className="text-gray-600 mb-6">
-                Create your first goal to start tracking your habit progress
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
+                Create your first goal to start tracking your progress
               </p>
               <button
                 onClick={openCreateModal}
-                className="inline-flex items-center space-x-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+                className="btn-primary flex items-center space-x-2 mx-auto"
               >
                 <Plus className="w-4 h-4" />
                 <span>Create Your First Goal</span>
@@ -259,34 +265,29 @@ const GoalsPage = () => {
           )}
         </div>
       </div>
-      {/* Goal Form Modal (Create/Edit) */}
+
+      {/* Modals */}
       <GoalFormModal
         isOpen={isModalOpen}
         onClose={closeModal}
-        mode={modalMode}
-        initialGoal={selectedGoal}
         onSubmit={handleFormSubmit}
-        loading={formLoading}
+        goal={selectedGoal}
+        mode={modalMode}
         habits={habits}
-        goals={goals}
-        checkHabitGoal={checkHabitGoal}
+        loading={formLoading}
       />
-      {/* Delete Confirmation Modal */}
+
       <DeleteConfirmModal
         isOpen={isDeleteModalOpen}
-        onClose={() => {
-          setIsDeleteModalOpen(false);
-          setSelectedGoal(null);
-        }}
+        onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleConfirmDelete}
         title="Delete Goal"
-        message={`Are you sure you want to delete the goal "${selectedGoal?.title}"? This action cannot be undone.`}
-        confirmText="Delete Goal"
-        cancelText="Cancel"
+        message="Are you sure you want to delete this goal? This action cannot be undone."
       />
-      {/* Toast Notification */}
+
+      {/* Toast */}
       <Toast
-        isVisible={toast.show}
+        show={toast.show}
         message={toast.message}
         type={toast.type}
         onClose={() => setToast({ ...toast, show: false })}

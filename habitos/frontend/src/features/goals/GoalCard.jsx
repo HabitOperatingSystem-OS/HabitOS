@@ -30,19 +30,21 @@ const GoalCard = ({ goal, habit, onEdit, onDelete }) => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showMenu]);
+
   const getStatusColor = (status, isOverdue) => {
-    if (isOverdue) return "text-red-600 bg-red-100";
+    if (isOverdue)
+      return "text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/20";
     switch (status) {
       case "completed":
-        return "text-green-600 bg-green-100";
+        return "text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/20";
       case "active":
-        return "text-blue-600 bg-blue-100";
+        return "text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/20";
       case "paused":
-        return "text-yellow-600 bg-yellow-100";
+        return "text-yellow-600 dark:text-yellow-400 bg-yellow-100 dark:bg-yellow-900/20";
       case "cancelled":
-        return "text-gray-600 bg-gray-100";
+        return "text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800";
       default:
-        return "text-gray-600 bg-gray-100";
+        return "text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800";
     }
   };
 
@@ -85,14 +87,16 @@ const GoalCard = ({ goal, habit, onEdit, onDelete }) => {
   const status = goal.status || "active";
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 hover:shadow-md transition-shadow relative">
+    <div className="card-premium p-4 hover:shadow-premium transition-shadow relative">
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
         <div className="flex-1">
-          <h3 className="font-medium text-gray-900 text-sm mb-1">
+          <h3 className="font-medium text-gray-900 dark:text-white text-sm mb-1">
             {habit?.title || "Unknown Habit"}
           </h3>
-          <p className="text-xs text-gray-600">{goal.title}</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400">
+            {goal.title}
+          </p>
         </div>
         <div className="flex items-center space-x-2">
           <div
@@ -109,20 +113,20 @@ const GoalCard = ({ goal, habit, onEdit, onDelete }) => {
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => setShowMenu(!showMenu)}
-              className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+              className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
             >
               <MoreVertical className="w-4 h-4" />
             </button>
 
             {showMenu && (
-              <div className="absolute right-0 top-6 z-10 bg-white border border-gray-200 rounded-lg shadow-lg py-1 min-w-[120px]">
+              <div className="absolute right-0 top-6 z-10 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg py-1 min-w-[120px]">
                 <button
                   onClick={() => {
                     console.log("Edit button clicked for goal:", goal);
                     setShowMenu(false);
                     onEdit(goal);
                   }}
-                  className="w-full flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  className="w-full flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
                   <Edit className="w-4 h-4" />
                   <span>Edit</span>
@@ -132,7 +136,7 @@ const GoalCard = ({ goal, habit, onEdit, onDelete }) => {
                     setShowMenu(false);
                     onDelete(goal);
                   }}
-                  className="w-full flex items-center space-x-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                  className="w-full flex items-center space-x-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                 >
                   <Trash2 className="w-4 h-4" />
                   <span>Delete</span>
@@ -145,14 +149,14 @@ const GoalCard = ({ goal, habit, onEdit, onDelete }) => {
 
       {/* Progress */}
       <div className="mb-3">
-        <div className="flex items-center justify-between text-xs text-gray-600 mb-1">
+        <div className="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400 mb-1">
           <span>
             <Target className="w-3 h-3 inline mr-1" />
             Progress: {goal.current_value || 0} / {goal.target_value} check-ins
           </span>
           <span className="font-medium">{Math.round(progressPercentage)}%</span>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
+        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
           <div
             className={`h-2 rounded-full transition-all duration-300 ${getProgressColor(
               progressPercentage,
@@ -164,14 +168,14 @@ const GoalCard = ({ goal, habit, onEdit, onDelete }) => {
       </div>
 
       {/* Due Date */}
-      <div className="flex items-center text-xs text-gray-500">
+      <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
         <Calendar className="w-3 h-3 mr-1" />
         <span>Due: {formatDate(goal.due_date)}</span>
       </div>
 
       {/* Additional Info */}
       {goal.completed_date && (
-        <div className="mt-2 text-xs text-green-600">
+        <div className="mt-2 text-xs text-green-600 dark:text-green-400">
           <CheckCircle className="w-3 h-3 inline mr-1" />
           Completed on {formatDate(goal.completed_date)}
         </div>

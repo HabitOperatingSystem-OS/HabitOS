@@ -11,132 +11,239 @@ import {
   Filler,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
+import { motion } from "framer-motion";
+import { TrendingUp, Target, Award } from "lucide-react";
 
 // Register Chart.js components and plugins for the line chart
-// This is required before using any Chart.js components
 ChartJS.register(
-  CategoryScale, // For x-axis categories (days of the week)
-  LinearScale, // For y-axis numerical values
-  PointElement, // For data points on the line
-  LineElement, // For the line connecting points
-  Title, // For chart titles (disabled in this component)
-  Tooltip, // For hover tooltips
-  Legend, // For chart legends (disabled in this component)
-  Filler // For filling area under the line (not used but registered)
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
 );
 
 const StreakChart = ({ data }) => {
   // Chart configuration options for styling and behavior
   const chartOptions = {
-    responsive: true, // Make chart responsive to container size
-    maintainAspectRatio: false, // Allow custom height/width ratios
+    responsive: true,
+    maintainAspectRatio: false,
 
     plugins: {
-      // Hide the legend since we only have one dataset
       legend: {
         display: false,
       },
-      // Hide the title since we have a custom header
       title: {
         display: false,
       },
-      // Customize tooltip appearance and content
       tooltip: {
-        backgroundColor: "rgba(0, 0, 0, 0.8)", // Dark background
-        titleColor: "white", // White title text
-        bodyColor: "white", // White body text
-        borderColor: "rgba(59, 130, 246, 0.5)", // Blue border
-        borderWidth: 1, // Border thickness
-        cornerRadius: 8, // Rounded corners
-        displayColors: false, // Hide color indicators
+        backgroundColor: "rgba(0, 0, 0, 0.9)",
+        titleColor: "white",
+        bodyColor: "white",
+        borderColor: "rgba(139, 92, 246, 0.5)",
+        borderWidth: 1,
+        cornerRadius: 12,
+        displayColors: false,
+        titleFont: {
+          size: 14,
+          weight: "bold",
+        },
+        bodyFont: {
+          size: 13,
+        },
         callbacks: {
-          // Custom tooltip title format
           title: (context) => `Day ${context[0].label}`,
-          // Custom tooltip body format
           label: (context) => `${context.parsed.y} habits completed`,
         },
       },
     },
 
     scales: {
-      // X-axis configuration (days of the week)
       x: {
         grid: {
-          display: false, // Hide vertical grid lines
+          display: false,
         },
         ticks: {
-          color: "#6B7280", // Gray text color
+          color: "#6B7280",
           font: {
-            size: 12, // Font size
+            size: 12,
+            weight: "500",
           },
         },
       },
-      // Y-axis configuration (number of habits)
       y: {
-        beginAtZero: true, // Start y-axis at 0
-        max: 10, // Maximum value on y-axis
+        beginAtZero: true,
+        max: 10,
         grid: {
-          color: "rgba(0, 0, 0, 0.05)", // Very light gray grid lines
+          color: "rgba(139, 92, 246, 0.1)",
+          lineWidth: 1,
         },
         ticks: {
-          color: "#6B7280", // Gray text color
+          color: "#6B7280",
           font: {
-            size: 12, // Font size
+            size: 12,
+            weight: "500",
           },
-          stepSize: 2, // Show ticks every 2 units
+          stepSize: 2,
         },
       },
     },
 
-    // Styling for chart elements
     elements: {
-      // Data point styling
       point: {
-        radius: 4, // Default point size
-        hoverRadius: 6, // Point size on hover
-        backgroundColor: "rgb(59, 130, 246)", // Blue background
-        borderColor: "white", // White border
-        borderWidth: 2, // Border thickness
+        radius: 6,
+        hoverRadius: 8,
+        backgroundColor: "rgb(139, 92, 246)",
+        borderColor: "white",
+        borderWidth: 3,
+        hoverBorderColor: "rgb(139, 92, 246)",
+        hoverBorderWidth: 2,
       },
-      // Line styling
       line: {
-        borderWidth: 3, // Line thickness
+        borderWidth: 4,
+        borderColor: "rgb(139, 92, 246)",
+        backgroundColor: "rgba(139, 92, 246, 0.1)",
+        fill: true,
+        tension: 0.4,
       },
     },
   };
 
+  const averageHabits = Math.round(
+    data.datasets[0].data.reduce((a, b) => a + b, 0) /
+      data.datasets[0].data.length
+  );
+  const bestDay = Math.max(...data.datasets[0].data);
+  const totalHabits = data.datasets[0].data.reduce((a, b) => a + b, 0);
+
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      {/* Chart header with title and legend indicator */}
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-gray-900">Weekly Streak</h3>
-        <div className="flex items-center space-x-2">
-          {/* Blue dot indicator for the legend */}
-          <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-          <span className="text-sm text-gray-600">Habit Completion</span>
+    <Card className="card-glass">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="text-gradient-wellness">
+              Weekly Streak
+            </CardTitle>
+            <CardDescription>
+              Your habit completion journey over the past week
+            </CardDescription>
+          </div>
+          <motion.div
+            className="w-12 h-12 bg-gradient-to-br from-wellness-lavender to-wellness-indigo rounded-xl flex items-center justify-center shadow-lg"
+            whileHover={{ scale: 1.1, rotate: 5 }}
+            transition={{ type: "spring", stiffness: 400, damping: 10 }}
+          >
+            <TrendingUp className="w-6 h-6 text-white" />
+          </motion.div>
         </div>
-      </div>
+      </CardHeader>
 
-      {/* Chart container with fixed height */}
-      <div className="h-64">
-        <Line data={data} options={chartOptions} />
-      </div>
+      <CardContent>
+        {/* Chart container with fixed height */}
+        <motion.div
+          className="h-80 relative"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <Line data={data} options={chartOptions} />
 
-      {/* Chart footer with statistics */}
-      <div className="mt-4 flex items-center justify-between text-sm text-gray-600">
-        {/* Calculate and display average habits per day */}
-        <span>
-          Average:{" "}
-          {Math.round(
-            data.datasets[0].data.reduce((a, b) => a + b, 0) /
-              data.datasets[0].data.length
-          )}{" "}
-          habits/day
-        </span>
-        {/* Display the best day (highest number of habits completed) */}
-        <span>Best day: {Math.max(...data.datasets[0].data)} habits</span>
-      </div>
-    </div>
+          {/* Gradient overlay for visual enhancement */}
+          <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-transparent via-transparent to-white/5 dark:to-gray-900/5 rounded-xl" />
+        </motion.div>
+
+        {/* Enhanced statistics */}
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <motion.div
+            className="text-center p-4 bg-gradient-to-br from-primary-50/50 to-primary-100/50 dark:from-primary-900/20 dark:to-primary-800/20 rounded-xl border border-primary-200/50 dark:border-primary-800/50"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            whileHover={{ scale: 1.02 }}
+          >
+            <Target className="w-6 h-6 text-primary-600 dark:text-primary-400 mx-auto mb-2" />
+            <p className="text-xs text-muted-foreground mb-1">Daily Average</p>
+            <p className="text-2xl font-bold text-gradient-wellness">
+              {averageHabits}
+            </p>
+            <p className="text-xs text-muted-foreground">habits/day</p>
+          </motion.div>
+
+          <motion.div
+            className="text-center p-4 bg-gradient-to-br from-wellness-emerald/10 to-wellness-sage/10 rounded-xl border border-wellness-emerald/20"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            whileHover={{ scale: 1.02 }}
+          >
+            <Award className="w-6 h-6 text-wellness-emerald mx-auto mb-2" />
+            <p className="text-xs text-muted-foreground mb-1">Best Day</p>
+            <p className="text-2xl font-bold text-gradient-wellness">
+              {bestDay}
+            </p>
+            <p className="text-xs text-muted-foreground">habits completed</p>
+          </motion.div>
+
+          <motion.div
+            className="text-center p-4 bg-gradient-to-br from-wellness-lavender/10 to-wellness-indigo/10 rounded-xl border border-wellness-lavender/20"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            whileHover={{ scale: 1.02 }}
+          >
+            <TrendingUp className="w-6 h-6 text-wellness-lavender mx-auto mb-2" />
+            <p className="text-xs text-muted-foreground mb-1">Weekly Total</p>
+            <p className="text-2xl font-bold text-gradient-wellness">
+              {totalHabits}
+            </p>
+            <p className="text-xs text-muted-foreground">habits completed</p>
+          </motion.div>
+        </div>
+
+        {/* Progress indicator */}
+        <motion.div
+          className="mt-6 p-4 bg-gradient-to-br from-wellness-lavender/10 to-wellness-indigo/10 rounded-xl border border-wellness-lavender/20"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-wellness-lavender to-wellness-indigo rounded-xl flex items-center justify-center">
+              <TrendingUp className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
+                Streak Insight
+              </h4>
+              <p className="text-sm text-muted-foreground">
+                You're maintaining a strong{" "}
+                {averageHabits > 5
+                  ? "excellent"
+                  : averageHabits > 3
+                  ? "good"
+                  : "steady"}{" "}
+                habit completion rate.
+                {averageHabits > 5
+                  ? " Keep up the amazing work! 🚀"
+                  : averageHabits > 3
+                  ? " You're building great momentum! 💪"
+                  : " Every step counts! 🌱"}
+              </p>
+            </div>
+          </div>
+        </motion.div>
+      </CardContent>
+    </Card>
   );
 };
 

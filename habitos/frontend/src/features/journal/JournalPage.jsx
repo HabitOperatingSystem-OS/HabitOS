@@ -144,23 +144,47 @@ const JournalPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 pt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <LoadingSpinner />
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 pt-20">
+        <div className="container-premium section-padding">
+          <LoadingSpinner text="Loading journal entries..." />
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 pt-20">
+        <div className="container-premium section-padding">
+          <div className="card-premium p-6 text-center">
+            <div className="w-16 h-16 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <BookOpen className="w-8 h-8 text-red-600 dark:text-red-400" />
+            </div>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+              Error Loading Journal
+            </h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="btn-primary"
+            >
+              Try Again
+            </button>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 pt-20">
+      <div className="container-premium section-padding">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
             Daily Reflections
           </h1>
-          <p className="text-gray-600 mt-2">
+          <p className="text-gray-600 dark:text-gray-400 mt-2">
             A chronological log of your daily thoughts and experiences from your
             check-ins
           </p>
@@ -168,45 +192,49 @@ const JournalPage = () => {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="card-premium p-6">
             <div className="flex items-center">
-              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                <BookOpen className="w-6 h-6 text-blue-600" />
+              <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
+                <BookOpen className="w-6 h-6 text-blue-600 dark:text-blue-400" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
                   Total Entries
                 </p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">
                   {stats.totalEntries}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="card-premium p-6">
             <div className="flex items-center">
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <Calendar className="w-6 h-6 text-green-600" />
+              <div className="w-12 h-12 bg-green-100 dark:bg-green-900/20 rounded-lg flex items-center justify-center">
+                <Calendar className="w-6 h-6 text-green-600 dark:text-green-400" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">This Month</p>
-                <p className="text-2xl font-bold text-gray-900">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  This Month
+                </p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">
                   {stats.thisMonth}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="card-premium p-6">
             <div className="flex items-center">
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-purple-600" />
+              <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center">
+                <TrendingUp className="w-6 h-6 text-purple-600 dark:text-purple-400" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Avg Mood</p>
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  Avg Mood
+                </p>
                 <div className="flex items-center space-x-2">
-                  <span className="text-2xl font-bold text-gray-900">
+                  <span className="text-2xl font-bold text-gray-900 dark:text-white">
                     {stats.averageMood !== null ? stats.averageMood : "—"}
                   </span>
                   {stats.averageMood !== null && (
@@ -237,125 +265,88 @@ const JournalPage = () => {
               placeholder="Search entries..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
 
           <div className="flex items-center space-x-4">
             <div className="flex items-center space-x-2">
-              <span className="text-sm text-gray-600">Sort:</span>
+              <span className="text-sm text-gray-600 dark:text-gray-400">
+                Sort:
+              </span>
               <button
                 onClick={() =>
                   setSortOrder(sortOrder === "desc" ? "asc" : "desc")
                 }
-                className="flex items-center space-x-1 px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                className="flex items-center space-x-1 px-3 py-1 text-sm bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
               >
                 {sortOrder === "desc" ? (
-                  <>
-                    <SortDesc className="w-4 h-4" />
-                    <span>Newest First</span>
-                  </>
+                  <SortDesc className="w-4 h-4" />
                 ) : (
-                  <>
-                    <SortAsc className="w-4 h-4" />
-                    <span>Oldest First</span>
-                  </>
+                  <SortAsc className="w-4 h-4" />
                 )}
+                <span>
+                  {sortOrder === "desc" ? "Newest First" : "Oldest First"}
+                </span>
               </button>
             </div>
-
-            <button
-              onClick={() => (window.location.href = "/check-ins")}
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-            >
-              <Plus className="w-4 h-4" />
-              <span>New Reflection</span>
-            </button>
           </div>
         </div>
 
-        {/* Results Summary */}
-        {filteredAndSortedEntries.length > 0 && (
-          <div className="mb-6 flex items-center justify-between">
-            <p className="text-sm text-gray-600">
-              Showing {filteredAndSortedEntries.length} of {entries.length}{" "}
-              entries
+        {/* Entries List */}
+        {filteredAndSortedEntries.length === 0 ? (
+          <div className="card-premium p-12 text-center">
+            <BookOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              {searchTerm ? "No entries found" : "No journal entries yet"}
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              {searchTerm
+                ? "Try adjusting your search terms or filters"
+                : "Start your journaling journey by completing your first check-in"}
             </p>
-            {searchTerm && (
-              <Tag
-                variant="info"
-                size="sm"
-                removable
-                onRemove={() => setSearchTerm("")}
+            {!searchTerm && (
+              <button
+                onClick={() => (window.location.href = "/check-ins")}
+                className="btn-primary flex items-center space-x-2 mx-auto"
               >
-                Search: "{searchTerm}"
-              </Tag>
+                <Plus className="w-4 h-4" />
+                <span>Start Your First Check-in</span>
+              </button>
             )}
           </div>
-        )}
-
-        {/* Error Display */}
-        {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-800">{error}</p>
-          </div>
-        )}
-
-        {/* Journal Entries */}
-        <div className="space-y-6">
-          {filteredAndSortedEntries.length === 0 ? (
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
-              <BookOpen className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                {searchTerm ? "No entries found" : "No reflections yet"}
-              </h3>
-              <p className="text-gray-600 mb-4">
-                {searchTerm
-                  ? "Try adjusting your search terms or filters."
-                  : "Start your daily check-ins to build a collection of meaningful reflections."}
-              </p>
-              {!searchTerm && (
-                <button
-                  onClick={() => (window.location.href = "/check-ins")}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  Start Your First Check-In
-                </button>
-              )}
-            </div>
-          ) : (
-            filteredAndSortedEntries.map((entry) => (
+        ) : (
+          <div className="space-y-6">
+            {filteredAndSortedEntries.map((entry) => (
               <JournalEntryCard
                 key={entry.id}
                 entry={entry}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-                showAiData={filters.includeAiData}
+                onEdit={() => handleEdit(entry)}
+                onDelete={() => handleDelete(entry.id)}
+                getMoodEmoji={getMoodEmoji}
+                getMoodColor={getMoodColor}
+                getSentimentVariant={getSentimentVariant}
               />
-            ))
-          )}
-        </div>
-
-        {/* Delete Confirmation Modal */}
-        <DeleteConfirmModal
-          isOpen={showDeleteModal}
-          onClose={() => setShowDeleteModal(false)}
-          onConfirm={confirmDelete}
-          title="Delete Journal Entry"
-          message="Are you sure you want to delete this journal entry? This action cannot be undone."
-        />
-
-        {/* Edit Modal */}
-        <JournalEditModal
-          isOpen={showEditModal}
-          onClose={() => {
-            setShowEditModal(false);
-            setEntryToEdit(null);
-          }}
-          entry={entryToEdit}
-          onSave={handleSaveEdit}
-        />
+            ))}
+          </div>
+        )}
       </div>
+
+      {/* Modals */}
+      <JournalEditModal
+        isOpen={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        entry={entryToEdit}
+        onSave={handleSaveEdit}
+      />
+
+      <DeleteConfirmModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={confirmDelete}
+        title="Delete Journal Entry"
+        message="Are you sure you want to delete this journal entry? This action cannot be undone."
+      />
     </div>
   );
 };

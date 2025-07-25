@@ -2,6 +2,36 @@
 
 A mindful self-development web app for building consistent habits and tracking emotional well-being.
 
+## 🎨 Premium UI Refactor
+
+HabitOS has undergone a comprehensive UI transformation to create a premium 2025 wellness and self-optimization platform. The new design system emphasizes polished aesthetics, wellness-oriented interactions, and futuristic user experiences.
+
+### ✨ Key Features
+
+- **Premium Design System**: shadcn/ui components with wellness-focused styling
+- **Glassmorphism Effects**: Subtle backdrop blur and translucent elements
+- **Framer Motion Animations**: Fluid interactions and micro-animations
+- **Wellness Color Palette**: Specialized colors for mental health and wellness
+- **Dark Mode Support**: Full theme adaptation with accessibility compliance
+- **Responsive Design**: Mobile-first approach with premium grid layouts
+
+### 📚 Documentation
+
+- **[Premium UI Refactor Guide](./docs/PREMIUM_UI_REFACTOR.md)** - Comprehensive documentation
+- **[UI Quick Reference](./docs/UI_QUICK_REFERENCE.md)** - Developer quick start guide
+- **[Component Library](./docs/COMPONENT_API.md)** - Component API reference (coming soon)
+- **[Design System](./docs/DESIGN_SYSTEM.md)** - Design guidelines (coming soon)
+
+### 🚀 Getting Started with Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Visit `http://localhost:5173` to see the premium interface in action!
+
 ## 🎯 Goals Backend - Production Ready
 
 The goals functionality has been comprehensively implemented and tested. All 12 API endpoints are working with full test coverage.
