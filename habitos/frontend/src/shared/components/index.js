@@ -4,6 +4,7 @@ export { default as ErrorBoundary } from "./ErrorBoundary";
 export { default as ErrorMessage } from "./ErrorMessage";
 export { default as PageLoader } from "./PageLoader";
 export { default as DeleteConfirmModal } from "./DeleteConfirmModal";
+export { default as DeleteButton } from "./DeleteButton";
 export { default as SuccessModal } from "./SuccessModal";
 export { default as Tag } from "./Tag";
 export { default as Toast } from "./Toast";

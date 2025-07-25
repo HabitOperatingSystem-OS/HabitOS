@@ -274,13 +274,16 @@ const CheckInsPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 pt-16">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 pt-20">
+        <div className="container-premium section-padding">
           <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
+            <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/4 mb-4"></div>
             <div className="space-y-4">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-20 bg-gray-200 rounded"></div>
+                <div
+                  key={i}
+                  className="h-20 bg-gray-200 dark:bg-gray-700 rounded"
+                ></div>
               ))}
             </div>
           </div>
@@ -290,12 +293,14 @@ const CheckInsPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-16">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 pt-20">
+      <div className="container-premium section-padding">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Daily Check-In</h1>
-          <p className="text-gray-600 mt-2">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+            Daily Check-In
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">
             {hasCheckedInToday
               ? "Here's your progress for today"
               : "Log your progress for today and reflect on your day"}
@@ -304,7 +309,7 @@ const CheckInsPage = () => {
 
         {/* Already Checked In Message */}
         {hasCheckedInToday && (
-          <div className="mb-6 p-4 rounded-lg bg-blue-100 text-blue-700 border border-blue-200 flex items-center space-x-2">
+          <div className="mb-6 p-4 rounded-lg bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 flex items-center space-x-2">
             <Calendar className="w-5 h-5" />
             <span>
               You've already completed your check-in for today! Come back
@@ -315,9 +320,9 @@ const CheckInsPage = () => {
 
         {/* Today's Check-in Summary - Show when already checked in */}
         {hasCheckedInToday && todayCheckIns.length > 0 && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center space-x-2">
-              <CheckCircle className="w-5 h-5 text-green-600" />
+          <div className="card-premium p-6 mb-6">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4 flex items-center space-x-2">
+              <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
               <span>Today's Check-in Summary</span>
             </h2>
 
@@ -325,12 +330,12 @@ const CheckInsPage = () => {
               {/* Mood Summary */}
               {todayCheckIns[0]?.mood_rating && (
                 <div className="flex items-center space-x-3">
-                  <span className="text-sm font-medium text-gray-700">
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                     Mood:
                   </span>
                   <div className="flex items-center space-x-2">
                     {getMoodIcon(todayCheckIns[0].mood_rating)}
-                    <span className="font-medium text-gray-700">
+                    <span className="font-medium text-gray-700 dark:text-gray-300">
                       {todayCheckIns[0].mood_rating}/10
                     </span>
                   </div>
@@ -339,7 +344,7 @@ const CheckInsPage = () => {
 
               {/* Completed Habits */}
               <div>
-                <span className="text-sm font-medium text-gray-700">
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                   Completed Habits:
                 </span>
                 <div className="mt-2 space-y-2">
@@ -350,16 +355,16 @@ const CheckInsPage = () => {
                     return (
                       <div
                         key={checkIn.id}
-                        className="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200"
+                        className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800"
                       >
                         <div className="flex items-center space-x-2">
-                          <CheckCircle className="w-4 h-4 text-green-600" />
-                          <span className="font-medium text-green-800">
+                          <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
+                          <span className="font-medium text-green-800 dark:text-green-200">
                             {habit?.title || "Unknown Habit"}
                           </span>
                         </div>
                         {checkIn.actual_value && (
-                          <span className="text-sm text-green-600">
+                          <span className="text-sm text-green-600 dark:text-green-400">
                             {checkIn.actual_value}{" "}
                             {habit?.category === "fitness"
                               ? "minutes"
@@ -372,223 +377,160 @@ const CheckInsPage = () => {
                 </div>
               </div>
 
-              {/* Check-in Time */}
-              <div className="text-sm text-gray-500">
-                Checked in at:{" "}
-                {new Date(todayCheckIns[0]?.created_at).toLocaleTimeString()}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Sentiment Display */}
-        {sentiment && (
-          <div
-            className={`mb-6 p-4 rounded-lg inline-flex items-center space-x-2 ${getSentimentColor(
-              sentiment
-            )}`}
-          >
-            <span className="font-medium">AI Sentiment Analysis:</span>
-            <span className="capitalize">{sentiment}</span>
-          </div>
-        )}
-
-        {/* Only show the form sections if user hasn't checked in yet */}
-        {!hasCheckedInToday && (
-          <>
-            {/* Habits Section */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                Your Habits for Today
-              </h2>
-
-              {habits.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-gray-500 mb-2">No habits due today.</p>
-                  <p className="text-sm text-gray-400">
-                    Check your habits page to see all habits or create new ones!
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {habits.map((habit) => {
-                    const habitData = checkInData[habit.id] || {
-                      completed: false,
-                    };
-                    const isCompleted = habitData.completed;
-
-                    return (
-                      <div
-                        key={habit.id}
-                        className={`p-4 rounded-lg border transition-colors ${
-                          isCompleted
-                            ? "bg-green-50 border-green-200"
-                            : "bg-gray-50 border-gray-200"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-3">
-                            <button
-                              onClick={() => handleHabitToggle(habit.id)}
-                              className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
-                            >
-                              {isCompleted ? (
-                                <CheckCircle className="w-6 h-6 text-green-600" />
-                              ) : (
-                                <Circle className="w-6 h-6 text-gray-400" />
-                              )}
-                              <span
-                                className={`font-medium ${
-                                  isCompleted
-                                    ? "text-green-800"
-                                    : "text-gray-700"
-                                }`}
-                              >
-                                {habit.title}
-                              </span>
-                            </button>
-
-                            {/* Category badge */}
-                            <span className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full capitalize">
-                              {habit.category}
-                            </span>
-                          </div>
-
-                          <div className="flex items-center space-x-4">
-                            {/* Frequency info */}
-                            <div className="flex items-center space-x-2">
-                              <span className="text-sm text-gray-500">
-                                Frequency:
-                              </span>
-                              <span className="text-sm font-medium capitalize">
-                                {habit.frequency}
-                                {habit.frequency_count > 0 &&
-                                  ` (${habit.frequency_count}x)`}
-                              </span>
-                            </div>
-
-                            {/* Streak info */}
-                            {habit.current_streak > 0 && (
-                              <div className="flex items-center space-x-2">
-                                <span className="text-sm text-gray-500">
-                                  Streak:
-                                </span>
-                                <span className="text-sm font-medium text-orange-600">
-                                  {habit.current_streak} 🔥
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Additional habit info */}
-                        <div className="mt-2 flex items-center space-x-4 text-sm text-gray-500">
-                          <span>
-                            Started:{" "}
-                            {new Date(habit.start_date).toLocaleDateString()}
-                          </span>
-                          {habit.longest_streak > 0 && (
-                            <span>Best streak: {habit.longest_streak}</span>
-                          )}
-                        </div>
-
-                        {/* Numeric value input for habits that need it */}
-                        {habit.category === "fitness" ||
-                        habit.category === "health" ? (
-                          <div className="mt-3 flex items-center space-x-3">
-                            <label className="text-sm font-medium text-gray-700">
-                              Value:
-                            </label>
-                            <input
-                              type="number"
-                              min="0"
-                              step="0.1"
-                              value={habitData.actual_value || ""}
-                              onChange={(e) =>
-                                handleValueChange(
-                                  habit.id,
-                                  parseFloat(e.target.value) || null
-                                )
-                              }
-                              placeholder="e.g., 30"
-                              className="w-20 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                            />
-                            <span className="text-sm text-gray-500">
-                              {habit.category === "fitness"
-                                ? "minutes"
-                                : "units"}
-                            </span>
-                          </div>
-                        ) : null}
-                      </div>
-                    );
-                  })}
+              {/* Journal Entry */}
+              {todayCheckIns[0]?.journal_entry && (
+                <div>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Journal Entry:
+                  </span>
+                  <div className="mt-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                    <p className="text-gray-700 dark:text-gray-300">
+                      {todayCheckIns[0].journal_entry}
+                    </p>
+                  </div>
                 </div>
               )}
             </div>
+          </div>
+        )}
 
-            {/* Mood Rating Section */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                How are you feeling today?
-              </h2>
+        {/* Check-in Form - Show when not checked in */}
+        {!hasCheckedInToday && (
+          <div className="space-y-6">
+            {/* Habits Section */}
+            {habits.length > 0 && (
+              <div className="card-premium p-6">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                  Today's Habits ({habits.length})
+                </h2>
+                <div className="space-y-4">
+                  {habits.map((habit) => (
+                    <div
+                      key={habit.id}
+                      className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <button
+                          onClick={() => handleHabitToggle(habit.id)}
+                          className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
+                            checkInData[habit.id]?.completed
+                              ? "bg-green-500 border-green-500 text-white"
+                              : "border-gray-300 dark:border-gray-600 hover:border-green-500"
+                          }`}
+                        >
+                          {checkInData[habit.id]?.completed && (
+                            <CheckCircle className="w-4 h-4" />
+                          )}
+                        </button>
+                        <div>
+                          <h3 className="font-medium text-gray-900 dark:text-white">
+                            {habit.title}
+                          </h3>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            {habit.description}
+                          </p>
+                        </div>
+                      </div>
 
-              <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-500">Mood:</span>
-                <div className="flex items-center space-x-2">
-                  {getMoodIcon(moodRating)}
-                  <span className="font-medium text-gray-700">
-                    {moodRating}/10
-                  </span>
+                      {/* Value Input for Fitness Habits */}
+                      {habit.category === "fitness" &&
+                        checkInData[habit.id]?.completed && (
+                          <div className="flex items-center space-x-2">
+                            <input
+                              type="number"
+                              min="1"
+                              placeholder="Minutes"
+                              value={checkInData[habit.id]?.actual_value || ""}
+                              onChange={(e) =>
+                                handleValueChange(habit.id, e.target.value)
+                              }
+                              className="w-20 px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                            />
+                            <span className="text-sm text-gray-600 dark:text-gray-400">
+                              min
+                            </span>
+                          </div>
+                        )}
+                    </div>
+                  ))}
                 </div>
               </div>
+            )}
 
-              <div className="mt-4">
-                <input
-                  type="range"
-                  min="1"
-                  max="10"
-                  value={moodRating}
-                  onChange={(e) => setMoodRating(parseInt(e.target.value))}
-                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-                />
-                <div className="flex justify-between text-xs text-gray-500 mt-1">
-                  <span>😔</span>
-                  <span>😐</span>
-                  <span>😊</span>
+            {/* Mood Section */}
+            <div className="card-premium p-6">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                How are you feeling today?
+              </h2>
+              <div className="space-y-4">
+                {/* Mood Rating */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Mood Rating (1-10)
+                  </label>
+                  <div className="flex items-center space-x-4">
+                    <input
+                      type="range"
+                      min="1"
+                      max="10"
+                      value={moodRating}
+                      onChange={(e) => setMoodRating(parseInt(e.target.value))}
+                      className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
+                    />
+                    <div className="flex items-center space-x-2">
+                      {getMoodIcon(moodRating)}
+                      <span className="font-medium text-gray-900 dark:text-white">
+                        {moodRating}/10
+                      </span>
+                    </div>
+                  </div>
                 </div>
+
+                {/* Sentiment Analysis */}
+                {sentiment && (
+                  <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center space-x-2">
+                      <AlertCircle
+                        className={`w-4 h-4 ${getSentimentColor(sentiment)}`}
+                      />
+                      <span
+                        className={`text-sm font-medium ${getSentimentColor(
+                          sentiment
+                        )}`}
+                      >
+                        {sentiment === "positive" &&
+                          "Great mood today! Keep it up!"}
+                        {sentiment === "negative" &&
+                          "It's okay to have tough days. Tomorrow is a new opportunity."}
+                        {sentiment === "neutral" &&
+                          "Stable mood today. Consistency is key!"}
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
             {/* Journal Section */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                Daily Reflection (Optional)
+            <div className="card-premium p-6">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                Journal Entry (Optional)
               </h2>
-              <p className="text-gray-600 mb-4">
-                Share your thoughts, feelings, or any insights from today
-              </p>
-
               <textarea
                 value={journalContent}
                 onChange={(e) => setJournalContent(e.target.value)}
-                placeholder="How was your day? What went well? What could be improved?"
-                className="w-full h-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+                placeholder="Reflect on your day, note any challenges or victories, or just write whatever comes to mind..."
+                rows={4}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
               />
-
-              {journalContent && (
-                <p className="text-sm text-gray-500 mt-2">
-                  {journalContent.length} characters
-                </p>
-              )}
             </div>
 
             {/* Submit Button */}
-            <div className="flex justify-between items-center">
+            <div className="flex justify-end">
               <button
                 onClick={handleSubmit}
                 disabled={submitting}
-                className="flex items-center space-x-2 px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="btn-primary flex items-center space-x-2"
               >
                 {submitting ? (
                   <>
@@ -598,24 +540,37 @@ const CheckInsPage = () => {
                 ) : (
                   <>
                     <Save className="w-4 h-4" />
-                    <span>Save Check-In</span>
+                    <span>Save Check-in</span>
                   </>
                 )}
               </button>
             </div>
-          </>
+          </div>
         )}
 
-        {/* Success Modal */}
-        <SuccessModal
-          isOpen={showSuccessModal}
-          onClose={handleSuccessModalClose}
-          title="Check-in Saved! 🎉"
-          message="Great job completing your daily check-in! See you tomorrow for another productive day!"
-          autoDismiss={true}
-          dismissDelay={4000}
-        />
+        {/* Message Display */}
+        {message.text && (
+          <div
+            className={`mt-4 p-4 rounded-lg border ${
+              message.type === "error"
+                ? "bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800"
+                : message.type === "warning"
+                ? "bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800"
+                : "bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800"
+            }`}
+          >
+            {message.text}
+          </div>
+        )}
       </div>
+
+      {/* Success Modal */}
+      <SuccessModal
+        isOpen={showSuccessModal}
+        onClose={handleSuccessModalClose}
+        title="Check-in Saved!"
+        message="Your daily check-in has been saved successfully. Great job staying consistent!"
+      />
     </div>
   );
 };

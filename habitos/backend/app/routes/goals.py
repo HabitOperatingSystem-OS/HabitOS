@@ -3,7 +3,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from app import db
 from app.models.goal import Goal, GoalType, GoalStatus
 from app.models.habit import Habit
-from app.utils.validation import validate_goal_status, validate_goal_priority, validate_goal_type, get_enum_values
+from app.utils.validation import validate_goal_status, validate_goal_type, get_enum_values
 from datetime import datetime, date
 import traceback
 import sys
@@ -16,7 +16,7 @@ goals_bp = Blueprint('goals', __name__)
 def get_goals():
     """
     Get all goals for the current user with optional filters
-    Supports filtering by habit, status
+    Supports filtering by habit and status
     """
     # Extract user ID from JWT token
     current_user_id = get_jwt_identity()

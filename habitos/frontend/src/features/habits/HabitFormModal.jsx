@@ -118,21 +118,21 @@ const HabitFormModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 backdrop-blur-sm bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white dark:bg-zinc-900 rounded-lg shadow-xl dark:shadow-zinc-800 max-w-md w-full max-h-[90vh] overflow-y-auto border border-zinc-200 dark:border-zinc-700">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between p-6 border-b border-zinc-200 dark:border-zinc-700">
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-primary-100 rounded-lg flex items-center justify-center">
-              <Target className="w-4 h-4 text-primary-600" />
+            <div className="w-8 h-8 bg-primary-100 dark:bg-primary-900/20 rounded-lg flex items-center justify-center">
+              <Target className="w-4 h-4 text-primary-600 dark:text-primary-400" />
             </div>
-            <h2 className="text-xl font-semibold text-gray-900">
+            <h2 className="text-xl font-semibold text-black dark:text-white">
               {mode === "edit" ? "Edit Habit" : "Create New Habit"}
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -144,7 +144,7 @@ const HabitFormModal = ({
           <div>
             <label
               htmlFor="title"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-sm font-medium text-zinc-800 dark:text-zinc-100 mb-2"
             >
               Habit Title *
             </label>
@@ -153,19 +153,21 @@ const HabitFormModal = ({
               id="title"
               value={formData.title}
               onChange={(e) => handleInputChange("title", e.target.value)}
-              className={`input ${
+              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-zinc-800 text-black dark:text-white border-zinc-300 dark:border-zinc-600 ${
                 errors.title ? "border-red-300 focus:ring-red-500" : ""
               }`}
               placeholder="e.g., Morning Exercise, Read 30 minutes"
             />
             {errors.title && (
-              <p className="mt-1 text-sm text-red-600">{errors.title}</p>
+              <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                {errors.title}
+              </p>
             )}
           </div>
 
           {/* Category */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-zinc-800 dark:text-zinc-100 mb-2">
               Category
             </label>
             <div className="grid grid-cols-3 gap-2">
@@ -176,12 +178,14 @@ const HabitFormModal = ({
                   onClick={() => handleInputChange("category", category.value)}
                   className={`p-3 rounded-lg border-2 text-center transition-colors ${
                     formData.category === category.value
-                      ? "border-primary-500 bg-primary-50 text-primary-700"
-                      : "border-gray-200 hover:border-gray-300"
+                      ? "border-primary-500 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300"
+                      : "border-zinc-200 dark:border-zinc-600 hover:border-zinc-300 dark:hover:border-zinc-500 bg-white dark:bg-zinc-800"
                   }`}
                 >
                   <div className="text-lg mb-1">{category.icon}</div>
-                  <div className="text-xs font-medium">{category.label}</div>
+                  <div className="text-xs font-medium text-black dark:text-white">
+                    {category.label}
+                  </div>
                 </button>
               ))}
             </div>
@@ -189,7 +193,7 @@ const HabitFormModal = ({
 
           {/* Frequency */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-zinc-800 dark:text-zinc-100 mb-2">
               Frequency
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -202,11 +206,13 @@ const HabitFormModal = ({
                   }
                   className={`p-3 rounded-lg border-2 text-center transition-colors ${
                     formData.frequency === frequency.value
-                      ? "border-primary-500 bg-primary-50 text-primary-700"
-                      : "border-gray-200 hover:border-gray-300"
+                      ? "border-primary-500 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300"
+                      : "border-zinc-200 dark:border-zinc-600 hover:border-zinc-300 dark:hover:border-zinc-500 bg-white dark:bg-zinc-800"
                   }`}
                 >
-                  <div className="text-sm font-medium">{frequency.label}</div>
+                  <div className="text-sm font-medium text-black dark:text-white">
+                    {frequency.label}
+                  </div>
                 </button>
               ))}
             </div>
@@ -217,7 +223,7 @@ const HabitFormModal = ({
             <div>
               <label
                 htmlFor="frequency_count"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium text-zinc-800 dark:text-zinc-100 mb-2"
               >
                 How many times per {formData.frequency.slice(0, -2)}? (optional)
               </label>
@@ -235,36 +241,36 @@ const HabitFormModal = ({
                       e.target.value === "" ? "" : parseInt(e.target.value) || 0
                     )
                   }
-                  className={`input ${
+                  className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-zinc-800 text-black dark:text-white border-zinc-300 dark:border-zinc-600 ${
                     errors.frequency_count
                       ? "border-red-300 focus:ring-red-500"
                       : ""
                   }`}
                 />
                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                  <Hash className="w-4 h-4 text-gray-400" />
+                  <Hash className="w-4 h-4 text-zinc-400 dark:text-zinc-500" />
                 </div>
               </div>
               {errors.frequency_count && (
-                <p className="mt-1 text-sm text-red-600">
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">
                   {errors.frequency_count}
                 </p>
               )}
             </div>
           )}
           {/* Form Actions */}
-          <div className="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200">
+          <div className="flex items-center justify-end space-x-3 pt-4 border-t border-zinc-200 dark:border-zinc-700">
             <button
               type="button"
               onClick={onClose}
-              className="btn-secondary"
+              className="px-4 py-2 text-zinc-700 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 rounded-lg transition-colors font-medium"
               disabled={isSubmitting}
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="btn-primary"
+              className="bg-primary-600 hover:bg-primary-700 text-white font-medium px-4 py-2 rounded-lg transition-colors dark:bg-primary-500 dark:hover:bg-primary-600 flex items-center space-x-2"
               disabled={isSubmitting}
             >
               {isSubmitting ? (

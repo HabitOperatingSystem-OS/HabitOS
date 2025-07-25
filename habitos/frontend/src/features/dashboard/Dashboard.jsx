@@ -6,12 +6,14 @@ import {
   BarChart3,
   Plus,
   Settings,
-  LogOut,
-  User,
   Activity,
   Award,
   Target as TargetIcon,
   BookOpen,
+  Sparkles,
+  Zap,
+  Heart,
+  Brain,
 } from "lucide-react";
 
 import { useDashboard } from "../../shared/hooks/useDashboard";
@@ -20,6 +22,15 @@ import TodayHabits from "./TodayHabits";
 import MoodSummary from "./MoodSummary";
 import StatsCard from "./StatsCard";
 import { LoadingSpinner } from "../../shared/components";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
+import { Button } from "../../components/ui/button";
+import { motion } from "framer-motion";
 
 const Dashboard = () => {
   const { dashboardData, userData, loading, error, refreshData } =
@@ -37,26 +48,36 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 pt-16">
-        <LoadingSpinner size="lg" text="Loading your dashboard..." />
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 pt-20">
+        <div className="container-premium section-padding">
+          <LoadingSpinner
+            size="lg"
+            text="Loading your wellness dashboard..."
+            variant="wellness"
+          />
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 pt-16 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <BarChart3 className="w-8 h-8 text-red-600" />
-          </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            Error Loading Dashboard
-          </h2>
-          <p className="text-gray-600 mb-4">{error}</p>
-          <button onClick={refreshData} className="btn-primary">
-            Try Again
-          </button>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 pt-20">
+        <div className="container-premium section-padding flex items-center justify-center">
+          <Card className="max-w-md text-center">
+            <CardContent className="pt-6">
+              <div className="w-16 h-16 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <BarChart3 className="w-8 h-8 text-red-600 dark:text-red-400" />
+              </div>
+              <h2 className="text-xl font-semibold mb-2">
+                Error Loading Dashboard
+              </h2>
+              <p className="text-muted-foreground mb-4">{error}</p>
+              <Button onClick={refreshData} variant="default">
+                Try Again
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
@@ -64,15 +85,19 @@ const Dashboard = () => {
 
   if (!dashboardData) {
     return (
-      <div className="min-h-screen bg-gray-50 pt-16 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <BarChart3 className="w-8 h-8 text-gray-400" />
-          </div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">
-            No Data Available
-          </h2>
-          <p className="text-gray-600">Unable to load dashboard data.</p>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 pt-20">
+        <div className="container-premium section-padding flex items-center justify-center">
+          <Card className="max-w-md text-center">
+            <CardContent className="pt-6">
+              <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                <BarChart3 className="w-8 h-8 text-gray-400" />
+              </div>
+              <h2 className="text-xl font-semibold mb-2">No Data Available</h2>
+              <p className="text-muted-foreground">
+                Unable to load dashboard data.
+              </p>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
@@ -80,92 +105,235 @@ const Dashboard = () => {
 
   const { stats, streakData, todaysHabits, moodSummary } = dashboardData;
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6,
+        ease: "easeOut",
+      },
+    },
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 pt-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Section */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Welcome back, {userData?.username || "User"}!
-          </h1>
-          <p className="text-gray-600 mt-2">Here's how you're doing today</p>
-        </div>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <StatsCard
-            title="Active Habits"
-            value={stats.activeHabits}
-            change="+2"
-            changeType="positive"
-            icon={TargetIcon}
-            color="blue"
-          />
-          <StatsCard
-            title="Current Streak"
-            value={`${stats.currentStreak} days`}
-            change="+1"
-            changeType="positive"
-            icon={TrendingUp}
-            color="green"
-          />
-          <StatsCard
-            title="Completion Rate"
-            value={`${stats.completionRate}%`}
-            change="+5%"
-            changeType="positive"
-            icon={Activity}
-            color="purple"
-          />
-          <StatsCard
-            title="Goals Achieved"
-            value={stats.goalsAchieved}
-            change="+1"
-            changeType="positive"
-            icon={Award}
-            color="orange"
-          />
-        </div>
-
-        {/* Main Content */}
-        <div className="space-y-6">
-          {/* Streak Chart */}
-          <StreakChart data={streakData} />
-
-          {/* Today's Habits and Mood Summary Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <TodayHabits
-              habits={todaysHabits}
-              onToggleHabit={handleToggleHabit}
-            />
-            <MoodSummary moodData={moodSummary} />
-          </div>
-
-          {/* Quick Actions */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
-              Quick Actions
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <button className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                <Plus className="w-5 h-5 text-primary-600" />
-                <span className="font-medium">Add New Habit</span>
-              </button>
-              <button className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                <Calendar className="w-5 h-5 text-primary-600" />
-                <span className="font-medium">View Calendar</span>
-              </button>
-              <button className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                <BarChart3 className="w-5 h-5 text-primary-600" />
-                <span className="font-medium">View Analytics</span>
-              </button>
-              <button className="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
-                <Settings className="w-5 h-5 text-primary-600" />
-                <span className="font-medium">Settings</span>
-              </button>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 pt-20">
+      <div className="container-premium section-padding">
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          {/* Welcome Section */}
+          <motion.div variants={itemVariants} className="mb-12">
+            <div className="text-center mb-8">
+              <motion.h1
+                className="text-4xl lg:text-5xl font-bold text-gradient-wellness mb-4"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+              >
+                Welcome back, {userData?.username || "User"}! ✨
+              </motion.h1>
+              <motion.p
+                className="text-xl text-muted-foreground"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+              >
+                Here's your wellness journey today
+              </motion.p>
             </div>
+
+            {/* Wellness Status */}
+            <div className="grid-premium-4 mb-8">
+              <Card className="card-glass">
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-wellness-sage to-wellness-emerald rounded-xl flex items-center justify-center">
+                      <Heart className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        Wellness Score
+                      </p>
+                      <p className="text-2xl font-bold text-gradient-wellness">
+                        92%
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="card-glass">
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-wellness-lavender to-wellness-indigo rounded-xl flex items-center justify-center">
+                      <Brain className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        Mental Fitness
+                      </p>
+                      <p className="text-2xl font-bold text-gradient-wellness">
+                        88%
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="card-glass">
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-wellness-coral to-wellness-rose rounded-xl flex items-center justify-center">
+                      <Zap className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        Energy Level
+                      </p>
+                      <p className="text-2xl font-bold text-gradient-wellness">
+                        85%
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="card-glass">
+                <CardContent className="p-6">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-wellness-amber to-wellness-sky rounded-xl flex items-center justify-center">
+                      <Sparkles className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        Focus Score
+                      </p>
+                      <p className="text-2xl font-bold text-gradient-wellness">
+                        90%
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </motion.div>
+
+          {/* Stats Grid */}
+          <motion.div variants={itemVariants} className="mb-12">
+            <div className="grid-premium-4">
+              <StatsCard
+                title="Active Habits"
+                value={stats.activeHabits}
+                change="+2"
+                changeType="positive"
+                icon={TargetIcon}
+                color="blue"
+              />
+              <StatsCard
+                title="Current Streak"
+                value={`${stats.currentStreak} days`}
+                change="+1"
+                changeType="positive"
+                icon={TrendingUp}
+                color="green"
+              />
+              <StatsCard
+                title="Completion Rate"
+                value={`${stats.completionRate}%`}
+                change="+5%"
+                changeType="positive"
+                icon={Activity}
+                color="purple"
+              />
+              <StatsCard
+                title="Goals Achieved"
+                value={stats.goalsAchieved}
+                change="+1"
+                changeType="positive"
+                icon={Award}
+                color="orange"
+              />
+            </div>
+          </motion.div>
+
+          {/* Main Content */}
+          <div className="space-y-8">
+            {/* Streak Chart */}
+            <motion.div variants={itemVariants}>
+              <StreakChart data={streakData} />
+            </motion.div>
+
+            {/* Today's Habits and Mood Summary Grid */}
+            <motion.div variants={itemVariants} className="grid-premium-2">
+              <TodayHabits
+                habits={todaysHabits}
+                onToggleHabit={handleToggleHabit}
+              />
+              <MoodSummary moodData={moodSummary} />
+            </motion.div>
+
+            {/* Quick Actions */}
+            <motion.div variants={itemVariants}>
+              <Card className="card-glass">
+                <CardHeader>
+                  <CardTitle className="text-gradient-wellness">
+                    Quick Actions
+                  </CardTitle>
+                  <CardDescription>
+                    Accelerate your wellness journey with these quick actions
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid-premium-2">
+                    <Button
+                      variant="wellness"
+                      className="h-16 text-lg font-semibold"
+                    >
+                      <Plus className="w-5 h-5 mr-3" />
+                      Add New Habit
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="h-16 text-lg font-semibold"
+                    >
+                      <Calendar className="w-5 h-5 mr-3" />
+                      View Calendar
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="h-16 text-lg font-semibold"
+                    >
+                      <BarChart3 className="w-5 h-5 mr-3" />
+                      View Analytics
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="h-16 text-lg font-semibold"
+                    >
+                      <Settings className="w-5 h-5 mr-3" />
+                      Settings
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

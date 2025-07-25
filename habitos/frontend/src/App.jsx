@@ -1,6 +1,7 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { ThemeProvider } from "./context/ThemeContext";
 import { ErrorBoundary, LoadingSpinner } from "./shared/components";
 import Navigation from "./components/Navigation";
 import { Login, Signup } from "./features/auth";
@@ -9,6 +10,7 @@ import Home from "./pages/Home";
 import { HabitsPage, HabitDetailPage } from "./features/habits";
 import { GoalsPage } from "./features/goals";
 import { JournalPage, CheckInsPage } from "./features/journal";
+import { ToastProvider, ToastViewport } from "./components/ui/toast";
 
 // Protected route wrapper component
 const ProtectedRoute = ({ children }) => {
@@ -16,8 +18,8 @@ const ProtectedRoute = ({ children }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <LoadingSpinner size="lg" text="Loading your dashboard..." />
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
+        <LoadingSpinner size="lg" text="Loading your wellness dashboard..." />
       </div>
     );
   }
@@ -40,7 +42,7 @@ const PublicRoute = ({ children }) => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
         <LoadingSpinner size="lg" text="Loading..." />
       </div>
     );
@@ -138,9 +140,14 @@ const AppContent = () => {
 function App() {
   return (
     <ErrorBoundary>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <ToastProvider>
+            <AppContent />
+            <ToastViewport />
+          </ToastProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 }

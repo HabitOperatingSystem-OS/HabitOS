@@ -8,7 +8,7 @@ import {
   ChevronUp,
   Sparkles,
 } from "lucide-react";
-import { Tag } from "../../shared/components";
+import { DeleteButton, Tag } from "../../shared/components";
 
 const JournalEntryCard = ({ entry, onEdit, onDelete, showAiData = true }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -27,10 +27,10 @@ const JournalEntryCard = ({ entry, onEdit, onDelete, showAiData = true }) => {
   };
 
   const getMoodColor = (rating) => {
-    if (rating >= 8) return "text-green-600";
-    if (rating >= 6) return "text-yellow-600";
-    if (rating >= 4) return "text-orange-600";
-    return "text-red-600";
+    if (rating >= 8) return "text-green-600 dark:text-green-400";
+    if (rating >= 6) return "text-yellow-600 dark:text-yellow-400";
+    if (rating >= 4) return "text-orange-600 dark:text-orange-400";
+    return "text-red-600 dark:text-red-400";
   };
 
   const getSentimentVariant = (sentiment) => {
@@ -80,7 +80,7 @@ const JournalEntryCard = ({ entry, onEdit, onDelete, showAiData = true }) => {
   const displayText = isExpanded ? entry.content : truncateText(entry.content);
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow">
+    <div className="card-premium p-6 hover:shadow-premium transition-shadow">
       {/* Header */}
       <div className="flex justify-between items-start mb-4">
         <div className="flex items-center space-x-3">
@@ -90,12 +90,12 @@ const JournalEntryCard = ({ entry, onEdit, onDelete, showAiData = true }) => {
               : "—"}
           </div>
           <div>
-            <h3 className="font-medium text-gray-900">
+            <h3 className="font-medium text-gray-900 dark:text-white">
               {formatDate(entry.entry_date)}
             </h3>
             <div className="flex items-center space-x-2 mt-1">
-              <Calendar className="w-4 h-4 text-gray-400" />
-              <span className="text-sm text-gray-600">
+              <Calendar className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+              <span className="text-sm text-gray-600 dark:text-gray-400">
                 Mood:{" "}
                 {typeof entry.mood_rating === "number" &&
                 !isNaN(entry.mood_rating)
@@ -117,19 +117,19 @@ const JournalEntryCard = ({ entry, onEdit, onDelete, showAiData = true }) => {
 
           <button
             onClick={() => onEdit(entry)}
-            className="p-2 text-gray-400 hover:text-blue-600 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded"
+            className="p-2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 rounded"
             aria-label="Edit entry"
           >
             <Edit className="w-4 h-4" />
           </button>
 
-          <button
+          <DeleteButton
             onClick={() => onDelete(entry.id)}
-            className="p-2 text-gray-400 hover:text-red-600 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 rounded"
+            variant="ghost"
+            size="sm"
+            className="p-2"
             aria-label="Delete entry"
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
+          />
         </div>
       </div>
 
@@ -137,7 +137,7 @@ const JournalEntryCard = ({ entry, onEdit, onDelete, showAiData = true }) => {
       <div className="mb-4">
         {!isExpanded && shouldTruncate ? (
           <div
-            className="text-gray-700 leading-relaxed overflow-hidden"
+            className="text-gray-700 dark:text-gray-300 leading-relaxed overflow-hidden"
             style={{
               display: "-webkit-box",
               WebkitLineClamp: 3,
@@ -150,7 +150,7 @@ const JournalEntryCard = ({ entry, onEdit, onDelete, showAiData = true }) => {
             {displayText}
           </div>
         ) : (
-          <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+          <div className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap">
             {displayText}
           </div>
         )}
@@ -158,7 +158,7 @@ const JournalEntryCard = ({ entry, onEdit, onDelete, showAiData = true }) => {
         {shouldTruncate && (
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="mt-3 text-blue-600 hover:text-blue-700 font-medium text-sm flex items-center space-x-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded transition-colors"
+            className="mt-3 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium text-sm flex items-center space-x-1 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 rounded transition-colors"
           >
             {isExpanded ? (
               <>
@@ -177,22 +177,22 @@ const JournalEntryCard = ({ entry, onEdit, onDelete, showAiData = true }) => {
 
       {/* AI Summary - Only show when expanded or if content is short */}
       {showAiData && entry.ai_summary && (isExpanded || !shouldTruncate) && (
-        <div className="mb-4 p-4 bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg border border-purple-100">
+        <div className="mb-4 p-4 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-lg border border-purple-100 dark:border-purple-800">
           <div className="flex items-center space-x-2 mb-2">
-            <Sparkles className="w-4 h-4 text-purple-600" />
-            <span className="text-sm font-medium text-purple-800">
+            <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+            <span className="text-sm font-medium text-purple-800 dark:text-purple-200">
               AI Reflection
             </span>
             <button
               onClick={() => setShowAiSummary(!showAiSummary)}
-              className="text-purple-600 hover:text-purple-700 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 rounded"
+              className="text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 rounded"
             >
               {showAiSummary ? "Hide" : "Show"}
             </button>
           </div>
 
           {showAiSummary && (
-            <p className="text-sm text-purple-700 leading-relaxed">
+            <p className="text-sm text-purple-700 dark:text-purple-300 leading-relaxed">
               {entry.ai_summary}
             </p>
           )}
@@ -204,8 +204,8 @@ const JournalEntryCard = ({ entry, onEdit, onDelete, showAiData = true }) => {
         entry.ai_insights &&
         showAiSummary &&
         (isExpanded || !shouldTruncate) && (
-          <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
-            <p className="text-sm text-blue-700 leading-relaxed">
+          <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800">
+            <p className="text-sm text-blue-700 dark:text-blue-300 leading-relaxed">
               <strong>Insights:</strong> {entry.ai_insights}
             </p>
           </div>
@@ -216,10 +216,10 @@ const JournalEntryCard = ({ entry, onEdit, onDelete, showAiData = true }) => {
         (entry.ai_summary || entry.ai_insights) &&
         !isExpanded &&
         shouldTruncate && (
-          <div className="mt-3 p-2 bg-gray-50 rounded-lg border border-gray-100">
+          <div className="mt-3 p-2 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700">
             <div className="flex items-center space-x-2">
-              <Sparkles className="w-4 h-4 text-gray-400" />
-              <span className="text-sm text-gray-600">
+              <Sparkles className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+              <span className="text-sm text-gray-600 dark:text-gray-400">
                 AI analysis available - expand to view
               </span>
             </div>
