@@ -157,12 +157,12 @@ const Navigation = () => {
               <ThemeToggle variant="ghost" size="icon" />
 
               <Button variant="ghost" size="icon" className="relative">
-                <Bell className="w-5 h-5" />
+                <Bell className="w-5 h-5 text-gray-700 dark:text-gray-300" />
                 <span className="absolute -top-1 -right-1 w-3 h-3 bg-wellness-rose rounded-full animate-pulse"></span>
               </Button>
 
               <Button variant="ghost" size="icon">
-                <Settings className="w-5 h-5" />
+                <Settings className="w-5 h-5 text-gray-700 dark:text-gray-300" />
               </Button>
 
               <div className="flex items-center space-x-3">
@@ -196,9 +196,9 @@ const Navigation = () => {
               className="lg:hidden"
             >
               {isMobileMenuOpen ? (
-                <X className="w-6 h-6" />
+                <X className="w-6 h-6 text-gray-700 dark:text-gray-300" />
               ) : (
-                <Menu className="w-6 h-6" />
+                <Menu className="w-6 h-6 text-gray-700 dark:text-gray-300" />
               )}
             </Button>
           </div>
@@ -231,7 +231,7 @@ const Navigation = () => {
                         isActiveTab(tab.path) ? "active" : ""
                       }`}
                     >
-                      <tab.icon className="w-5 h-5" />
+                      <tab.icon className="w-5 h-5 text-gray-700 dark:text-gray-300" />
                       <div className="flex flex-col items-start">
                         <span className="font-semibold">{tab.name}</span>
                         <span className="text-xs text-muted-foreground">
@@ -260,11 +260,11 @@ const Navigation = () => {
 
                   <div className="grid grid-cols-2 gap-2">
                     <Button variant="ghost" size="sm" className="justify-start">
-                      <Settings className="w-4 h-4 mr-2" />
+                      <Settings className="w-4 h-4 mr-2 text-gray-700 dark:text-gray-300" />
                       Settings
                     </Button>
                     <Button variant="ghost" size="sm" className="justify-start">
-                      <Bell className="w-4 h-4 mr-2" />
+                      <Bell className="w-4 h-4 mr-2 text-gray-700 dark:text-gray-300" />
                       Notifications
                     </Button>
                   </div>

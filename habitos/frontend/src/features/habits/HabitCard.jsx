@@ -12,6 +12,7 @@ import {
   CheckCircle,
   Circle,
 } from "lucide-react";
+import { DeleteButton } from "../../shared/components";
 
 const getCategoryColor = (category) => {
   const colors = {
@@ -274,12 +275,12 @@ const HabitCard = ({ habit, viewMode = "grid", onEdit, onDelete }) => {
               <Edit className="w-3 h-3 sm:w-4 sm:h-4" />
             </button>
 
-            <button
+            <DeleteButton
               onClick={() => onDelete(habit)}
-              className="p-1 sm:p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-            >
-              <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
-            </button>
+              variant="ghost"
+              size="sm"
+              className="p-1 sm:p-2"
+            />
           </div>
         </div>
       </div>

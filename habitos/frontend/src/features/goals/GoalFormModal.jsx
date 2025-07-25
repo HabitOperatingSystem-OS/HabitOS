@@ -136,27 +136,27 @@ const GoalFormModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 backdrop-blur-sm bg-black/50 flex items-center justify-center z-50 p-4">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black bg-opacity-50 transition-opacity"
         onClick={onClose}
       />
       {/* Modal */}
-      <div className="relative bg-white rounded-lg shadow-xl max-w-md w-full mx-4 p-6 transform transition-all">
+      <div className="relative bg-white dark:bg-zinc-900 rounded-lg shadow-xl dark:shadow-zinc-800 max-w-md w-full mx-4 p-6 transform transition-all border border-zinc-200 dark:border-zinc-700">
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+          className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
         {/* Header */}
         <div className="mb-6">
-          <h3 className="text-lg font-medium text-gray-900">
+          <h3 className="text-lg font-medium text-black dark:text-white">
             {mode === "edit" ? "Edit Goal" : "Create New Goal"}
           </h3>
-          <p className="text-sm text-gray-600 mt-1">
+          <p className="text-sm text-zinc-600 dark:text-zinc-400 mt-1">
             {mode === "edit"
               ? "Update your goal details"
               : "Set a target for one of your habits"}
@@ -168,7 +168,7 @@ const GoalFormModal = ({
           <div>
             <label
               htmlFor="title"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-sm font-medium text-zinc-800 dark:text-zinc-100 mb-2"
             >
               Goal Title
             </label>
@@ -177,13 +177,17 @@ const GoalFormModal = ({
               id="title"
               value={formData.title}
               onChange={(e) => handleInputChange("title", e.target.value)}
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
-                errors.title ? "border-red-500" : "border-gray-300"
+              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-zinc-800 text-black dark:text-white ${
+                errors.title
+                  ? "border-red-500"
+                  : "border-zinc-300 dark:border-zinc-600"
               }`}
               placeholder="e.g., Read 10 books, Run a marathon, etc."
             />
             {errors.title && (
-              <p className="text-red-500 text-sm mt-1">{errors.title}</p>
+              <p className="text-red-500 dark:text-red-400 text-sm mt-1">
+                {errors.title}
+              </p>
             )}
           </div>
           {/* Habit Selection (only in create mode) */}
@@ -191,7 +195,7 @@ const GoalFormModal = ({
             <div>
               <label
                 htmlFor="habit_id"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium text-zinc-800 dark:text-zinc-100 mb-2"
               >
                 <Target className="w-4 h-4 inline mr-1" />
                 Select Habit
@@ -200,8 +204,10 @@ const GoalFormModal = ({
                 id="habit_id"
                 value={formData.habit_id}
                 onChange={(e) => handleInputChange("habit_id", e.target.value)}
-                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
-                  errors.habit_id ? "border-red-500" : "border-gray-300"
+                className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-zinc-800 text-black dark:text-white ${
+                  errors.habit_id
+                    ? "border-red-500"
+                    : "border-zinc-300 dark:border-zinc-600"
                 }`}
               >
                 <option value="">Choose a habit...</option>
@@ -218,22 +224,24 @@ const GoalFormModal = ({
                 })}
               </select>
               {errors.habit_id && (
-                <p className="text-red-500 text-sm mt-1">{errors.habit_id}</p>
+                <p className="text-red-500 dark:text-red-400 text-sm mt-1">
+                  {errors.habit_id}
+                </p>
               )}
 
               {/* Show habit goal status */}
               {checkingHabit && (
-                <p className="text-blue-500 text-sm mt-1">
+                <p className="text-blue-500 dark:text-blue-400 text-sm mt-1">
                   Checking habit goal status...
                 </p>
               )}
               {habitGoalInfo && habitGoalInfo.has_goal && (
-                <div className="mt-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                  <p className="text-yellow-800 text-sm">
+                <div className="mt-2 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                  <p className="text-yellow-800 dark:text-yellow-200 text-sm">
                     <strong>Note:</strong> This habit already has a goal: "
                     {habitGoalInfo.goal.title}"
                   </p>
-                  <p className="text-yellow-700 text-xs mt-1">
+                  <p className="text-yellow-700 dark:text-yellow-300 text-xs mt-1">
                     You can edit the existing goal instead of creating a new
                     one.
                   </p>
@@ -245,7 +253,7 @@ const GoalFormModal = ({
           <div>
             <label
               htmlFor="target_check_ins"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-sm font-medium text-zinc-800 dark:text-zinc-100 mb-2"
             >
               <Hash className="w-4 h-4 inline mr-1" />
               Target Check-ins
@@ -258,13 +266,15 @@ const GoalFormModal = ({
               onChange={(e) =>
                 handleInputChange("target_check_ins", e.target.value)
               }
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
-                errors.target_check_ins ? "border-red-500" : "border-gray-300"
+              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-zinc-800 text-black dark:text-white ${
+                errors.target_check_ins
+                  ? "border-red-500"
+                  : "border-zinc-300 dark:border-zinc-600"
               }`}
               placeholder="e.g., 15"
             />
             {errors.target_check_ins && (
-              <p className="text-red-500 text-sm mt-1">
+              <p className="text-red-500 dark:text-red-400 text-sm mt-1">
                 {errors.target_check_ins}
               </p>
             )}
@@ -273,7 +283,7 @@ const GoalFormModal = ({
           <div>
             <label
               htmlFor="due_date"
-              className="block text-sm font-medium text-gray-700 mb-2"
+              className="block text-sm font-medium text-zinc-800 dark:text-zinc-100 mb-2"
             >
               <Calendar className="w-4 h-4 inline mr-1" />
               Due Date
@@ -283,13 +293,17 @@ const GoalFormModal = ({
               id="due_date"
               value={formData.due_date}
               onChange={(e) => handleInputChange("due_date", e.target.value)}
-              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 ${
-                errors.due_date ? "border-red-500" : "border-gray-300"
+              className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-zinc-800 text-black dark:text-white ${
+                errors.due_date
+                  ? "border-red-500"
+                  : "border-zinc-300 dark:border-zinc-600"
               }`}
               min={new Date().toISOString().split("T")[0]}
             />
             {errors.due_date && (
-              <p className="text-red-500 text-sm mt-1">{errors.due_date}</p>
+              <p className="text-red-500 dark:text-red-400 text-sm mt-1">
+                {errors.due_date}
+              </p>
             )}
           </div>
           {/* Status (edit mode only) */}
@@ -297,7 +311,7 @@ const GoalFormModal = ({
             <div>
               <label
                 htmlFor="status"
-                className="block text-sm font-medium text-gray-700 mb-2"
+                className="block text-sm font-medium text-zinc-800 dark:text-zinc-100 mb-2"
               >
                 Status
               </label>
@@ -305,7 +319,7 @@ const GoalFormModal = ({
                 id="status"
                 value={formData.status}
                 onChange={(e) => handleInputChange("status", e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-zinc-800 text-black dark:text-white"
               >
                 <option value="active">Active</option>
                 <option value="paused">Paused</option>
@@ -316,7 +330,7 @@ const GoalFormModal = ({
           )}
           {/* Submit Error */}
           {errors.submit && (
-            <div className="text-red-500 text-sm bg-red-50 p-3 rounded-lg">
+            <div className="text-red-500 dark:text-red-400 text-sm bg-red-50 dark:bg-red-900/20 p-3 rounded-lg">
               {errors.submit}
             </div>
           )}
@@ -325,7 +339,7 @@ const GoalFormModal = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              className="px-4 py-2 text-zinc-700 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 rounded-lg hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
             >
               Cancel
             </button>

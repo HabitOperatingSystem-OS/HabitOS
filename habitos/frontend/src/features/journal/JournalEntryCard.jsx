@@ -8,7 +8,7 @@ import {
   ChevronUp,
   Sparkles,
 } from "lucide-react";
-import { Tag } from "../../shared/components";
+import { DeleteButton, Tag } from "../../shared/components";
 
 const JournalEntryCard = ({ entry, onEdit, onDelete, showAiData = true }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -123,13 +123,13 @@ const JournalEntryCard = ({ entry, onEdit, onDelete, showAiData = true }) => {
             <Edit className="w-4 h-4" />
           </button>
 
-          <button
+          <DeleteButton
             onClick={() => onDelete(entry.id)}
-            className="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 rounded"
+            variant="ghost"
+            size="sm"
+            className="p-2"
             aria-label="Delete entry"
-          >
-            <Trash2 className="w-4 h-4" />
-          </button>
+          />
         </div>
       </div>
 
