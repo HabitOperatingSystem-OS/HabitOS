@@ -166,15 +166,19 @@ const Navigation = () => {
               </Button>
 
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-wellness-sage to-wellness-emerald rounded-full flex items-center justify-center">
-                  <User className="w-5 h-5 text-white" />
-                </div>
-                <div className="text-sm">
-                  <p className="font-semibold text-gray-900 dark:text-white">
-                    {user.username || "User"}
-                  </p>
-                  <p className="text-muted-foreground">Premium Member</p>
-                </div>
+                <Link
+                  to="/profile"
+                  className="flex items-center space-x-3 hover:opacity-80 transition-opacity"
+                >
+                  <div className="w-10 h-10 bg-gradient-to-br from-wellness-sage to-wellness-emerald rounded-full flex items-center justify-center">
+                    <User className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="text-sm">
+                    <p className="font-semibold text-gray-900 dark:text-white">
+                      {user.username || "User"}
+                    </p>
+                  </div>
+                </Link>
               </div>
 
               <Button
@@ -244,7 +248,11 @@ const Navigation = () => {
 
                 {/* Mobile User Menu */}
                 <div className="pt-4 border-t border-white/20 dark:border-gray-800/20 space-y-2">
-                  <div className="flex items-center space-x-3 p-3 rounded-xl bg-white/50 dark:bg-gray-800/50">
+                  <Link
+                    to="/profile"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center space-x-3 p-3 rounded-xl bg-white/50 dark:bg-gray-800/50 hover:bg-white/70 dark:hover:bg-gray-800/70 transition-colors"
+                  >
                     <div className="w-10 h-10 bg-gradient-to-br from-wellness-sage to-wellness-emerald rounded-full flex items-center justify-center">
                       <User className="w-5 h-5 text-white" />
                     </div>
@@ -256,7 +264,7 @@ const Navigation = () => {
                         Premium Member
                       </p>
                     </div>
-                  </div>
+                  </Link>
 
                   <div className="grid grid-cols-2 gap-2">
                     <Button variant="ghost" size="sm" className="justify-start">

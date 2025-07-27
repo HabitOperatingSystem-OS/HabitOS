@@ -175,6 +175,34 @@ export const journalAPI = {
   },
 };
 
+// Users API calls
+export const usersAPI = {
+  getProfile: async (userId) => {
+    const response = await api.get(`/users/profile`);
+    return response.data;
+  },
+
+  updateProfile: async (profileData) => {
+    const response = await api.patch(`/users/profile`, profileData);
+    return response.data;
+  },
+
+  getUserStats: async (days = 30) => {
+    const response = await api.get(`/users/stats?days=${days}`);
+    return response.data;
+  },
+
+  getDashboardData: async () => {
+    const response = await api.get(`/users/dashboard`);
+    return response.data;
+  },
+
+  exportUserData: async () => {
+    const response = await api.get(`/users/data-export`);
+    return response.data;
+  },
+};
+
 // Goals API calls
 export const goalsAPI = {
   getGoals: async (filters = {}) => {

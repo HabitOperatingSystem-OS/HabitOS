@@ -10,6 +10,7 @@ import Home from "./pages/Home";
 import { HabitsPage, HabitDetailPage } from "./features/habits";
 import { GoalsPage } from "./features/goals";
 import { JournalPage, CheckInsPage } from "./features/journal";
+import { ProfilePage } from "./features/profile";
 import { ToastProvider, ToastViewport } from "./components/ui/toast";
 
 // Protected route wrapper component
@@ -126,6 +127,22 @@ const AppContent = () => {
           element={
             <ProtectedRoute>
               <JournalPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/users/:id"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
             </ProtectedRoute>
           }
         />
