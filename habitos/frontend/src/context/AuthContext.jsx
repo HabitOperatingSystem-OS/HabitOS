@@ -5,7 +5,7 @@ import { authAPI } from "../services/api";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  // State to store user information (currently just holds the token)
+  // State to store user information
   const [user, setUser] = useState(null);
 
   // State to store the authentication token
@@ -19,14 +19,28 @@ export const AuthProvider = ({ children }) => {
   // Handles setting user state based on token presence
   useEffect(() => {
     if (token) {
-      // If token exists, create a user object with the token
-      // TODO: Could be enhanced to decode JWT and extract user info
-      setUser({ token });
+      // Fetch user profile data when token is available
+      fetchUserProfile();
     } else {
       // If no token, clear the user
       setUser(null);
     }
   }, [token]); // Dependency array - effect runs when token changes
+
+  // Fetch user profile data
+  const fetchUserProfile = async () => {
+    try {
+      const response = await authAPI.getCurrentUser();
+      setUser({
+        ...response.user,
+        token,
+      });
+    } catch (err) {
+      console.error("Failed to fetch user profile:", err);
+      // Fallback to basic user object with token
+      setUser({ token });
+    }
+  };
 
   // Async function to handle user login
   const login = async (email, password) => {
@@ -43,8 +57,11 @@ export const AuthProvider = ({ children }) => {
       // Update token state (this will trigger the useEffect above)
       setToken(data.access_token);
 
-      // Set user state with the token
-      setUser({ token: data.access_token });
+      // Set user state with the token and user data
+      setUser({
+        ...data.user,
+        token: data.access_token,
+      });
 
       // Return success status to the calling component
       return { success: true };
@@ -72,8 +89,11 @@ export const AuthProvider = ({ children }) => {
       // Update token state
       setToken(data.access_token);
 
-      // Set user state with the token
-      setUser({ token: data.access_token });
+      // Set user state with the token and user data
+      setUser({
+        ...data.user,
+        token: data.access_token,
+      });
 
       // Return success status
       return { success: true };

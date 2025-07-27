@@ -94,6 +94,14 @@ const Dashboard = () => {
 
   const { stats, streakData, todaysHabits, moodSummary } = dashboardData;
 
+  // Helper function to get first name from username or email
+  const getFirstName = (name) => {
+    if (!name) return "User";
+    // Extract first name from username or email
+    const firstName = name.split(/[@\s]/)[0];
+    return firstName.charAt(0).toUpperCase() + firstName.slice(1);
+  };
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -134,7 +142,9 @@ const Dashboard = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, ease: "easeOut" }}
               >
-                Welcome back, {userData?.username || "User"}! ✨
+                Welcome back,{" "}
+                {getFirstName(userData?.username || userData?.email || "User")}{" "}
+                👋
               </motion.h1>
               <motion.p
                 className="text-xl text-muted-foreground"

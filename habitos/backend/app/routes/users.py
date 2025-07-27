@@ -33,7 +33,7 @@ def get_user_profile():
     except Exception as e:
         return jsonify({'error': 'Failed to fetch user profile', 'details': str(e)}), 500
 
-@users_bp.route('/profile', methods=['PUT'])
+@users_bp.route('/profile', methods=['PUT', 'PATCH'])
 @jwt_required()
 def update_user_profile():
     """
