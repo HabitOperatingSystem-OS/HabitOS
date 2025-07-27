@@ -39,7 +39,7 @@ const InputField = ({
         {label}
       </Label>
       <div className="relative group">
-        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+        <div className="input-field-icon">
           <Icon
             className={`h-5 w-5 transition-colors duration-200 ${
               hasError
@@ -55,7 +55,13 @@ const InputField = ({
           name={name}
           type={inputType}
           required={required}
-          className={`pl-12 pr-12 h-12 border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm focus:border-primary-500 focus:ring-primary-500 focus:ring-2 focus:ring-offset-0 transition-all duration-200 ${
+          className={`pl-12 ${
+            showToggle && isValid
+              ? "pr-20"
+              : showToggle || isValid
+              ? "pr-12"
+              : "pr-4"
+          } h-12 border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm focus:border-primary-500 focus:ring-primary-500 focus:ring-2 focus:ring-offset-0 transition-all duration-200 ${
             hasError
               ? "border-red-500 focus:border-red-500 focus:ring-red-500"
               : isValid
@@ -70,7 +76,9 @@ const InputField = ({
         {showToggle && (
           <button
             type="button"
-            className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200"
+            className={`absolute inset-y-0 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors duration-200 ${
+              isValid ? "right-12" : "right-4"
+            }`}
             onClick={onToggle}
           >
             {toggleState ? (
@@ -81,7 +89,7 @@ const InputField = ({
           </button>
         )}
         {isValid && (
-          <div className="absolute inset-y-0 right-0 pr-4 flex items-center">
+          <div className="validation-icon">
             <CheckCircle className="h-5 w-5 text-green-500" />
           </div>
         )}
@@ -111,6 +119,15 @@ const AuthForm = ({
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  // Password toggle functions
+  const togglePassword = () => {
+    setShowPassword(!showPassword);
+  };
+
+  const toggleConfirmPassword = () => {
+    setShowConfirmPassword(!showConfirmPassword);
+  };
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
 
@@ -267,7 +284,7 @@ const AuthForm = ({
           icon={Lock}
           showToggle={true}
           toggleState={showPassword}
-          onToggle={() => setShowPassword(!showPassword)}
+          onToggle={togglePassword}
           value={formData.password}
           onChange={handleChange}
           onBlur={handleBlur}
@@ -284,7 +301,7 @@ const AuthForm = ({
             icon={Check}
             showToggle={true}
             toggleState={showConfirmPassword}
-            onToggle={() => setShowConfirmPassword(!showConfirmPassword)}
+            onToggle={toggleConfirmPassword}
             value={formData.confirmPassword}
             onChange={handleChange}
             onBlur={handleBlur}
