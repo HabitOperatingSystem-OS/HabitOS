@@ -4,13 +4,8 @@ import { Link } from "react-router-dom";
 import {
   TrendingUp,
   Calendar,
-  MoreVertical,
-  Edit,
-  Trash2,
-  Eye,
   Clock,
   CheckCircle,
-  Circle,
   Target,
   Zap,
   Star,
@@ -19,7 +14,6 @@ import {
   Info,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { DeleteButton } from "../../shared/components";
 
 const getCategoryColor = (category) => {
   const colors = {
@@ -87,26 +81,9 @@ const getStreakIcon = (currentStreak) => {
   return TrendingUp;
 };
 
-const HabitCard = ({ habit, onEdit, onDelete }) => {
-  const [showMenu, setShowMenu] = useState(false);
+const HabitCard = ({ habit }) => {
   const [showTooltip, setShowTooltip] = useState(false);
-  const [isUpdating, setIsUpdating] = useState(false);
-  const menuRef = useRef(null);
   const tooltipRef = useRef(null);
-
-  // Close menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (menuRef.current && !menuRef.current.contains(event.target)) {
-        setShowMenu(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
 
   // Check if habit is due today AND not completed today
   const isDueToday = habit.is_due_today && !habit.completed_today;
@@ -200,9 +177,8 @@ const HabitCard = ({ habit, onEdit, onDelete }) => {
                 </div>
               </div>
 
-              {/* Right: Status and Menu */}
-              <div className="flex items-center space-x-3">
-                {/* Status Indicator */}
+              {/* Right: Status Indicator */}
+              <div className="flex items-center">
                 <motion.div
                   whileHover={{ scale: 1.1 }}
                   className={`flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-semibold ${
@@ -211,66 +187,9 @@ const HabitCard = ({ habit, onEdit, onDelete }) => {
                       : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
                   }`}
                 >
-                  {habit.active ? (
-                    <CheckCircle className="w-3 h-3" />
-                  ) : (
-                    <Circle className="w-3 h-3" />
-                  )}
+                  <CheckCircle className="w-3 h-3" />
                   <span>{habit.active ? "Active" : "Inactive"}</span>
                 </motion.div>
-
-                {/* Menu Button */}
-                <div className="relative" ref={menuRef}>
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setShowMenu(!showMenu);
-                    }}
-                    className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
-                  >
-                    <MoreVertical className="w-4 h-4" />
-                  </button>
-
-                  {/* Dropdown Menu */}
-                  <AnimatePresence>
-                    {showMenu && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                        transition={{ duration: 0.15 }}
-                        className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-10"
-                      >
-                        <div className="py-1">
-                          <button
-                            onClick={(e) => {
-                              e.preventDefault();
-                              onEdit(habit);
-                              setShowMenu(false);
-                            }}
-                            className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                          >
-                            <Edit className="w-4 h-4 mr-3" />
-                            Edit Habit
-                          </button>
-                          <DeleteButton
-                            onClick={(e) => {
-                              e.preventDefault();
-                              onDelete(habit);
-                              setShowMenu(false);
-                            }}
-                            variant="ghost"
-                            size="sm"
-                            className="w-full justify-start px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
-                          >
-                            <Trash2 className="w-4 h-4 mr-3" />
-                            Delete Habit
-                          </DeleteButton>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
               </div>
             </div>
 
@@ -450,8 +369,6 @@ HabitCard.propTypes = {
     is_due_today: PropTypes.bool,
     completed_today: PropTypes.bool,
   }).isRequired,
-  onEdit: PropTypes.func.isRequired,
-  onDelete: PropTypes.func.isRequired,
 };
 
 export default HabitCard;
