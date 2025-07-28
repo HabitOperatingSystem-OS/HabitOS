@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
@@ -25,6 +25,33 @@ const Navigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isMobileMenuOpen && !event.target.closest(".mobile-menu-container")) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    if (isMobileMenuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("touchstart", handleClickOutside);
+      // Prevent body scroll when menu is open
+      document.body.style.overflow = "hidden";
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+      document.body.style.overflow = "unset";
+    };
+  }, [isMobileMenuOpen]);
+
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location.pathname]);
 
   // Don't render navigation if not authenticated
   if (!user) {
@@ -79,6 +106,22 @@ const Navigation = () => {
       return location.pathname === "/dashboard";
     }
     return location.pathname.startsWith(tabPath);
+  };
+
+  // Hamburger menu animation variants
+  const hamburgerVariants = {
+    closed: { rotate: 0 },
+    open: { rotate: 180 },
+  };
+
+  const lineVariants = {
+    closed: { rotate: 0, y: 0 },
+    open: { rotate: 45, y: 6 },
+  };
+
+  const lineVariants2 = {
+    closed: { rotate: 0, y: 0 },
+    open: { rotate: -45, y: -6 },
   };
 
   return (
@@ -192,95 +235,205 @@ const Navigation = () => {
               </Button>
             </div>
 
-            {/* Mobile Menu Button */}
+            {/* Mobile Menu Button with Hamburger Animation */}
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden"
+              className="lg:hidden relative w-12 h-12 p-0"
             >
-              {isMobileMenuOpen ? (
-                <X className="w-6 h-6 text-gray-700 dark:text-gray-300" />
-              ) : (
-                <Menu className="w-6 h-6 text-gray-700 dark:text-gray-300" />
-              )}
+              <motion.div
+                className="flex flex-col items-center justify-center w-6 h-6"
+                animate={isMobileMenuOpen ? "open" : "closed"}
+                variants={hamburgerVariants}
+                transition={{ duration: 0.3 }}
+              >
+                <motion.div
+                  className="w-6 h-0.5 bg-gray-700 dark:bg-gray-300 rounded-full origin-center"
+                  variants={lineVariants}
+                  transition={{ duration: 0.3 }}
+                />
+                <motion.div
+                  className="w-6 h-0.5 bg-gray-700 dark:bg-gray-300 rounded-full origin-center mt-1.5"
+                  variants={lineVariants2}
+                  transition={{ duration: 0.3 }}
+                />
+              </motion.div>
             </Button>
           </div>
         </div>
       </motion.nav>
 
-      {/* Mobile Navigation Menu */}
+      {/* Mobile Navigation Menu - Full Screen Overlay */}
       <AnimatePresence>
         {isMobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="lg:hidden fixed top-20 left-0 right-0 z-40 glass-nav border-t border-white/20 dark:border-gray-800/20"
-          >
-            <div className="container-premium px-6 py-4">
-              <nav className="space-y-2">
-                {tabs.map((tab, index) => (
-                  <motion.div
-                    key={tab.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.2, delay: index * 0.05 }}
-                  >
-                    <Link
-                      to={tab.path}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className={`nav-item w-full justify-start ${
-                        isActiveTab(tab.path) ? "active" : ""
-                      }`}
-                    >
-                      <tab.icon className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-                      <div className="flex flex-col items-start">
-                        <span className="font-semibold">{tab.name}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {tab.description}
-                        </span>
-                      </div>
-                    </Link>
-                  </motion.div>
-                ))}
+          <>
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+              onClick={() => setIsMobileMenuOpen(false)}
+            />
 
-                {/* Mobile User Menu */}
-                <div className="pt-4 border-t border-white/20 dark:border-gray-800/20 space-y-2">
+            {/* Mobile Menu Container */}
+            <motion.div
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{
+                type: "spring",
+                stiffness: 300,
+                damping: 30,
+                duration: 0.3,
+              }}
+              className="lg:hidden fixed top-0 right-0 h-full w-80 max-w-[85vw] z-50 mobile-menu-container"
+            >
+              <div className="h-full bg-white dark:bg-gray-900 shadow-2xl flex flex-col">
+                {/* Header */}
+                <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-primary-600 via-wellness-lavender to-wellness-indigo rounded-xl flex items-center justify-center">
+                      <Sparkles className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+                        HabitOS
+                      </h2>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Mobile Menu
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="w-10 h-10"
+                  >
+                    <X className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+                  </Button>
+                </div>
+
+                {/* Navigation Items */}
+                <div className="flex-1 overflow-y-auto py-6">
+                  <nav className="space-y-1 px-4">
+                    {tabs.map((tab, index) => (
+                      <motion.div
+                        key={tab.id}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{
+                          duration: 0.3,
+                          delay: index * 0.1,
+                          ease: "easeOut",
+                        }}
+                      >
+                        <Link
+                          to={tab.path}
+                          onClick={() => setIsMobileMenuOpen(false)}
+                          className={`group flex items-center w-full px-4 py-4 rounded-xl transition-all duration-200 min-h-[56px] ${
+                            isActiveTab(tab.path)
+                              ? "bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800"
+                              : "hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                          }`}
+                        >
+                          <div
+                            className={`flex items-center justify-center w-10 h-10 rounded-lg mr-4 transition-colors ${
+                              isActiveTab(tab.path)
+                                ? "bg-primary-100 dark:bg-primary-800/30"
+                                : "bg-gray-100 dark:bg-gray-800"
+                            }`}
+                          >
+                            <tab.icon
+                              className={`w-5 h-5 ${
+                                isActiveTab(tab.path)
+                                  ? "text-primary-600 dark:text-primary-400"
+                                  : "text-gray-600 dark:text-gray-400"
+                              }`}
+                            />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div
+                              className={`font-semibold text-left ${
+                                isActiveTab(tab.path)
+                                  ? "text-primary-900 dark:text-primary-100"
+                                  : "text-gray-900 dark:text-white"
+                              }`}
+                            >
+                              {tab.name}
+                            </div>
+                            <div className="text-sm text-gray-500 dark:text-gray-400 text-left leading-tight">
+                              {tab.description}
+                            </div>
+                          </div>
+                          {isActiveTab(tab.path) && (
+                            <motion.div
+                              layoutId="mobileActiveIndicator"
+                              className="w-2 h-2 bg-primary-600 dark:bg-primary-400 rounded-full"
+                              initial={false}
+                              transition={{
+                                type: "spring",
+                                stiffness: 500,
+                                damping: 30,
+                              }}
+                            />
+                          )}
+                        </Link>
+                      </motion.div>
+                    ))}
+                  </nav>
+                </div>
+
+                {/* User Section */}
+                <div className="border-t border-gray-200 dark:border-gray-700 p-6 space-y-4">
+                  {/* User Profile */}
                   <Link
                     to="/profile"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="flex items-center space-x-3 p-3 rounded-xl bg-white/50 dark:bg-gray-800/50 hover:bg-white/70 dark:hover:bg-gray-800/70 transition-colors"
+                    className="flex items-center space-x-4 p-4 rounded-xl bg-gray-50 dark:bg-gray-800/50 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                   >
-                    <div className="w-10 h-10 bg-gradient-to-br from-wellness-sage to-wellness-emerald rounded-full flex items-center justify-center">
-                      <User className="w-5 h-5 text-white" />
+                    <div className="w-12 h-12 bg-gradient-to-br from-wellness-sage to-wellness-emerald rounded-full flex items-center justify-center">
+                      <User className="w-6 h-6 text-white" />
                     </div>
-                    <div className="flex-1">
-                      <p className="font-semibold text-gray-900 dark:text-white">
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-gray-900 dark:text-white truncate">
                         {user.username || "User"}
                       </p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
                         Premium Member
                       </p>
                     </div>
                   </Link>
 
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button variant="ghost" size="sm" className="justify-start">
-                      <Settings className="w-4 h-4 mr-2 text-gray-700 dark:text-gray-300" />
+                  {/* Action Buttons */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="justify-start h-12 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
+                    >
+                      <Settings className="w-4 h-4 mr-3 text-gray-600 dark:text-gray-400" />
                       Settings
                     </Button>
-                    <Button variant="ghost" size="sm" className="justify-start">
-                      <Bell className="w-4 h-4 mr-2 text-gray-700 dark:text-gray-300" />
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="justify-start h-12 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
+                    >
+                      <Bell className="w-4 h-4 mr-3 text-gray-600 dark:text-gray-400" />
                       Notifications
                     </Button>
                   </div>
 
+                  {/* Theme Toggle */}
                   <div className="flex justify-center">
                     <ThemeToggle variant="outline" size="sm" showLabel={true} />
                   </div>
 
+                  {/* Logout Button */}
                   <Button
                     variant="outline"
                     size="sm"
@@ -288,15 +441,15 @@ const Navigation = () => {
                       handleLogout();
                       setIsMobileMenuOpen(false);
                     }}
-                    className="w-full border-red-200 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-300 dark:hover:bg-red-900/20"
+                    className="w-full h-12 border-red-200 text-red-700 hover:bg-red-50 dark:border-red-800 dark:text-red-300 dark:hover:bg-red-900/20"
                   >
-                    <LogOut className="w-4 h-4 mr-2" />
+                    <LogOut className="w-4 h-4 mr-3" />
                     Logout
                   </Button>
                 </div>
-              </nav>
-            </div>
-          </motion.div>
+              </div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </>

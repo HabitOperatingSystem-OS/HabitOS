@@ -133,6 +133,169 @@
     @apply block w-full rounded-xl border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-3 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500 focus:ring-2 focus:ring-offset-0 transition-all duration-200;
   }
 
+  /* Fix autofill styling for dark mode */
+  .input-premium:-webkit-autofill,
+  .input-premium:-webkit-autofill:hover,
+  .input-premium:-webkit-autofill:focus,
+  .input-premium:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px rgb(31 41 55) inset !important;
+    -webkit-text-fill-color: rgb(243 244 246) !important;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+
+  /* Light mode autofill styling */
+  .input-premium:-webkit-autofill,
+  .input-premium:-webkit-autofill:hover,
+  .input-premium:-webkit-autofill:focus,
+  .input-premium:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px rgb(255 255 255) inset !important;
+    -webkit-text-fill-color: rgb(17 24 39) !important;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+
+  /* Dark mode specific autofill override */
+  .dark .input-premium:-webkit-autofill,
+  .dark .input-premium:-webkit-autofill:hover,
+  .dark .input-premium:-webkit-autofill:focus,
+  .dark .input-premium:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px rgb(31 41 55) inset !important;
+    -webkit-text-fill-color: rgb(243 244 246) !important;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+
+  /* Ensure password toggle button doesn't interfere with input styling */
+  .input-premium[type="password"],
+  .input-premium[type="text"] {
+    background-color: rgb(255 255 255);
+    color: rgb(17 24 39);
+  }
+
+  .dark .input-premium[type="password"],
+  .dark .input-premium[type="text"] {
+    background-color: rgb(31 41 55);
+    color: rgb(243 244 246);
+  }
+
+  /* Override any browser default styling for password inputs */
+  .input-premium[type="password"]::-ms-reveal,
+  .input-premium[type="password"]::-ms-clear {
+    display: none;
+  }
+
+  /* Additional input styling to prevent conflicts */
+  .input-premium {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+  }
+
+  /* Ensure consistent styling for all input types */
+  .input-premium[type="email"],
+  .input-premium[type="text"],
+  .input-premium[type="password"] {
+    background-image: none;
+    background-color: rgb(255 255 255);
+    color: rgb(17 24 39);
+  }
+
+  .dark .input-premium[type="email"],
+  .dark .input-premium[type="text"],
+  .dark .input-premium[type="password"] {
+    background-image: none;
+    background-color: rgb(31 41 55);
+    color: rgb(243 244 246);
+  }
+
+  /* Input field icon styling */
+  .input-field-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 5;
+    pointer-events: none;
+    transition: color 0.2s ease;
+  }
+
+  /* Password toggle button styling */
+  .password-toggle-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease;
+  }
+
+  .password-toggle-button:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+
+  .dark .password-toggle-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .password-toggle-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+  }
+
+  /* Validation icon styling */
+  .validation-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 5;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Ensure input icons are visible and properly styled */
+  .input-field-icon svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+  }
+
+  /* Ensure icons are visible in all states */
+  .input-field-icon,
+  .validation-icon,
+  .password-toggle-button {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Prevent any unwanted styling when input type changes */
+  .input-premium[type="password"]:focus,
+  .input-premium[type="text"]:focus {
+    background-color: rgb(255 255 255);
+    color: rgb(17 24 39);
+  }
+
+  .dark .input-premium[type="password"]:focus,
+  .dark .input-premium[type="text"]:focus {
+    background-color: rgb(31 41 55);
+    color: rgb(243 244 246);
+  }
+
+  /* Ensure no green background appears */
+  .input-premium[type="password"],
+  .input-premium[type="text"] {
+    background-color: rgb(255 255 255) !important;
+    color: rgb(17 24 39) !important;
+  }
+
+  .dark .input-premium[type="password"],
+  .dark .input-premium[type="text"] {
+    background-color: rgb(31 41 55) !important;
+    color: rgb(243 244 246) !important;
+  }
+
   /* Premium modal styles */
   .modal-overlay {
     @apply fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4;
@@ -285,5 +448,27 @@
   .dark-mode-transition {
     transition: color 0.3s ease, background-color 0.3s ease,
       border-color 0.3s ease;
+  }
+
+  /* Date input styling for dark mode */
+  input[type="date"] {
+    @apply text-black dark:text-white;
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0);
+  }
+
+  .dark input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+  }
+
+  input[type="date"]::-webkit-datetime-edit,
+  input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+  input[type="date"]::-webkit-datetime-edit-text,
+  input[type="date"]::-webkit-datetime-edit-month-field,
+  input[type="date"]::-webkit-datetime-edit-day-field,
+  input[type="date"]::-webkit-datetime-edit-year-field {
+    @apply text-black dark:text-white;
   }
 }

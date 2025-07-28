@@ -1,5 +1,14 @@
 import React from "react";
-import { TrendingUp, TrendingDown } from "lucide-react";
+import {
+  TrendingUp,
+  TrendingDown,
+  Target,
+  Activity,
+  Award,
+  Users,
+  Calendar,
+  CheckCircle,
+} from "lucide-react";
 import { Card, CardContent } from "../../components/ui/card";
 import { motion } from "framer-motion";
 
@@ -10,6 +19,9 @@ const StatsCard = ({
   changeType,
   icon: Icon,
   color = "blue",
+  subtitle,
+  trend,
+  trendValue,
 }) => {
   const getColorClasses = (color) => {
     const colors = {
@@ -55,6 +67,33 @@ const StatsCard = ({
 
   const colorClasses = getColorClasses(color);
 
+  // Format value based on type
+  const formatValue = (val, type) => {
+    if (type === "percentage") {
+      return `${val}%`;
+    } else if (type === "days") {
+      return `${val} days`;
+    } else if (type === "ratio") {
+      return val;
+    }
+    return val;
+  };
+
+  // Get default icon based on title
+  const getDefaultIcon = (title) => {
+    const iconMap = {
+      "Active Habits": Target,
+      "Current Streak": Activity,
+      "Completion Rate": CheckCircle,
+      "Goals Achieved": Award,
+      "Total Goals": Users,
+      "Today's Habits": Calendar,
+    };
+    return iconMap[title] || Target;
+  };
+
+  const DisplayIcon = Icon || getDefaultIcon(title);
+
   return (
     <motion.div
       whileHover={{
@@ -74,7 +113,7 @@ const StatsCard = ({
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <div className="flex items-center space-x-3 mb-3">
-                {Icon && (
+                {DisplayIcon && (
                   <motion.div
                     className={`w-12 h-12 rounded-xl flex items-center justify-center ${colorClasses.iconBg} shadow-lg ${colorClasses.glow}`}
                     whileHover={{
@@ -87,24 +126,38 @@ const StatsCard = ({
                       },
                     }}
                   >
-                    <Icon className={`w-6 h-6 ${colorClasses.iconText}`} />
+                    <DisplayIcon
+                      className={`w-6 h-6 ${colorClasses.iconText}`}
+                    />
                   </motion.div>
                 )}
-                <div>
+                <div className="flex-1">
                   <p className="text-sm font-medium text-muted-foreground whitespace-nowrap">
                     {title}
                   </p>
                   <p className="text-3xl font-bold text-gradient-wellness">
-                    {value}
+                    {formatValue(
+                      value,
+                      title.includes("Rate")
+                        ? "percentage"
+                        : title.includes("Streak")
+                        ? "days"
+                        : "default"
+                    )}
                   </p>
+                  {subtitle && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {subtitle}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
 
-            {change && (
+            {(change || trend) && (
               <motion.div
                 className={`flex items-center space-x-1 text-sm font-medium px-3 py-1 rounded-full ${
-                  changeType === "positive"
+                  changeType === "positive" || (trend && trendValue > 0)
                     ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300"
                     : "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300"
                 }`}
@@ -112,12 +165,15 @@ const StatsCard = ({
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.2, duration: 0.3 }}
               >
-                {changeType === "positive" ? (
+                {changeType === "positive" || (trend && trendValue > 0) ? (
                   <TrendingUp className="w-4 h-4" />
                 ) : (
                   <TrendingDown className="w-4 h-4" />
                 )}
-                <span className="font-semibold">{change}</span>
+                <span className="font-semibold">
+                  {change ||
+                    (trend && `${trendValue > 0 ? "+" : ""}${trendValue}%`)}
+                </span>
               </motion.div>
             )}
           </div>

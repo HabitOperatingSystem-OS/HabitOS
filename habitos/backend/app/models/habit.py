@@ -215,6 +215,15 @@ class Habit(db.Model):
     
     def to_dict(self, include_progress=False):
         """Convert habit to dictionary"""
+        # Check if habit is completed today
+        from .check_in import CheckIn
+        today = datetime.now(timezone.utc).date()
+        completed_today = CheckIn.query.filter(
+            CheckIn.habit_id == self.id,
+            CheckIn.date == today,
+            CheckIn.completed == True
+        ).first() is not None
+        
         data = {
             'id': self.id,
             'user_id': self.user_id,
@@ -228,7 +237,8 @@ class Habit(db.Model):
             'start_date': self.start_date.isoformat(),
             'created_at': self.created_at.isoformat(),
             'updated_at': self.updated_at.isoformat(),
-            'is_due_today': self.is_due_today()
+            'is_due_today': self.is_due_today(),
+            'completed_today': completed_today
         }
         
         if include_progress:

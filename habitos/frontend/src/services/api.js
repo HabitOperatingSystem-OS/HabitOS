@@ -94,6 +94,10 @@ export const habitsAPI = {
     const response = await api.delete(`/habits/${id}`);
     return response.data;
   },
+  getHabitStats: async () => {
+    const response = await api.get("/habits/stats");
+    return response.data;
+  },
 };
 
 // Check-ins API calls

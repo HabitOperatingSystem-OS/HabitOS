@@ -10,6 +10,9 @@ import {
   Zap,
   Heart,
   Brain,
+  CheckCircle,
+  Calendar,
+  Trophy,
 } from "lucide-react";
 
 import { useDashboard } from "../../shared/hooks/useDashboard";
@@ -155,81 +158,6 @@ const Dashboard = () => {
                 Here's your wellness journey today
               </motion.p>
             </div>
-
-            {/* Wellness Status */}
-            <div className="grid-premium-4 mb-8">
-              <Card className="card-glass">
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-wellness-sage to-wellness-emerald rounded-xl flex items-center justify-center">
-                      <Heart className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">
-                        Wellness Score
-                      </p>
-                      <p className="text-2xl font-bold text-gradient-wellness">
-                        92%
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="card-glass">
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-wellness-lavender to-wellness-indigo rounded-xl flex items-center justify-center">
-                      <Brain className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">
-                        Mental Fitness
-                      </p>
-                      <p className="text-2xl font-bold text-gradient-wellness">
-                        88%
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="card-glass">
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-wellness-coral to-wellness-rose rounded-xl flex items-center justify-center">
-                      <Zap className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">
-                        Energy Level
-                      </p>
-                      <p className="text-2xl font-bold text-gradient-wellness">
-                        85%
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="card-glass">
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-wellness-amber to-wellness-sky rounded-xl flex items-center justify-center">
-                      <Sparkles className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-muted-foreground">
-                        Focus Score
-                      </p>
-                      <p className="text-2xl font-bold text-gradient-wellness">
-                        90%
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
           </motion.div>
 
           {/* Stats Grid */}
@@ -238,33 +166,37 @@ const Dashboard = () => {
               <StatsCard
                 title="Active Habits"
                 value={stats.activeHabits}
-                change="+2"
-                changeType="positive"
+                subtitle={`${
+                  stats.activeHabits > 0
+                    ? "Currently tracking"
+                    : "No active habits"
+                }`}
                 icon={TargetIcon}
                 color="blue"
               />
               <StatsCard
                 title="Current Streak"
-                value={`${stats.currentStreak} days`}
-                change="+1"
-                changeType="positive"
-                icon={TrendingUp}
+                value={stats.currentStreak}
+                subtitle="Consecutive days"
+                icon={Activity}
                 color="green"
               />
               <StatsCard
                 title="Completion Rate"
-                value={`${stats.completionRate}%`}
-                change="+5%"
-                changeType="positive"
-                icon={Activity}
+                value={stats.completionRate}
+                subtitle="Last 30 days"
+                icon={CheckCircle}
                 color="purple"
               />
               <StatsCard
                 title="Goals Achieved"
                 value={stats.goalsAchieved}
-                change="+1"
-                changeType="positive"
-                icon={Award}
+                subtitle={`${
+                  stats.totalGoals > 0
+                    ? `${stats.goalsAchieved}/${stats.totalGoals} total`
+                    : "No goals set"
+                }`}
+                icon={Trophy}
                 color="orange"
               />
             </div>

@@ -17,7 +17,14 @@ config = context.config
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 if config.config_file_name is not None:
-    fileConfig(config.config_file_name)
+    try:
+        fileConfig(config.config_file_name)
+    except FileNotFoundError:
+        # If alembic.ini is not in migrations directory, try parent directory
+        import os
+        parent_config = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'alembic.ini')
+        if os.path.exists(parent_config):
+            fileConfig(parent_config)
 
 # Import our Flask app and models
 from app import create_app, db

@@ -18,7 +18,7 @@ const GoalFormModal = ({
     target_check_ins: "",
     due_date: "",
     priority: "medium",
-    status: "active",
+    status: "in_progress",
   });
   const [errors, setErrors] = useState({});
   const [habitGoalInfo, setHabitGoalInfo] = useState(null);
@@ -27,6 +27,7 @@ const GoalFormModal = ({
   // Pre-fill form in edit mode
   useEffect(() => {
     if (mode === "edit" && initialGoal && isOpen) {
+      console.log("Pre-filling form with goal data:", initialGoal);
       setFormData({
         habit_id: initialGoal.habit_id || "",
         title: initialGoal.title || "",
@@ -35,7 +36,7 @@ const GoalFormModal = ({
           ? new Date(initialGoal.due_date).toISOString().split("T")[0]
           : "",
         priority: initialGoal.priority || "medium",
-        status: initialGoal.status || "active",
+        status: initialGoal.status || "in_progress",
       });
       setErrors({});
     } else if (mode === "create" && isOpen) {
@@ -45,7 +46,7 @@ const GoalFormModal = ({
         target_check_ins: "",
         due_date: "",
         priority: "medium",
-        status: "active",
+        status: "in_progress",
       });
       setErrors({});
     }
@@ -91,7 +92,8 @@ const GoalFormModal = ({
         title: "",
         target_check_ins: "",
         due_date: "",
-        status: "active",
+        priority: "medium",
+        status: "in_progress",
       });
       setErrors({});
     }
@@ -299,6 +301,9 @@ const GoalFormModal = ({
                   : "border-zinc-300 dark:border-zinc-600"
               }`}
               min={new Date().toISOString().split("T")[0]}
+              style={{
+                colorScheme: "dark",
+              }}
             />
             {errors.due_date && (
               <p className="text-red-500 dark:text-red-400 text-sm mt-1">
@@ -306,6 +311,26 @@ const GoalFormModal = ({
               </p>
             )}
           </div>
+          {/* Priority */}
+          <div>
+            <label
+              htmlFor="priority"
+              className="block text-sm font-medium text-zinc-800 dark:text-zinc-100 mb-2"
+            >
+              Priority
+            </label>
+            <select
+              id="priority"
+              value={formData.priority}
+              onChange={(e) => handleInputChange("priority", e.target.value)}
+              className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-zinc-800 text-black dark:text-white"
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </div>
+
           {/* Status (edit mode only) */}
           {mode === "edit" && (
             <div>
@@ -319,12 +344,13 @@ const GoalFormModal = ({
                 id="status"
                 value={formData.status}
                 onChange={(e) => handleInputChange("status", e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-zinc-800 text-black dark:text-white"
+                className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-zinc-800 text-black dark:text-white"
               >
-                <option value="active">Active</option>
+                <option value="in_progress">In Progress</option>
                 <option value="paused">Paused</option>
                 <option value="completed">Completed</option>
                 <option value="cancelled">Cancelled</option>
+                <option value="abandoned">Abandoned</option>
               </select>
             </div>
           )}
