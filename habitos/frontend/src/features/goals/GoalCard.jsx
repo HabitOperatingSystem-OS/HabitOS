@@ -37,11 +37,12 @@ const GoalCard = ({ goal, habit, onEdit, onDelete }) => {
     switch (status) {
       case "completed":
         return "text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/20";
-      case "active":
+      case "in_progress":
         return "text-blue-600 dark:text-blue-400 bg-blue-100 dark:bg-blue-900/20";
       case "paused":
         return "text-yellow-600 dark:text-yellow-400 bg-yellow-100 dark:bg-yellow-900/20";
       case "cancelled":
+      case "abandoned":
         return "text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800";
       default:
         return "text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800";
@@ -53,11 +54,12 @@ const GoalCard = ({ goal, habit, onEdit, onDelete }) => {
     switch (status) {
       case "completed":
         return <CheckCircle className="w-4 h-4" />;
-      case "active":
+      case "in_progress":
         return <Clock className="w-4 h-4" />;
       case "paused":
         return <Clock className="w-4 h-4" />;
       case "cancelled":
+      case "abandoned":
         return <XCircle className="w-4 h-4" />;
       default:
         return <Clock className="w-4 h-4" />;
@@ -84,7 +86,7 @@ const GoalCard = ({ goal, habit, onEdit, onDelete }) => {
 
   const isOverdue = goal.is_overdue || false;
   const progressPercentage = goal.progress_percentage || 0;
-  const status = goal.status || "active";
+  const status = goal.status || "in_progress";
 
   return (
     <div className="card-premium p-4 hover:shadow-premium transition-shadow relative">
@@ -106,7 +108,21 @@ const GoalCard = ({ goal, habit, onEdit, onDelete }) => {
             )}`}
           >
             {getStatusIcon(status, isOverdue)}
-            <span className="capitalize">{isOverdue ? "Overdue" : status}</span>
+            <span className="capitalize">
+              {isOverdue
+                ? "Overdue"
+                : status === "in_progress"
+                ? "In Progress"
+                : status === "completed"
+                ? "Completed"
+                : status === "paused"
+                ? "Paused"
+                : status === "cancelled"
+                ? "Cancelled"
+                : status === "abandoned"
+                ? "Abandoned"
+                : status}
+            </span>
           </div>
 
           {/* Action Menu */}

@@ -40,8 +40,9 @@ const GoalsPage = () => {
   }, []);
 
   // Calculate stats
-  const activeGoals = goals.filter((goal) => goal.status === "active");
+  const activeGoals = goals.filter((goal) => goal.status === "in_progress");
   const completedGoals = goals.filter((goal) => goal.status === "completed");
+  const overdueGoals = goals.filter((goal) => goal.is_overdue);
   const successRate =
     goals.length > 0
       ? Math.round((completedGoals.length / goals.length) * 100)
@@ -166,7 +167,7 @@ const GoalsPage = () => {
           </p>
         </div>
         {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="card-premium p-6">
             <div className="flex items-center">
               <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center">
@@ -194,6 +195,22 @@ const GoalsPage = () => {
                 </p>
                 <p className="text-2xl font-bold text-gray-900 dark:text-white">
                   {completedGoals.length}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="card-premium p-6">
+            <div className="flex items-center">
+              <div className="w-12 h-12 bg-red-100 dark:bg-red-900/20 rounded-lg flex items-center justify-center">
+                <Target className="w-6 h-6 text-red-600 dark:text-red-400" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                  Overdue
+                </p>
+                <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {overdueGoals.length}
                 </p>
               </div>
             </div>
@@ -271,7 +288,7 @@ const GoalsPage = () => {
         isOpen={isModalOpen}
         onClose={closeModal}
         onSubmit={handleFormSubmit}
-        goal={selectedGoal}
+        initialGoal={selectedGoal}
         mode={modalMode}
         habits={habits}
         loading={formLoading}

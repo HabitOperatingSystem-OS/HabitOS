@@ -1,18 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import {
-  Target,
-  TrendingUp,
-  Calendar,
-  Plus,
-  Search,
-  Grid,
-  List,
-  MoreVertical,
-  Edit,
-  Trash2,
-  Eye,
-} from "lucide-react";
+import { Target, TrendingUp, Calendar, Plus, Search, Eye } from "lucide-react";
 import { habitsAPI } from "../../services/api";
 import { useHabits } from "../../shared/hooks/useHabits";
 import HabitCard from "./HabitCard";
@@ -22,6 +10,18 @@ import { DeleteConfirmModal, LoadingSpinner } from "../../shared/components";
 const HabitsPage = () => {
   const { habits, loading, error, refreshHabits } = useHabits();
 
+  // Stats state
+  const [stats, setStats] = useState({
+    total_habits: 0,
+    active_habits: 0,
+    due_today: 0,
+    best_streak: 0,
+    total_completion_rate: 0,
+    habits_with_streaks: 0,
+    category_breakdown: {},
+  });
+  const [statsLoading, setStatsLoading] = useState(true);
+
   // Habits management state
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -29,13 +29,50 @@ const HabitsPage = () => {
   const [deletingHabit, setDeletingHabit] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [viewMode, setViewMode] = useState("grid");
+
+  // Fetch habit statistics
+  const fetchHabitStats = async () => {
+    try {
+      setStatsLoading(true);
+      const response = await habitsAPI.getHabitStats();
+      setStats(response);
+    } catch (err) {
+      console.warn(
+        "Failed to fetch habit stats, using calculated values:",
+        err
+      );
+      // Fallback to calculated stats from habits data
+      const calculatedStats = {
+        total_habits: habits.length,
+        active_habits: habits.filter((h) => h.active).length,
+        due_today: habits.filter((h) => h.is_due_today && h.active).length, // Simplified fallback
+        best_streak:
+          habits.length > 0
+            ? Math.max(...habits.map((h) => h.longest_streak || 0))
+            : 0,
+        total_completion_rate: 0,
+        habits_with_streaks: habits.filter((h) => h.current_streak > 0).length,
+        category_breakdown: {},
+      };
+      setStats(calculatedStats);
+    } finally {
+      setStatsLoading(false);
+    }
+  };
+
+  // Fetch stats when habits change
+  useEffect(() => {
+    if (!loading && habits.length > 0) {
+      fetchHabitStats();
+    }
+  }, [habits, loading]);
 
   const handleCreateHabit = async (habitData) => {
     try {
       await habitsAPI.createHabit(habitData);
       setShowCreateModal(false);
       refreshHabits(); // Refresh the list
+      fetchHabitStats(); // Refresh stats
     } catch (err) {
       console.error("Failed to create habit:", err);
       throw err; // Re-throw to let the form handle the error
@@ -47,6 +84,7 @@ const HabitsPage = () => {
       await habitsAPI.updateHabit(editingHabit.id, habitData);
       setEditingHabit(null);
       refreshHabits(); // Refresh the list
+      fetchHabitStats(); // Refresh stats
     } catch (err) {
       console.error("Failed to update habit:", err);
       throw err; // Re-throw to let the form handle the error
@@ -59,6 +97,7 @@ const HabitsPage = () => {
       setDeletingHabit(null);
       setShowDeleteModal(false);
       refreshHabits(); // Refresh the list
+      fetchHabitStats(); // Refresh stats
     } catch (err) {
       console.error("Failed to delete habit:", err);
     }
@@ -167,7 +206,7 @@ const HabitsPage = () => {
                       Total Habits
                     </p>
                     <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                      {habits.length}
+                      {statsLoading ? "..." : stats.total_habits}
                     </p>
                   </div>
                 </div>
@@ -180,10 +219,10 @@ const HabitsPage = () => {
                   </div>
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                      Active Streaks
+                      Active Habits
                     </p>
                     <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                      {habits.filter((h) => h.current_streak > 0).length}
+                      {statsLoading ? "..." : stats.active_habits}
                     </p>
                   </div>
                 </div>
@@ -196,10 +235,10 @@ const HabitsPage = () => {
                   </div>
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                      This Week
+                      Due Today
                     </p>
                     <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                      {habits.filter((h) => h.weekly_progress > 0).length}
+                      {statsLoading ? "..." : stats.due_today}
                     </p>
                   </div>
                 </div>
@@ -212,10 +251,10 @@ const HabitsPage = () => {
                   </div>
                   <div className="ml-4">
                     <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                      Completed Today
+                      Best Streak
                     </p>
                     <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                      {habits.filter((h) => h.completed_today).length}
+                      {statsLoading ? "..." : `${stats.best_streak} days`}
                     </p>
                   </div>
                 </div>
@@ -246,29 +285,6 @@ const HabitsPage = () => {
                   </option>
                 ))}
               </select>
-
-              <div className="flex border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
-                <button
-                  onClick={() => setViewMode("grid")}
-                  className={`px-4 py-2 ${
-                    viewMode === "grid"
-                      ? "bg-primary-600 text-white"
-                      : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
-                  }`}
-                >
-                  <Grid className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => setViewMode("list")}
-                  className={`px-4 py-2 ${
-                    viewMode === "list"
-                      ? "bg-primary-600 text-white"
-                      : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
-                  }`}
-                >
-                  <List className="w-4 h-4" />
-                </button>
-              </div>
             </div>
           </div>
 
@@ -297,20 +313,13 @@ const HabitsPage = () => {
               )}
             </div>
           ) : (
-            <div
-              className={
-                viewMode === "grid"
-                  ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-                  : "space-y-4"
-              }
-            >
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredHabits.map((habit) => (
                 <HabitCard
                   key={habit.id}
                   habit={habit}
                   onEdit={openEditModal}
                   onDelete={openDeleteModal}
-                  viewMode={viewMode}
                 />
               ))}
             </div>

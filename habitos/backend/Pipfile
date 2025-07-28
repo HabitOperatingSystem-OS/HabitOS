@@ -27,6 +27,7 @@ psutil = "*"
 redis = "*"
 requests = "*"
 flask-cors = "*"
+pytest = "*"
 
 [dev-packages]
 pytest = "~=7.4.2"

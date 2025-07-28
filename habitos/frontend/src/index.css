@@ -449,4 +449,26 @@
     transition: color 0.3s ease, background-color 0.3s ease,
       border-color 0.3s ease;
   }
+
+  /* Date input styling for dark mode */
+  input[type="date"] {
+    @apply text-black dark:text-white;
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0);
+  }
+
+  .dark input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+  }
+
+  input[type="date"]::-webkit-datetime-edit,
+  input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+  input[type="date"]::-webkit-datetime-edit-text,
+  input[type="date"]::-webkit-datetime-edit-month-field,
+  input[type="date"]::-webkit-datetime-edit-day-field,
+  input[type="date"]::-webkit-datetime-edit-year-field {
+    @apply text-black dark:text-white;
+  }
 }
