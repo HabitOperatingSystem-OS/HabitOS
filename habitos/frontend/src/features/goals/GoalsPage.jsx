@@ -75,7 +75,6 @@ const GoalsPage = () => {
           target_value: parseInt(formData.target_check_ins),
           target_unit: "check-ins",
           due_date: formData.due_date,
-          priority: "medium",
         };
         await createGoal(payload);
         setToast({
@@ -89,7 +88,6 @@ const GoalsPage = () => {
           target_value: parseInt(formData.target_check_ins),
           target_unit: "check-ins",
           due_date: formData.due_date,
-          priority: formData.priority,
           status: formData.status,
         };
         await patchGoal(selectedGoal.id, payload);
