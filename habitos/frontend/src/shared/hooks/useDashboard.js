@@ -16,6 +16,7 @@ export const useDashboard = () => {
       try {
         console.log("Fetching dashboard data...");
         const data = await dashboardAPI.getDashboardData();
+        console.log("Dashboard data received:", data);
         setDashboardData(data);
 
         console.log("Fetching user data...");
@@ -25,14 +26,14 @@ export const useDashboard = () => {
       } catch (apiError) {
         console.warn("API not available, using mock data:", apiError.message);
 
-        // Fallback to mock data
+        // Enhanced fallback to mock data with realistic values
         const mockData = {
           streakData: {
             labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
             datasets: [
               {
                 label: "Habit Completion Streak",
-                data: [5, 7, 6, 8, 9, 7, 8],
+                data: [3, 5, 4, 6, 7, 5, 4],
                 borderColor: "rgb(59, 130, 246)",
                 backgroundColor: "rgba(59, 130, 246, 0.1)",
                 tension: 0.4,
@@ -100,10 +101,14 @@ export const useDashboard = () => {
             totalCheckIns: 10,
           },
           stats: {
-            activeHabits: 12,
-            currentStreak: 7,
-            completionRate: 85,
-            goalsAchieved: 3,
+            activeHabits: 5,
+            currentStreak: 4,
+            completionRate: 78,
+            goalsAchieved: 2,
+            totalGoals: 4,
+            inProgressGoals: 2,
+            overdueGoals: 0,
+            goalCompletionRate: 50,
           },
         };
 
@@ -115,6 +120,7 @@ export const useDashboard = () => {
         });
       }
     } catch (err) {
+      console.error("Dashboard error:", err);
       setError(err.message || "Failed to fetch dashboard data");
     } finally {
       setLoading(false);
