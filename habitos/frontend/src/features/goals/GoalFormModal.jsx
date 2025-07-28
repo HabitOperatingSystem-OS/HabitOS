@@ -17,7 +17,6 @@ const GoalFormModal = ({
     title: "",
     target_check_ins: "",
     due_date: "",
-    priority: "medium",
     status: "in_progress",
   });
   const [errors, setErrors] = useState({});
@@ -35,7 +34,6 @@ const GoalFormModal = ({
         due_date: initialGoal.due_date
           ? new Date(initialGoal.due_date).toISOString().split("T")[0]
           : "",
-        priority: initialGoal.priority || "medium",
         status: initialGoal.status || "in_progress",
       });
       setErrors({});
@@ -45,7 +43,6 @@ const GoalFormModal = ({
         title: "",
         target_check_ins: "",
         due_date: "",
-        priority: "medium",
         status: "in_progress",
       });
       setErrors({});
@@ -92,7 +89,6 @@ const GoalFormModal = ({
         title: "",
         target_check_ins: "",
         due_date: "",
-        priority: "medium",
         status: "in_progress",
       });
       setErrors({});
@@ -310,25 +306,6 @@ const GoalFormModal = ({
                 {errors.due_date}
               </p>
             )}
-          </div>
-          {/* Priority */}
-          <div>
-            <label
-              htmlFor="priority"
-              className="block text-sm font-medium text-zinc-800 dark:text-zinc-100 mb-2"
-            >
-              Priority
-            </label>
-            <select
-              id="priority"
-              value={formData.priority}
-              onChange={(e) => handleInputChange("priority", e.target.value)}
-              className="w-full px-3 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white dark:bg-zinc-800 text-black dark:text-white"
-            >
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-            </select>
           </div>
 
           {/* Status (edit mode only) */}
