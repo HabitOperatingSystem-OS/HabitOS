@@ -85,12 +85,32 @@ const JournalEntryCard = ({ entry, onEdit, onDelete, showAiData = true }) => {
     });
   };
 
-  // Calculate if content needs truncation (approximately 4 lines at ~80 chars per line)
+  // Calculate if content needs truncation based on both character count and visual height
   const maxChars = 200;
-  const shouldTruncate = entry.content.length > maxChars;
+  const maxLines = 4;
+  const lineHeight = 1.6; // rem
+  const maxHeight = maxLines * lineHeight; // 6.4rem
+
+  // Check if content exceeds character limit or has excessive line breaks
+  const hasExcessiveLineBreaks = (text) => {
+    const lines = text.split("\n");
+    return lines.length > maxLines;
+  };
+
+  const shouldTruncate =
+    entry.content.length > maxChars || hasExcessiveLineBreaks(entry.content);
 
   const truncateText = (text, maxLength = maxChars) => {
-    if (text.length <= maxLength) return text;
+    if (text.length <= maxLength && !hasExcessiveLineBreaks(text)) return text;
+
+    // If text has excessive line breaks, truncate by lines first
+    if (hasExcessiveLineBreaks(text)) {
+      const lines = text.split("\n");
+      const truncatedLines = lines.slice(0, maxLines);
+      return truncatedLines.join("\n") + "...";
+    }
+
+    // Otherwise truncate by character count
     const truncated = text.substring(0, maxLength);
     const lastSpace = truncated.lastIndexOf(" ");
     return lastSpace > maxLength * 0.8
@@ -197,10 +217,10 @@ const JournalEntryCard = ({ entry, onEdit, onDelete, showAiData = true }) => {
                 className="overflow-hidden"
                 style={{
                   display: "-webkit-box",
-                  WebkitLineClamp: 4,
+                  WebkitLineClamp: maxLines,
                   WebkitBoxOrient: "vertical",
-                  lineHeight: "1.6",
-                  maxHeight: "6.4rem", // 4 lines * 1.6 line-height
+                  lineHeight: `${lineHeight}`,
+                  maxHeight: `${maxHeight}rem`,
                 }}
               >
                 {displayText}
