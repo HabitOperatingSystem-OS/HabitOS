@@ -46,73 +46,46 @@ class Config:
     MAIL_DEFAULT_SENDER = os.getenv('MAIL_DEFAULT_SENDER')
     
     # =============================================================================
-    # AI/OpenAI Configuration
+    # AI Configuration
     # =============================================================================
+    # OpenAI Configuration (Legacy)
     OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
-    OPENAI_MODEL = os.getenv('OPENAI_MODEL', 'gpt-3.5-turbo')
-    OPENAI_MAX_TOKENS = int(os.getenv('OPENAI_MAX_TOKENS', 1000))
+    
+    # Google Gemini Configuration
+    GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+    GEMINI_MODEL = os.getenv('GEMINI_MODEL', 'gemini-1.5-flash')
+    GEMINI_MAX_TOKENS = int(os.getenv('GEMINI_MAX_TOKENS', 2048))
+    GEMINI_TEMPERATURE = float(os.getenv('GEMINI_TEMPERATURE', 0.7))
     
     # =============================================================================
-    # OAuth Configuration
+    # Google OAuth Configuration
     # =============================================================================
     GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
     GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
-    GOOGLE_REDIRECT_URI = os.getenv('GOOGLE_REDIRECT_URI', 'http://localhost:5000/auth/google/callback')
     
     # =============================================================================
     # Logging Configuration
     # =============================================================================
     LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO')
-    LOG_FILE = os.getenv('LOG_FILE', 'logs/habitos.log')
-    LOG_MAX_SIZE = int(os.getenv('LOG_MAX_SIZE', 10485760))  # 10MB
-    LOG_BACKUP_COUNT = int(os.getenv('LOG_BACKUP_COUNT', 5))
+    LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     
     # =============================================================================
     # Security Configuration
     # =============================================================================
-    CORS_ORIGINS = os.getenv('CORS_ORIGINS', 'http://localhost:3000,http://localhost:5000,http://localhost:5173').split(',')
-    RATE_LIMIT_REQUESTS = int(os.getenv('RATE_LIMIT_REQUESTS', 100))
-    RATE_LIMIT_WINDOW = int(os.getenv('RATE_LIMIT_WINDOW', 3600))  # 1 hour
-    
-    # =============================================================================
-    # Monitoring Configuration
-    # =============================================================================
-    SENTRY_DSN = os.getenv('SENTRY_DSN')
-    NEW_RELIC_LICENSE_KEY = os.getenv('NEW_RELIC_LICENSE_KEY')
-    NEW_RELIC_APP_NAME = os.getenv('NEW_RELIC_APP_NAME', 'HabitOS')
-    
-    # =============================================================================
-    # Redis Configuration
-    # =============================================================================
-    REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
-    REDIS_PASSWORD = os.getenv('REDIS_PASSWORD')
-    REDIS_DB = int(os.getenv('REDIS_DB', 0))
-    
-    # =============================================================================
-    # File Upload Configuration
-    # =============================================================================
-    UPLOAD_FOLDER = os.getenv('UPLOAD_FOLDER', 'uploads')
-    MAX_CONTENT_LENGTH = int(os.getenv('MAX_CONTENT_LENGTH', 16777216))  # 16MB
-    ALLOWED_EXTENSIONS = os.getenv('ALLOWED_EXTENSIONS', 'jpg,jpeg,png,gif,pdf').split(',')
+    CORS_ORIGINS = os.getenv('CORS_ORIGINS', 'http://localhost:3000,http://localhost:5173').split(',')
     
     # =============================================================================
     # Feature Flags
     # =============================================================================
-    ENABLE_AI_FEATURES = os.getenv('ENABLE_AI_FEATURES', 'True').lower() == 'true'
-    ENABLE_EMAIL_VERIFICATION = os.getenv('ENABLE_EMAIL_VERIFICATION', 'False').lower() == 'true'
-    ENABLE_GOOGLE_OAUTH = os.getenv('ENABLE_GOOGLE_OAUTH', 'False').lower() == 'true'
-    ENABLE_RATE_LIMITING = os.getenv('ENABLE_RATE_LIMITING', 'True').lower() == 'true'
-    ENABLE_CACHING = os.getenv('ENABLE_CACHING', 'False').lower() == 'true'
-    
-    @staticmethod
-    def init_app(app):
-        """Initialize application with configuration"""
-        pass
+    ENABLE_AI_INSIGHTS = os.getenv('ENABLE_AI_INSIGHTS', 'true').lower() == 'true'
+    ENABLE_JOURNAL_PROMPTS = os.getenv('ENABLE_JOURNAL_PROMPTS', 'true').lower() == 'true'
+    ENABLE_SENTIMENT_ANALYSIS = os.getenv('ENABLE_SENTIMENT_ANALYSIS', 'true').lower() == 'true'
 
 class DevelopmentConfig(Config):
     """Development configuration"""
     DEBUG = True
     SQLALCHEMY_ECHO = True
+    LOG_LEVEL = 'DEBUG'
     
     @staticmethod
     def init_app(app):
@@ -144,6 +117,15 @@ class ProductionConfig(Config):
     """Production configuration"""
     DEBUG = False
     SQLALCHEMY_ECHO = False
+    LOG_LEVEL = 'WARNING'
+    
+    # Production security settings
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        'pool_size': int(os.getenv('DATABASE_POOL_SIZE', 20)),
+        'max_overflow': int(os.getenv('DATABASE_MAX_OVERFLOW', 40)),
+        'pool_timeout': int(os.getenv('DATABASE_POOL_TIMEOUT', 30)),
+        'pool_recycle': int(os.getenv('DATABASE_POOL_RECYCLE', 3600)),
+    }
     
     def __init__(self):
         super().__init__()
@@ -205,16 +187,17 @@ class TestingConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
     WTF_CSRF_ENABLED = False
-    ENABLE_AI_FEATURES = False
-    ENABLE_EMAIL_VERIFICATION = False
-    ENABLE_GOOGLE_OAUTH = False
-    ENABLE_RATE_LIMITING = False
-    ENABLE_CACHING = False
+    LOG_LEVEL = 'ERROR'
+    
+    # Disable AI features for testing
+    ENABLE_AI_INSIGHTS = False
+    ENABLE_JOURNAL_PROMPTS = False
+    ENABLE_SENTIMENT_ANALYSIS = False
     
     # Override engine options for SQLite testing
     SQLALCHEMY_ENGINE_OPTIONS = {}
 
-# Configuration dictionary
+# Configuration mapping
 config = {
     'development': DevelopmentConfig,
     'production': ProductionConfig,

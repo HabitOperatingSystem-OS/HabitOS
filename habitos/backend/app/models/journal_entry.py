@@ -32,15 +32,92 @@ class JournalEntry(db.Model):
     updated_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     
     def analyze_sentiment(self):
-        """Analyze sentiment of the journal content using AI"""
-        # This is a placeholder for AI sentiment analysis
-        # In a real implementation, you would call an AI service like OpenAI
+        """Analyze sentiment of the journal content using Gemini AI"""
         if not self.content:
             return
         
-        # Simple keyword-based sentiment analysis for testing
-        positive_words = ['happy', 'great', 'good', 'excellent', 'wonderful', 'amazing', 'fantastic']
-        negative_words = ['sad', 'bad', 'terrible', 'awful', 'horrible', 'disappointed', 'angry']
+        try:
+            from app.utils.gemini_service import get_gemini_service
+            
+            # Get sentiment analysis from Gemini
+            gemini_service = get_gemini_service()
+            sentiment_result = gemini_service.analyze_journal_sentiment(self.content)
+            
+            # Map sentiment to enum
+            sentiment_mapping = {
+                'very_negative': SentimentType.VERY_NEGATIVE,
+                'negative': SentimentType.NEGATIVE,
+                'neutral': SentimentType.NEUTRAL,
+                'positive': SentimentType.POSITIVE,
+                'very_positive': SentimentType.VERY_POSITIVE
+            }
+            
+            self.sentiment = sentiment_mapping.get(sentiment_result['sentiment'], SentimentType.NEUTRAL)
+            self.sentiment_score = sentiment_result['sentiment_score']
+            
+        except Exception as e:
+            # Fallback to simple keyword-based analysis
+            self._fallback_sentiment_analysis()
+    
+    def generate_ai_insights(self):
+        """Generate AI insights and summary using Gemini"""
+        if not self.content:
+            return
+        
+        try:
+            from app.utils.gemini_service import get_gemini_service
+            
+            # Get user context for personalized insights
+            user_context = self._get_user_context()
+            
+            # Generate insights from Gemini
+            gemini_service = get_gemini_service()
+            insights_result = gemini_service.generate_journal_insights(self.content, user_context)
+            
+            # Store insights as JSON string
+            import json
+            self.ai_insights = json.dumps(insights_result, indent=2)
+            self.ai_summary = insights_result.get('summary', '')
+            
+        except Exception as e:
+            # Fallback to simple insights
+            self._fallback_insights()
+    
+    def _get_user_context(self):
+        """Get user context for personalized AI insights"""
+        try:
+            from app.models.habit import Habit
+            from app.models.goal import Goal
+            from app.models.check_in import CheckIn
+            
+            # Get user's habits
+            habits = Habit.query.filter_by(user_id=self.user_id).all()
+            habit_titles = [habit.title for habit in habits]
+            
+            # Get user's active goals
+            goals = Goal.query.filter_by(user_id=self.user_id, status='in_progress').all()
+            goal_titles = [goal.title for goal in goals]
+            
+            # Get recent mood trends from check-ins
+            recent_checkins = CheckIn.query.filter_by(user_id=self.user_id)\
+                .order_by(CheckIn.date.desc())\
+                .limit(7)\
+                .all()
+            mood_trends = [checkin.mood_rating for checkin in recent_checkins if checkin.mood_rating]
+            
+            return {
+                'habits': habit_titles,
+                'goals': goal_titles,
+                'mood_trends': mood_trends
+            }
+            
+        except Exception as e:
+            return {}
+    
+    def _fallback_sentiment_analysis(self):
+        """Fallback sentiment analysis using simple keyword matching"""
+        positive_words = ['happy', 'great', 'good', 'excellent', 'wonderful', 'amazing', 'fantastic', 'joy', 'love', 'excited']
+        negative_words = ['sad', 'bad', 'terrible', 'awful', 'horrible', 'disappointed', 'angry', 'frustrated', 'anxious', 'worried']
         
         content_lower = self.content.lower()
         positive_count = sum(1 for word in positive_words if word in content_lower)
@@ -56,14 +133,8 @@ class JournalEntry(db.Model):
             self.sentiment = SentimentType.NEUTRAL
             self.sentiment_score = 0.0
     
-    def generate_ai_insights(self):
-        """Generate AI insights and summary"""
-        # This is a placeholder for AI insight generation
-        # In a real implementation, you would call an AI service like OpenAI
-        if not self.content:
-            return
-        
-        # Simple insights for testing
+    def _fallback_insights(self):
+        """Fallback insights generation"""
         word_count = len(self.content.split())
         if word_count > 100:
             self.ai_insights = "This is a detailed journal entry with good reflection."
@@ -94,10 +165,19 @@ class JournalEntry(db.Model):
             data['mood_rating'] = None
         
         if include_ai_data:
+            # Parse AI insights if it's JSON
+            ai_insights_parsed = None
+            if self.ai_insights:
+                try:
+                    import json
+                    ai_insights_parsed = json.loads(self.ai_insights)
+                except:
+                    ai_insights_parsed = self.ai_insights
+            
             data.update({
                 'sentiment': self.sentiment.value if self.sentiment else None,
                 'sentiment_score': self.sentiment_score,
-                'ai_insights': self.ai_insights,
+                'ai_insights': ai_insights_parsed,
                 'ai_summary': self.ai_summary
             })
         
