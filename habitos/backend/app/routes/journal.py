@@ -115,7 +115,6 @@ def create_journal_entry():
         # Perform AI analysis if content is provided
         if data['content']:
             entry.analyze_sentiment()  # Analyze sentiment from content
-            entry.generate_ai_insights()  # Generate AI insights and summary
         
         # Save entry to database
         db.session.add(entry)
@@ -177,9 +176,8 @@ def update_journal_entry(entry_id):
         # Update fields if provided in request data
         if 'content' in data:
             entry.content = data['content']
-            # Re-analyze sentiment and generate insights for updated content
+            # Re-analyze sentiment for updated content
             entry.analyze_sentiment()
-            entry.generate_ai_insights()
         
         if 'entry_date' in data:
             try:
@@ -308,13 +306,10 @@ def analyze_sentiment():
         
         # Perform AI analysis on the content
         temp_entry.analyze_sentiment()  # Analyze sentiment
-        temp_entry.generate_ai_insights()  # Generate insights and summary
         
         return jsonify({
             'sentiment': temp_entry.sentiment.value if temp_entry.sentiment else None,
-            'sentiment_score': temp_entry.sentiment_score,
-            'ai_insights': temp_entry.ai_insights,
-            'ai_summary': temp_entry.ai_summary
+            'sentiment_score': temp_entry.sentiment_score
         }), 200
         
     except Exception as e:
@@ -494,6 +489,125 @@ def get_prompt_categories():
     
     return jsonify({'categories': categories}), 200
 
+@journal_bp.route('/writing-suggestions', methods=['POST'])
+@jwt_required()
+def get_writing_suggestions():
+    """
+    Get writing suggestions for journal entries using Gemini AI
+    Returns contextual suggestions based on current content
+    """
+    current_user_id = get_jwt_identity()
+    data = request.get_json()
+    
+    try:
+        content = data.get('content', '')
+        if not content:
+            return jsonify({'error': 'Content is required'}), 400
+        
+        # Get user context for personalized suggestions
+        user_context = _build_user_context(current_user_id)
+        
+        # Generate suggestions using Gemini
+        gemini_service = get_gemini_service()
+        suggestions = gemini_service.generate_writing_suggestions(content, user_context)
+        
+        return jsonify({
+            'suggestions': suggestions,
+            'content_length': len(content)
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': 'Failed to generate writing suggestions', 'details': str(e)}), 500
+
+@journal_bp.route('/insights-summary', methods=['POST'])
+@jwt_required()
+def generate_insights_summary():
+    """
+    Generate insights summary for a specific period using Gemini AI
+    Returns comprehensive summary of journal insights
+    """
+    current_user_id = get_jwt_identity()
+    data = request.get_json()
+    
+    try:
+        period = data.get('period', 'week')  # week, month, year
+        
+        # Calculate date range based on period
+        end_date = date.today()
+        if period == 'week':
+            start_date = end_date - timedelta(days=7)
+        elif period == 'month':
+            start_date = end_date - timedelta(days=30)
+        elif period == 'year':
+            start_date = end_date - timedelta(days=365)
+        else:
+            start_date = end_date - timedelta(days=7)  # Default to week
+        
+        # Get journal entries for the period
+        entries = JournalEntry.query.filter_by(user_id=current_user_id)\
+            .filter(JournalEntry.entry_date >= start_date, JournalEntry.entry_date <= end_date)\
+            .order_by(JournalEntry.entry_date.desc())\
+            .all()
+        
+        # Get user context
+        user_context = _build_user_context(current_user_id)
+        
+        # Generate summary using Gemini
+        gemini_service = get_gemini_service()
+        summary = gemini_service.generate_insights_summary(entries, user_context, period)
+        
+        return jsonify({
+            'period': period,
+            'start_date': start_date.isoformat(),
+            'end_date': end_date.isoformat(),
+            'summary': summary,
+            'entries_analyzed': len(entries)
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': 'Failed to generate insights summary', 'details': str(e)}), 500
+
+@journal_bp.route('/habit-correlations', methods=['POST'])
+@jwt_required()
+def analyze_habit_correlations():
+    """
+    Analyze correlations between habits and journal entries using Gemini AI
+    Returns insights about habit-journal relationships
+    """
+    current_user_id = get_jwt_identity()
+    data = request.get_json()
+    
+    try:
+        # Get user's habits
+        habits = Habit.query.filter_by(user_id=current_user_id).all()
+        
+        # Get recent journal entries
+        days_back = data.get('days_back', 30)
+        start_date = date.today() - timedelta(days=days_back)
+        
+        entries = JournalEntry.query.filter_by(user_id=current_user_id)\
+            .filter(JournalEntry.entry_date >= start_date)\
+            .order_by(JournalEntry.entry_date.desc())\
+            .all()
+        
+        # Prepare data for analysis
+        habit_data = [{'id': habit.id, 'title': habit.title, 'category': habit.category.value} for habit in habits]
+        entry_data = [entry.to_dict() for entry in entries]
+        
+        # Generate correlations using Gemini
+        gemini_service = get_gemini_service()
+        correlations = gemini_service.analyze_habit_correlations(habit_data, entry_data)
+        
+        return jsonify({
+            'correlations': correlations,
+            'habits_analyzed': len(habit_data),
+            'entries_analyzed': len(entry_data),
+            'analysis_period': f'Last {days_back} days'
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': 'Failed to analyze habit correlations', 'details': str(e)}), 500
+
 def _build_user_context(user_id):
     """
     Build user context for AI personalization
@@ -525,13 +639,10 @@ def _build_user_context(user_id):
         if recent_entries:
             # Extract themes from the most recent entry
             latest_entry = recent_entries[0]
-            if latest_entry.ai_insights:
-                try:
-                    import json
-                    insights = json.loads(latest_entry.ai_insights)
-                    last_entry_themes = insights.get('key_themes', [])
-                except:
-                    pass
+            # Note: AI insights removed, using content analysis instead
+            content_words = latest_entry.content.lower().split()
+            common_themes = ['work', 'family', 'health', 'exercise', 'learning', 'social', 'creative']
+            last_entry_themes = [theme for theme in common_themes if theme in content_words]
         
         # Determine time of day
         current_hour = datetime.now().hour

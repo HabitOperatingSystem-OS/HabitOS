@@ -10,14 +10,14 @@ from app import db
 
 dashboard_bp = Blueprint('dashboard', __name__)
 
-@dashboard_bp.route('/api/dashboard', methods=['OPTIONS'])
-@dashboard_bp.route('/api/dashboard/', methods=['OPTIONS'])
+@dashboard_bp.route('/dashboard', methods=['OPTIONS'])
+@dashboard_bp.route('/dashboard/', methods=['OPTIONS'])
 def handle_dashboard_preflight():
     """Handle preflight OPTIONS requests for dashboard"""
     response = jsonify({'status': 'ok'})
     response.headers.add('Access-Control-Allow-Origin', 'http://localhost:3000')
-    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-    response.headers.add('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,X-Requested-With')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS,PATCH')
     response.headers.add('Access-Control-Allow-Credentials', 'true')
     return response, 200
 
@@ -162,8 +162,8 @@ def calculate_goal_progress(user_id):
             'completionRate': 0
         }
 
-@dashboard_bp.route('/api/dashboard', methods=['GET'])
-@dashboard_bp.route('/api/dashboard/', methods=['GET'])
+@dashboard_bp.route('/dashboard', methods=['GET'])
+@dashboard_bp.route('/dashboard/', methods=['GET'])
 @jwt_required()
 def get_dashboard_data():
     """Get dashboard data for the authenticated user"""

@@ -7,16 +7,21 @@ import {
   Search,
   SortAsc,
   SortDesc,
+  Brain,
+  Sparkles,
 } from "lucide-react";
 import { useJournal } from "../../shared/hooks/useJournal";
 import JournalEntryCard from "./JournalEntryCard";
 import JournalEditModal from "./JournalEditModal";
 import JournalFilters from "./JournalFilters";
+import SimpleAIDashboard from "./SimpleAIDashboard";
 import {
   LoadingSpinner,
   DeleteConfirmModal,
   Tag,
+  MonthlyAISummaryModal,
 } from "../../shared/components";
+import { getSearchableAIInsights } from "../../utils/aiInsightsUtils";
 
 const JournalPage = () => {
   const {
@@ -37,6 +42,8 @@ const JournalPage = () => {
   const [entryToDelete, setEntryToDelete] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [entryToEdit, setEntryToEdit] = useState(null);
+  const [showAIDashboard, setShowAIDashboard] = useState(false);
+  const [showMonthlySummaryModal, setShowMonthlySummaryModal] = useState(false);
 
   // Calculate stats
   const moodEntries = entries.filter(
@@ -66,10 +73,11 @@ const JournalPage = () => {
   const filteredAndSortedEntries = entries
     .filter((entry) => {
       if (!searchTerm) return true;
+      const searchableAIInsights = getSearchableAIInsights(entry.ai_insights);
       return (
         entry.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
         entry.ai_summary?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        entry.ai_insights?.toLowerCase().includes(searchTerm.toLowerCase())
+        searchableAIInsights.includes(searchTerm.toLowerCase())
       );
     })
     .sort((a, b) => {
@@ -270,6 +278,13 @@ const JournalPage = () => {
           </div>
 
           <div className="flex items-center space-x-4">
+            <button
+              onClick={() => setShowMonthlySummaryModal(true)}
+              className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white rounded-lg font-medium transition-all duration-200"
+            >
+              <Sparkles className="w-4 h-4" />
+              <span>🧠 Generate Monthly AI Summary</span>
+            </button>
             <div className="flex items-center space-x-2">
               <span className="text-sm text-gray-600 dark:text-gray-400">
                 Sort:
@@ -347,6 +362,49 @@ const JournalPage = () => {
         title="Delete Journal Entry"
         message="Are you sure you want to delete this journal entry? This action cannot be undone."
       />
+
+      {/* Monthly AI Summary Modal */}
+      <MonthlyAISummaryModal
+        isOpen={showMonthlySummaryModal}
+        onClose={() => setShowMonthlySummaryModal(false)}
+        month={new Date().toISOString().slice(0, 7)} // Current month in YYYY-MM format
+      />
+
+      {/* AI Dashboard Modal */}
+      {showAIDashboard && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-premium-lg max-w-6xl w-full max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-800">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                AI Journal Assistant
+              </h2>
+              <button
+                onClick={() => setShowAIDashboard(false)}
+                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+            <div className="overflow-y-auto max-h-[calc(90vh-80px)]">
+              <div className="p-6">
+                <SimpleAIDashboard onBack={() => setShowAIDashboard(false)} />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

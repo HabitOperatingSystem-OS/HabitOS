@@ -133,7 +133,6 @@ def create_check_in():
                 entry_date=check_in_date
             )
             journal_entry.analyze_sentiment()
-            journal_entry.generate_ai_insights()
             db.session.add(journal_entry)
 
         db.session.commit()

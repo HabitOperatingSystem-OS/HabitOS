@@ -26,6 +26,7 @@ class JournalEntry(db.Model):
     sentiment_score = db.Column(db.Float)  # -1 to 1 scale
     ai_insights = db.Column(db.Text)  # AI-generated insights
     ai_summary = db.Column(db.Text)  # AI-generated summary
+    insights_generated_at = db.Column(db.DateTime)  # When insights were generated
     
     # Timestamps
     created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
@@ -59,29 +60,7 @@ class JournalEntry(db.Model):
             # Fallback to simple keyword-based analysis
             self._fallback_sentiment_analysis()
     
-    def generate_ai_insights(self):
-        """Generate AI insights and summary using Gemini"""
-        if not self.content:
-            return
-        
-        try:
-            from app.utils.gemini_service import get_gemini_service
-            
-            # Get user context for personalized insights
-            user_context = self._get_user_context()
-            
-            # Generate insights from Gemini
-            gemini_service = get_gemini_service()
-            insights_result = gemini_service.generate_journal_insights(self.content, user_context)
-            
-            # Store insights as JSON string
-            import json
-            self.ai_insights = json.dumps(insights_result, indent=2)
-            self.ai_summary = insights_result.get('summary', '')
-            
-        except Exception as e:
-            # Fallback to simple insights
-            self._fallback_insights()
+
     
     def _get_user_context(self):
         """Get user context for personalized AI insights"""
@@ -133,18 +112,7 @@ class JournalEntry(db.Model):
             self.sentiment = SentimentType.NEUTRAL
             self.sentiment_score = 0.0
     
-    def _fallback_insights(self):
-        """Fallback insights generation"""
-        word_count = len(self.content.split())
-        if word_count > 100:
-            self.ai_insights = "This is a detailed journal entry with good reflection."
-            self.ai_summary = f"Detailed entry about daily activities and thoughts ({word_count} words)."
-        elif word_count > 50:
-            self.ai_insights = "This is a moderate journal entry with some reflection."
-            self.ai_summary = f"Moderate entry about daily activities ({word_count} words)."
-        else:
-            self.ai_insights = "This is a brief journal entry."
-            self.ai_summary = f"Brief entry about daily activities ({word_count} words)."
+
     
     def to_dict(self, include_ai_data=False):
         """Convert journal entry to dictionary"""
@@ -165,20 +133,9 @@ class JournalEntry(db.Model):
             data['mood_rating'] = None
         
         if include_ai_data:
-            # Parse AI insights if it's JSON
-            ai_insights_parsed = None
-            if self.ai_insights:
-                try:
-                    import json
-                    ai_insights_parsed = json.loads(self.ai_insights)
-                except:
-                    ai_insights_parsed = self.ai_insights
-            
             data.update({
                 'sentiment': self.sentiment.value if self.sentiment else None,
-                'sentiment_score': self.sentiment_score,
-                'ai_insights': ai_insights_parsed,
-                'ai_summary': self.ai_summary
+                'sentiment_score': self.sentiment_score
             })
         
         return data
