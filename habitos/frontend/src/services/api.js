@@ -173,8 +173,87 @@ export const journalAPI = {
     return response.data;
   },
 
-  analyzeSentiment: async (content) => {
-    const response = await api.post("/journal/sentiment-analysis", { content });
+  analyzeSentiment: async (content, options = {}) => {
+    const response = await api.post("/journal/sentiment-analysis", {
+      content,
+      ...options,
+    });
+    return response.data;
+  },
+
+  getEntriesWithInsights: async (limit = 50, offset = 0) => {
+    const response = await api.get(
+      `/journal/entries-with-insights?limit=${limit}&offset=${offset}`
+    );
+    return response.data;
+  },
+
+  generatePrompts: async (options = {}) => {
+    const response = await api.post("/ai/journal/prompts", options);
+    return response.data;
+  },
+
+  analyzePatterns: async (filters = {}) => {
+    const params = new URLSearchParams();
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        params.append(key, value);
+      }
+    });
+    const response = await api.get(`/journal/patterns?${params.toString()}`);
+    return response.data;
+  },
+
+  getRecommendations: async (userId, options = {}) => {
+    const response = await api.post(
+      `/users/${userId}/journal-recommendations`,
+      options
+    );
+    return response.data;
+  },
+
+  analyzeMoodTrends: async (filters = {}) => {
+    const params = new URLSearchParams();
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        params.append(key, value);
+      }
+    });
+    const response = await api.get(`/journal/mood-trends?${params.toString()}`);
+    return response.data;
+  },
+
+  getWritingSuggestions: async (entryContent, options = {}) => {
+    const response = await api.post("/journal/writing-suggestions", {
+      content: entryContent,
+      ...options,
+    });
+    return response.data;
+  },
+
+  analyzeEmotionalPatterns: async (filters = {}) => {
+    const params = new URLSearchParams();
+    Object.entries(filters).forEach(([key, value]) => {
+      if (value !== null && value !== undefined) {
+        params.append(key, value);
+      }
+    });
+    const response = await api.get(
+      `/journal/emotional-patterns?${params.toString()}`
+    );
+    return response.data;
+  },
+
+  generateInsightsSummary: async (period = "week", options = {}) => {
+    const response = await api.post("/ai/journal/monthly-summary", {
+      month: new Date().toISOString().slice(0, 7), // Current month in YYYY-MM format
+      ...options,
+    });
+    return response.data;
+  },
+
+  analyzeHabitJournalCorrelations: async (options = {}) => {
+    const response = await api.post("/journal/habit-correlations", options);
     return response.data;
   },
 };

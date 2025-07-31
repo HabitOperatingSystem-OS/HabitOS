@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   CheckCircle,
-  Circle,
   Smile,
   Frown,
   Meh,
@@ -11,7 +10,7 @@ import {
   Calendar,
 } from "lucide-react";
 import { habitsAPI, checkInsAPI } from "../../services/api";
-import { SuccessModal } from "../../shared/components";
+import { SuccessModal, WritingPrompts } from "../../shared/components";
 
 const CheckInsPage = () => {
   const navigate = useNavigate();
@@ -516,6 +515,18 @@ const CheckInsPage = () => {
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
                 Journal Entry (Optional)
               </h2>
+
+              {/* Writing Prompts */}
+              <div className="mb-4">
+                <WritingPrompts
+                  onPromptSelected={(prompt) => {
+                    setJournalContent((prev) =>
+                      prev ? `${prev}\n\n${prompt}` : prompt
+                    );
+                  }}
+                />
+              </div>
+
               <textarea
                 value={journalContent}
                 onChange={(e) => setJournalContent(e.target.value)}

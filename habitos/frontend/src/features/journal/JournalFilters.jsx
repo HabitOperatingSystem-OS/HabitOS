@@ -7,7 +7,6 @@ const JournalFilters = ({
   onUpdateFilters,
   onClearFilters,
   sentiments = [],
-  showAiData = true,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [localFilters, setLocalFilters] = useState(filters);

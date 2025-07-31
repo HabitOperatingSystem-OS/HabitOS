@@ -9,7 +9,6 @@ import {
   CheckSquare,
   User,
   LogOut,
-  Menu,
   X,
   Sparkles,
   Settings,

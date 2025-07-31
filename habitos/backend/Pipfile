@@ -28,7 +28,7 @@ redis = "*"
 requests = "*"
 flask-cors = "*"
 pytest = "*"
-google-generativeai = "==0.3.2"
+google-generativeai = "*"
 
 [dev-packages]
 pytest = "~=7.4.2"
