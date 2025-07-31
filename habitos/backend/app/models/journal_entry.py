@@ -38,11 +38,11 @@ class JournalEntry(db.Model):
             return
         
         try:
-            from app.utils.gemini_service import get_gemini_service
+            from app.utils.ai_service import get_ai_service
             
-            # Get sentiment analysis from Gemini
-            gemini_service = get_gemini_service()
-            sentiment_result = gemini_service.analyze_journal_sentiment(self.content)
+            # Get sentiment analysis from AI service
+            ai_service = get_ai_service()
+            sentiment_result = ai_service.analyze_journal_sentiment(self.content)
             
             # Map sentiment to enum
             sentiment_mapping = {

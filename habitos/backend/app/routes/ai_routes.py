@@ -1,20 +1,15 @@
-"""
-Simplified AI Routes for HabitOS Journal Features
-Provides stable, focused AI endpoints without complex dependencies
-"""
-
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models.journal_entry import JournalEntry
-from app.utils.simple_ai_service import get_simple_ai_service
+from app.utils.ai_service import get_ai_service
 from datetime import datetime, timedelta
 import json
 
-simple_ai_bp = Blueprint('simple_ai', __name__)
+ai_routes_bp = Blueprint('ai_routes', __name__)
 
 
 
-@simple_ai_bp.route('/journal/monthly-summary', methods=['POST'])
+@ai_routes_bp.route('/journal/monthly-summary', methods=['POST'])
 @jwt_required()
 def generate_monthly_summary():
     """Generate monthly summary from journal entries"""
@@ -62,7 +57,7 @@ def generate_monthly_summary():
             })
         
         # Generate monthly summary
-        ai_service = get_simple_ai_service()
+        ai_service = get_ai_service()
         summary_result = ai_service.generate_monthly_summary(entries_data)
         
         return jsonify({
@@ -75,7 +70,7 @@ def generate_monthly_summary():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@simple_ai_bp.route('/journal/prompts', methods=['GET'])
+@ai_routes_bp.route('/journal/prompts', methods=['GET'])
 @jwt_required()
 def get_journal_prompts():
     """Get AI-generated journal writing prompts"""
@@ -83,7 +78,7 @@ def get_journal_prompts():
         count = request.args.get('count', 5, type=int)
         count = min(count, 10)  # Limit to 10 prompts max
         
-        ai_service = get_simple_ai_service()
+        ai_service = get_ai_service()
         prompts = ai_service.generate_prompts(count)
         
         return jsonify({
@@ -94,12 +89,12 @@ def get_journal_prompts():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@simple_ai_bp.route('/journal/health', methods=['GET'])
+@ai_routes_bp.route('/journal/health', methods=['GET'])
 @jwt_required()
 def check_ai_health():
     """Check AI service health and status"""
     try:
-        ai_service = get_simple_ai_service()
+        ai_service = get_ai_service()
         
         return jsonify({
             "success": True,

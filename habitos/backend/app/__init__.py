@@ -83,7 +83,7 @@ def create_app(config_name=None):
     from app.routes.journal import journal_bp
     from app.routes.users import users_bp
     from app.routes.dashboard import dashboard_bp
-    from app.routes.simple_ai import simple_ai_bp
+    from app.routes.ai_routes import ai_routes_bp
     
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(habits_bp, url_prefix='/api/habits')
@@ -92,7 +92,7 @@ def create_app(config_name=None):
     app.register_blueprint(journal_bp, url_prefix='/api/journal')
     app.register_blueprint(users_bp, url_prefix='/api/users')
     app.register_blueprint(dashboard_bp, url_prefix='/api')
-    app.register_blueprint(simple_ai_bp, url_prefix='/api/ai')
+    app.register_blueprint(ai_routes_bp, url_prefix='/api/ai')
     
     # Initialize security middleware (only in production or when explicitly enabled)
     if app.config.get('ENABLE_SECURITY_MIDDLEWARE', False):

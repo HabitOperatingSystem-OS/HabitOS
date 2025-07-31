@@ -1,4 +1,3 @@
-export { default as AIInsightsDisplay } from "./AIInsightsDisplay";
 export { default as LoadingSpinner } from "./LoadingSpinner";
 export { default as Skeleton } from "./Skeleton";
 export { default as ErrorBoundary } from "./ErrorBoundary";
