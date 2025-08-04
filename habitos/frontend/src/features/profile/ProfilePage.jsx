@@ -228,7 +228,7 @@ const ProfilePage = () => {
                       className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full p-0 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700"
                       onClick={() => {
                         // TODO: Implement image upload
-                        console.log("Upload image");
+                        // Upload image functionality
                       }}
                     >
                       <Camera className="w-4 h-4" />

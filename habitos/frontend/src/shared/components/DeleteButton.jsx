@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { Trash2 } from "lucide-react";
 
 const DeleteButton = ({
@@ -40,6 +41,15 @@ const DeleteButton = ({
       <span>{children}</span>
     </button>
   );
+};
+
+DeleteButton.propTypes = {
+  onClick: PropTypes.func.isRequired,
+  children: PropTypes.node,
+  size: PropTypes.oneOf(["sm", "default", "lg"]),
+  variant: PropTypes.oneOf(["default", "outline", "ghost"]),
+  disabled: PropTypes.bool,
+  className: PropTypes.string,
 };
 
 export default DeleteButton;

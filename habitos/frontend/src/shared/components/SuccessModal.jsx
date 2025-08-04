@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import PropTypes from "prop-types";
 import { CheckCircle, X } from "lucide-react";
 
 const SuccessModal = ({
@@ -79,6 +80,15 @@ const SuccessModal = ({
       </div>
     </div>
   );
+};
+
+SuccessModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  title: PropTypes.string,
+  message: PropTypes.string,
+  autoDismiss: PropTypes.bool,
+  dismissDelay: PropTypes.number,
 };
 
 export default SuccessModal;

@@ -194,7 +194,7 @@ const CheckInsPage = () => {
         (data) => data.habit_id
       );
 
-      console.log("Habits array before submission:", habitsArray);
+      // Prepare habits array for submission
 
       if (habitsArray.length === 0) {
         setMessage({
@@ -213,7 +213,7 @@ const CheckInsPage = () => {
         journal_content: journalContent.trim() || null,
       };
 
-      console.log("Submitting payload:", payload);
+      // Submit check-in data
 
       const response = await checkInsAPI.createBulkCheckIn(payload);
 

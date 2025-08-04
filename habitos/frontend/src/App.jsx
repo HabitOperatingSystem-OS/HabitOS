@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
@@ -37,6 +38,10 @@ const ProtectedRoute = ({ children }) => {
   );
 };
 
+ProtectedRoute.propTypes = {
+  children: PropTypes.node.isRequired,
+};
+
 // Public route wrapper for auth pages
 const PublicRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -55,6 +60,10 @@ const PublicRoute = ({ children }) => {
   }
 
   return children;
+};
+
+PublicRoute.propTypes = {
+  children: PropTypes.node.isRequired,
 };
 
 // App content that uses auth context

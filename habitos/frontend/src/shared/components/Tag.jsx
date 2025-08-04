@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 
 const Tag = ({
   children,
@@ -77,6 +78,23 @@ const Tag = ({
       )}
     </span>
   );
+};
+
+Tag.propTypes = {
+  children: PropTypes.node.isRequired,
+  variant: PropTypes.oneOf([
+    "default",
+    "primary",
+    "success",
+    "warning",
+    "danger",
+    "info",
+  ]),
+  size: PropTypes.oneOf(["sm", "md", "lg"]),
+  onClick: PropTypes.func,
+  className: PropTypes.string,
+  removable: PropTypes.bool,
+  onRemove: PropTypes.func,
 };
 
 export default Tag;

@@ -29,12 +29,8 @@ const Dashboard = () => {
   const { dashboardData, userData, loading, error, refreshData } =
     useDashboard();
 
-  console.log("Dashboard render - userData:", userData);
-  console.log("Dashboard render - dashboardData:", dashboardData);
-
   const handleToggleHabit = (habitId) => {
     // This would typically make an API call to update the habit status
-    console.log("Toggling habit:", habitId);
     // For now, we'll just refresh the data
     refreshData();
   };
