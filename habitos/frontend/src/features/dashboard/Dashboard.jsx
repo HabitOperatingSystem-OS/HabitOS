@@ -14,6 +14,7 @@ import {
   Calendar,
   Trophy,
 } from "lucide-react";
+import { Button } from "../../components/ui/button";
 
 import { useDashboard } from "../../shared/hooks/useDashboard";
 import StreakChart from "./StreakChart";

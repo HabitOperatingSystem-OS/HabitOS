@@ -8,20 +8,8 @@ export const useJournal = () => {
   const [filters, setFilters] = useState({
     startDate: null,
     endDate: null,
-    sentiment: null,
     includeAiData: true,
   });
-  const [sentiments, setSentiments] = useState([]);
-
-  // Load available sentiments
-  const loadSentiments = useCallback(async () => {
-    try {
-      const response = await journalAPI.getSentiments();
-      setSentiments(response.sentiments);
-    } catch (err) {
-      console.error("Error loading sentiments:", err);
-    }
-  }, []);
 
   // Load journal entries with filters
   const loadEntries = useCallback(async () => {
@@ -49,7 +37,6 @@ export const useJournal = () => {
     setFilters({
       startDate: null,
       endDate: null,
-      sentiment: null,
       includeAiData: true,
     });
   }, []);
@@ -98,22 +85,7 @@ export const useJournal = () => {
     [loadEntries]
   );
 
-  // Analyze sentiment for text
-  const analyzeSentiment = useCallback(async (content) => {
-    try {
-      const response = await journalAPI.analyzeSentiment(content);
-      return response;
-    } catch (err) {
-      console.error("Error analyzing sentiment:", err);
-      throw err;
-    }
-  }, []);
-
-  // Load initial data
-  useEffect(() => {
-    loadSentiments();
-  }, [loadSentiments]);
-
+  // Load entries on mount
   useEffect(() => {
     loadEntries();
   }, [loadEntries]);
@@ -123,13 +95,11 @@ export const useJournal = () => {
     loading,
     error,
     filters,
-    sentiments,
+    loadEntries,
     updateFilters,
     clearFilters,
     createEntry,
     updateEntry,
     deleteEntry,
-    analyzeSentiment,
-    refresh: loadEntries,
   };
 };

@@ -6,6 +6,7 @@ import {
   TrendingUp,
   Target,
   Sparkles,
+  MoreHorizontal,
 } from "lucide-react";
 import {
   Card,
@@ -56,6 +57,175 @@ const getMoodColor = (mood) => {
   );
 };
 
+// Progress Donut Chart Component
+const ProgressDonut = ({ percentage, size = 120, strokeWidth = 8 }) => {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = radius * 2 * Math.PI;
+  const strokeDasharray = circumference;
+  const strokeDashoffset = circumference - (percentage / 100) * circumference;
+
+  return (
+    <div className="relative inline-block progress-donut">
+      <svg width={size} height={size} className="transform -rotate-90">
+        {/* Background circle */}
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="rgba(156, 163, 175, 0.2)"
+          strokeWidth={strokeWidth}
+          fill="transparent"
+        />
+        {/* Progress circle */}
+        <motion.circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="url(#progressGradient)"
+          strokeWidth={strokeWidth}
+          fill="transparent"
+          strokeLinecap="round"
+          strokeDasharray={strokeDasharray}
+          initial={{ strokeDashoffset: circumference }}
+          animate={{ strokeDashoffset }}
+          transition={{ duration: 1.5, ease: "easeOut" }}
+        />
+        {/* Gradient definition */}
+        <defs>
+          <linearGradient
+            id="progressGradient"
+            x1="0%"
+            y1="0%"
+            x2="100%"
+            y2="0%"
+          >
+            <stop offset="0%" stopColor="#10B981" />
+            <stop offset="100%" stopColor="#059669" />
+          </linearGradient>
+        </defs>
+      </svg>
+
+      {/* Center content */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="text-center">
+          <motion.div
+            className="text-2xl font-bold text-gradient-wellness"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+          >
+            {Math.round(percentage)}%
+          </motion.div>
+          <div className="text-xs text-muted-foreground">Complete</div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Compact Habit Card Component
+const HabitCard = ({ habit, onToggle, index }) => {
+  const [isHovered, setIsHovered] = React.useState(false);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: index * 0.1 }}
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
+      className={`group relative overflow-hidden rounded-xl border transition-all duration-300 cursor-pointer habit-card ${
+        habit.completed
+          ? "bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200/50 dark:border-green-800/50"
+          : "bg-white/50 dark:bg-gray-800/50 border-gray-200/50 dark:border-gray-700/50 hover:bg-white/80 dark:hover:bg-gray-800/80 hover:border-primary-200/50 dark:hover:border-primary-800/50"
+      }`}
+      onClick={() => onToggle && onToggle(habit.id)}
+    >
+      <div className="p-4">
+        <div className="flex items-center justify-between">
+          {/* Status indicator */}
+          <motion.div
+            className="flex-shrink-0"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+          >
+            {habit.completed ? (
+              <div className="w-10 h-10 bg-gradient-to-br from-wellness-emerald to-wellness-sage rounded-full flex items-center justify-center shadow-lg">
+                <CheckCircle className="w-5 h-5 text-white" />
+              </div>
+            ) : (
+              <div className="w-10 h-10 border-2 border-gray-300 dark:border-gray-600 rounded-full flex items-center justify-center hover:border-primary-400 dark:hover:border-primary-400 transition-colors">
+                <Circle className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+              </div>
+            )}
+          </motion.div>
+
+          {/* Habit info */}
+          <div className="flex-1 min-w-0 ml-4">
+            <div className="flex items-center space-x-2">
+              <h4
+                className={`font-semibold text-sm truncate ${
+                  habit.completed
+                    ? "text-green-700 dark:text-green-300 line-through"
+                    : "text-gray-900 dark:text-white"
+                }`}
+              >
+                {habit.name}
+              </h4>
+              {habit.mood && (
+                <span
+                  className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold ${getMoodColor(
+                    habit.mood
+                  )} shadow-sm flex-shrink-0`}
+                >
+                  <span className="mr-1">{getMoodEmoji(habit.mood)}</span>
+                </span>
+              )}
+            </div>
+
+            <div className="flex items-center space-x-3 mt-1">
+              <div className="flex items-center space-x-1 text-xs text-muted-foreground">
+                <Target className="w-3 h-3" />
+                <span className="truncate">{habit.category}</span>
+              </div>
+              <div className="flex items-center space-x-1 text-xs text-muted-foreground">
+                <Clock className="w-3 h-3" />
+                <span>{habit.time}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Streak and status */}
+          <div className="flex items-center space-x-2 ml-4">
+            <div className="flex items-center space-x-1 text-xs text-muted-foreground">
+              <TrendingUp className="w-3 h-3" />
+              <span className="font-semibold">{habit.streak}</span>
+            </div>
+
+            <div
+              className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                habit.completed
+                  ? "bg-gradient-to-r from-wellness-emerald to-wellness-sage text-white"
+                  : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
+              }`}
+            >
+              {habit.completed ? "Done" : "Pending"}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Hover effect overlay */}
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-r from-primary-600/5 to-wellness-lavender/5"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: isHovered ? 1 : 0 }}
+        transition={{ duration: 0.2 }}
+      />
+    </motion.div>
+  );
+};
+
 const TodayHabits = ({ habits, onToggleHabit }) => {
   const completedCount = habits.filter((habit) => habit.completed).length;
   const totalCount = habits.length;
@@ -86,9 +256,16 @@ const TodayHabits = ({ habits, onToggleHabit }) => {
             </div>
           </div>
         </div>
+      </CardHeader>
+
+      <CardContent className="space-y-6">
+        {/* Progress Donut Chart */}
+        <div className="flex justify-center">
+          <ProgressDonut percentage={completionPercentage} />
+        </div>
 
         {/* Progress Bar */}
-        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 mt-4">
+        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
           <motion.div
             className="bg-gradient-to-r from-wellness-emerald to-wellness-sage h-2 rounded-full"
             initial={{ width: 0 }}
@@ -96,106 +273,26 @@ const TodayHabits = ({ habits, onToggleHabit }) => {
             transition={{ duration: 1, ease: "easeOut" }}
           />
         </div>
-      </CardHeader>
 
-      <CardContent>
-        <div className="space-y-4">
+        {/* Compact Habit Cards */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
+              Habit Status
+            </h4>
+            <Button variant="ghost" size="sm" className="h-8 px-2">
+              <MoreHorizontal className="w-4 h-4" />
+            </Button>
+          </div>
+
           <AnimatePresence>
             {habits.map((habit, index) => (
-              <motion.div
+              <HabitCard
                 key={habit.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3, delay: index * 0.1 }}
-                className={`group relative overflow-hidden rounded-xl border transition-all duration-300 ${
-                  habit.completed
-                    ? "bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200/50 dark:border-green-800/50"
-                    : "bg-white/50 dark:bg-gray-800/50 border-gray-200/50 dark:border-gray-700/50 hover:bg-white/80 dark:hover:bg-gray-800/80 hover:border-primary-200/50 dark:hover:border-primary-800/50"
-                }`}
-              >
-                <div className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4 flex-1">
-                      <motion.button
-                        onClick={() => onToggleHabit && onToggleHabit(habit.id)}
-                        className="flex-shrink-0"
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.9 }}
-                      >
-                        {habit.completed ? (
-                          <div className="w-8 h-8 bg-gradient-to-br from-wellness-emerald to-wellness-sage rounded-full flex items-center justify-center shadow-lg">
-                            <CheckCircle className="w-5 h-5 text-white" />
-                          </div>
-                        ) : (
-                          <div className="w-8 h-8 border-2 border-gray-300 dark:border-gray-600 rounded-full flex items-center justify-center hover:border-primary-400 dark:hover:border-primary-400 transition-colors">
-                            <Circle className="w-5 h-5 text-gray-400 dark:text-gray-500" />
-                          </div>
-                        )}
-                      </motion.button>
-
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center space-x-3">
-                          <h4
-                            className={`font-semibold text-lg ${
-                              habit.completed
-                                ? "text-green-700 dark:text-green-300 line-through"
-                                : "text-gray-900 dark:text-white"
-                            }`}
-                          >
-                            {habit.name}
-                          </h4>
-                          {habit.mood && (
-                            <span
-                              className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${getMoodColor(
-                                habit.mood
-                              )} shadow-sm`}
-                            >
-                              <span className="mr-1">
-                                {getMoodEmoji(habit.mood)}
-                              </span>
-                              {habit.mood}
-                            </span>
-                          )}
-                        </div>
-
-                        <div className="flex items-center space-x-4 mt-2">
-                          <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                            <Target className="w-4 h-4" />
-                            <span>{habit.category}</span>
-                          </div>
-                          <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                            <Clock className="w-4 h-4" />
-                            <span>{habit.time}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center space-x-4">
-                      <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                        <TrendingUp className="w-4 h-4" />
-                        <span className="font-semibold">
-                          {habit.streak} days
-                        </span>
-                      </div>
-
-                      <div
-                        className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                          habit.completed
-                            ? "bg-gradient-to-r from-wellness-emerald to-wellness-sage text-white"
-                            : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300"
-                        }`}
-                      >
-                        {habit.completed ? "Completed" : "Pending"}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Hover effect overlay */}
-                <div className="absolute inset-0 bg-gradient-to-r from-primary-600/5 to-wellness-lavender/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </motion.div>
+                habit={habit}
+                onToggle={onToggleHabit}
+                index={index}
+              />
             ))}
           </AnimatePresence>
         </div>

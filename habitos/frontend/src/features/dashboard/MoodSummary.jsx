@@ -1,5 +1,15 @@
 import React from "react";
-import { Smile, TrendingUp, Activity, Heart, Brain, Zap } from "lucide-react";
+import { Smile, TrendingUp, Activity } from "lucide-react";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Bar } from "react-chartjs-2";
 import {
   Card,
   CardContent,
@@ -8,6 +18,16 @@ import {
   CardTitle,
 } from "../../components/ui/card";
 import { motion } from "framer-motion";
+
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const getMoodEmoji = (mood) => {
   const moodEmojis = {
@@ -57,6 +77,134 @@ const getMoodTextColor = (mood) => {
   return textColors[mood] || "text-gray-600";
 };
 
+const getMoodChartColor = (mood) => {
+  const chartColors = {
+    energetic: "#F59E0B",
+    focused: "#3B82F6",
+    calm: "#10B981",
+    happy: "#F43F5E",
+    stressed: "#EF4444",
+    tired: "#6B7280",
+    excited: "#8B5CF6",
+    grateful: "#6366F1",
+    motivated: "#F97316",
+    relaxed: "#059669",
+  };
+  return chartColors[mood] || "#9CA3AF";
+};
+
+// Mood Bar Chart Component - Last 10 Check-ins
+const MoodBarChart = ({ moodData }) => {
+  // Create mock data for last 10 check-ins (in real app, this would come from API)
+  const last10CheckIns = [
+    { mood: "energetic", score: 8, date: "Today" },
+    { mood: "focused", score: 7, date: "Yesterday" },
+    { mood: "calm", score: 9, date: "2 days ago" },
+    { mood: "happy", score: 8, date: "3 days ago" },
+    { mood: "stressed", score: 5, date: "4 days ago" },
+    { mood: "tired", score: 6, date: "5 days ago" },
+    { mood: "excited", score: 9, date: "6 days ago" },
+    { mood: "grateful", score: 8, date: "7 days ago" },
+    { mood: "motivated", score: 7, date: "8 days ago" },
+    { mood: "relaxed", score: 8, date: "9 days ago" },
+  ];
+
+  const chartData = {
+    labels: last10CheckIns.map((checkIn, index) =>
+      index === 0
+        ? "Today"
+        : index === 1
+        ? "Yesterday"
+        : `${index + 1} days ago`
+    ),
+    datasets: [
+      {
+        label: "Mood Score",
+        data: last10CheckIns.map((checkIn) => checkIn.score),
+        backgroundColor: last10CheckIns.map((checkIn) =>
+          getMoodChartColor(checkIn.mood)
+        ),
+        borderColor: last10CheckIns.map((checkIn) =>
+          getMoodChartColor(checkIn.mood)
+        ),
+        borderWidth: 1,
+        borderRadius: 4,
+        hoverBackgroundColor: last10CheckIns.map(
+          (checkIn) => getMoodChartColor(checkIn.mood) + "CC"
+        ),
+      },
+    ],
+  };
+
+  const options = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false,
+      },
+      tooltip: {
+        backgroundColor: "rgba(0, 0, 0, 0.9)",
+        titleColor: "white",
+        bodyColor: "white",
+        borderColor: "rgba(139, 92, 246, 0.5)",
+        borderWidth: 1,
+        cornerRadius: 12,
+        callbacks: {
+          title: (context) => context[0].label,
+          label: (context) => {
+            const checkIn = last10CheckIns[context.dataIndex];
+            return [
+              `Mood: ${
+                checkIn.mood.charAt(0).toUpperCase() + checkIn.mood.slice(1)
+              }`,
+              `Score: ${context.parsed.y}/10`,
+            ];
+          },
+        },
+      },
+    },
+    scales: {
+      x: {
+        grid: {
+          display: false,
+        },
+        ticks: {
+          color: "#6B7280",
+          font: {
+            size: 10,
+            weight: "500",
+          },
+          maxRotation: 45,
+          minRotation: 0,
+        },
+      },
+      y: {
+        beginAtZero: true,
+        max: 10,
+        grid: {
+          color: "rgba(139, 92, 246, 0.1)",
+          lineWidth: 1,
+        },
+        ticks: {
+          color: "#6B7280",
+          font: {
+            size: 11,
+            weight: "500",
+          },
+          stepSize: 2,
+        },
+      },
+    },
+  };
+
+  return (
+    <div className="h-48 mood-chart">
+      <Bar data={chartData} options={options} />
+    </div>
+  );
+};
+
 const MoodSummary = ({ moodData }) => {
   const { recentMoods, averageMood, totalCheckIns } = moodData;
 
@@ -68,9 +216,6 @@ const MoodSummary = ({ moodData }) => {
             <CardTitle className="text-gradient-wellness">
               Mood Summary
             </CardTitle>
-            <CardDescription>
-              Based on {totalCheckIns} recent check-ins
-            </CardDescription>
           </div>
           <motion.div
             className="w-12 h-12 bg-gradient-to-br from-wellness-lavender to-wellness-indigo rounded-xl flex items-center justify-center shadow-lg"
@@ -83,6 +228,23 @@ const MoodSummary = ({ moodData }) => {
       </CardHeader>
 
       <CardContent className="space-y-6">
+        {/* Chart Title */}
+        <div className="flex items-center justify-between">
+          <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
+            Last 10 Check-ins
+          </h4>
+        </div>
+
+        {/* Chart Display */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="bg-white/50 dark:bg-gray-800/50 rounded-xl border border-gray-200/50 dark:border-gray-700/50 p-4 chart-container"
+        >
+          <MoodBarChart moodData={moodData} />
+        </motion.div>
+
         {/* Average Mood */}
         <motion.div
           className="p-6 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-200/50 dark:border-blue-800/50"
@@ -120,128 +282,6 @@ const MoodSummary = ({ moodData }) => {
             </div>
           </div>
         </motion.div>
-
-        {/* Mood Breakdown */}
-        <div className="space-y-4">
-          <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
-            Recent Moods
-          </h4>
-          <div className="space-y-3">
-            {recentMoods.slice(0, 5).map((moodItem, index) => (
-              <motion.div
-                key={index}
-                className="flex items-center justify-between p-4 bg-white/50 dark:bg-gray-800/50 rounded-xl border border-gray-200/50 dark:border-gray-700/50 hover:bg-white/80 dark:hover:bg-gray-800/80 transition-all duration-300"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.3, delay: index * 0.1 }}
-                whileHover={{ scale: 1.02, x: 5 }}
-              >
-                <div className="flex items-center space-x-4">
-                  <motion.div
-                    className={`w-10 h-10 bg-gradient-to-br ${getMoodColor(
-                      moodItem.mood
-                    )} rounded-xl flex items-center justify-center shadow-lg`}
-                    whileHover={{ scale: 1.1, rotate: 5 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
-                  >
-                    <span className="text-white text-sm">
-                      {getMoodEmoji(moodItem.mood)}
-                    </span>
-                  </motion.div>
-                  <div>
-                    <p
-                      className={`font-semibold capitalize ${getMoodTextColor(
-                        moodItem.mood
-                      )}`}
-                    >
-                      {moodItem.mood}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {moodItem.count} check-in{moodItem.count !== 1 ? "s" : ""}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-3">
-                  <div className="w-20 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                    <motion.div
-                      className={`h-2 rounded-full bg-gradient-to-r ${getMoodColor(
-                        moodItem.mood
-                      )}`}
-                      initial={{ width: 0 }}
-                      animate={{ width: `${moodItem.percentage}%` }}
-                      transition={{ duration: 1, delay: index * 0.1 }}
-                    />
-                  </div>
-                  <span className="text-sm font-bold text-gray-900 dark:text-white w-10 text-right">
-                    {moodItem.percentage}%
-                  </span>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-
-        {/* Mood Insights */}
-        <motion.div
-          className="p-6 bg-gradient-to-br from-green-50/50 to-emerald-50/50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-xl border border-green-200/50 dark:border-green-800/50"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-        >
-          <div className="flex items-start space-x-4">
-            <motion.div
-              className="w-10 h-10 bg-gradient-to-br from-wellness-emerald to-wellness-sage rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg"
-              whileHover={{ scale: 1.1 }}
-              transition={{ type: "spring", stiffness: 400, damping: 10 }}
-            >
-              <TrendingUp className="w-5 h-5 text-white" />
-            </motion.div>
-            <div>
-              <h4 className="text-sm font-semibold text-green-900 dark:text-green-100">
-                Mood Insight
-              </h4>
-              <p className="text-sm text-green-700 dark:text-green-300 mt-1">
-                You've been feeling mostly{" "}
-                <span className="font-semibold capitalize">{averageMood}</span>{" "}
-                lately. Keep up the great work with your wellness habits! ✨
-              </p>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Wellness Metrics */}
-        <div className="grid grid-cols-3 gap-4">
-          <motion.div
-            className="text-center p-4 bg-gradient-to-br from-wellness-rose/10 to-wellness-coral/10 rounded-xl border border-wellness-rose/20"
-            whileHover={{ scale: 1.05 }}
-            transition={{ type: "spring", stiffness: 300, damping: 20 }}
-          >
-            <Heart className="w-6 h-6 text-wellness-rose mx-auto mb-2" />
-            <p className="text-xs text-muted-foreground">Emotional</p>
-            <p className="text-lg font-bold text-gradient-wellness">85%</p>
-          </motion.div>
-
-          <motion.div
-            className="text-center p-4 bg-gradient-to-br from-wellness-lavender/10 to-wellness-indigo/10 rounded-xl border border-wellness-lavender/20"
-            whileHover={{ scale: 1.05 }}
-            transition={{ type: "spring", stiffness: 300, damping: 20 }}
-          >
-            <Brain className="w-6 h-6 text-wellness-lavender mx-auto mb-2" />
-            <p className="text-xs text-muted-foreground">Mental</p>
-            <p className="text-lg font-bold text-gradient-wellness">92%</p>
-          </motion.div>
-
-          <motion.div
-            className="text-center p-4 bg-gradient-to-br from-wellness-amber/10 to-wellness-coral/10 rounded-xl border border-wellness-amber/20"
-            whileHover={{ scale: 1.05 }}
-            transition={{ type: "spring", stiffness: 300, damping: 20 }}
-          >
-            <Zap className="w-6 h-6 text-wellness-amber mx-auto mb-2" />
-            <p className="text-xs text-muted-foreground">Energy</p>
-            <p className="text-lg font-bold text-gradient-wellness">78%</p>
-          </motion.div>
-        </div>
       </CardContent>
     </Card>
   );

@@ -24,7 +24,7 @@ const CheckInsPage = () => {
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
   const [todayCheckIns, setTodayCheckIns] = useState([]);
-  const [sentiment, setSentiment] = useState(null);
+
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [hasCheckedInToday, setHasCheckedInToday] = useState(false);
 
@@ -177,19 +177,6 @@ const CheckInsPage = () => {
     return <Frown className="w-6 h-6 text-red-600" />;
   };
 
-  const getSentimentColor = (sentiment) => {
-    switch (sentiment) {
-      case "positive":
-        return "text-green-600 bg-green-100";
-      case "negative":
-        return "text-red-600 bg-red-100";
-      case "neutral":
-        return "text-gray-600 bg-gray-100";
-      default:
-        return "text-gray-600 bg-gray-100";
-    }
-  };
-
   const handleSubmit = async () => {
     if (hasCheckedInToday) {
       setMessage({
@@ -234,10 +221,6 @@ const CheckInsPage = () => {
       setShowSuccessModal(true);
 
       setHasCheckedInToday(true);
-
-      if (response.sentiment) {
-        setSentiment(response.sentiment);
-      }
 
       // Reload data to get updated check-ins
       await loadData();
@@ -484,29 +467,6 @@ const CheckInsPage = () => {
                     </div>
                   </div>
                 </div>
-
-                {/* Sentiment Analysis */}
-                {sentiment && (
-                  <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
-                    <div className="flex items-center space-x-2">
-                      <AlertCircle
-                        className={`w-4 h-4 ${getSentimentColor(sentiment)}`}
-                      />
-                      <span
-                        className={`text-sm font-medium ${getSentimentColor(
-                          sentiment
-                        )}`}
-                      >
-                        {sentiment === "positive" &&
-                          "Great mood today! Keep it up!"}
-                        {sentiment === "negative" &&
-                          "It's okay to have tough days. Tomorrow is a new opportunity."}
-                        {sentiment === "neutral" &&
-                          "Stable mood today. Consistency is key!"}
-                      </span>
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
 

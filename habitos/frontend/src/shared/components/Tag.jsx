@@ -21,17 +21,6 @@ const Tag = ({
       "bg-yellow-100 text-yellow-800 hover:bg-yellow-200 focus:ring-yellow-500",
     danger: "bg-red-100 text-red-800 hover:bg-red-200 focus:ring-red-500",
     info: "bg-indigo-100 text-indigo-800 hover:bg-indigo-200 focus:ring-indigo-500",
-    sentiment: {
-      positive:
-        "bg-green-100 text-green-800 hover:bg-green-200 focus:ring-green-500",
-      negative: "bg-red-100 text-red-800 hover:bg-red-200 focus:ring-red-500",
-      neutral:
-        "bg-gray-100 text-gray-800 hover:bg-gray-200 focus:ring-gray-500",
-      very_positive:
-        "bg-emerald-100 text-emerald-800 hover:bg-emerald-200 focus:ring-emerald-500",
-      very_negative:
-        "bg-rose-100 text-rose-800 hover:bg-rose-200 focus:ring-rose-500",
-    },
   };
 
   const sizes = {
@@ -41,15 +30,7 @@ const Tag = ({
   };
 
   const getVariantClasses = () => {
-    if (typeof variant === "string") {
-      // Handle sentiment variants
-      if (variant.startsWith("sentiment.")) {
-        const sentimentType = variant.split(".")[1];
-        return variants.sentiment[sentimentType] || variants.default;
-      }
-      return variants[variant] || variants.default;
-    }
-    return variants.default;
+    return variants[variant] || variants.default;
   };
 
   const classes = `${baseClasses} ${getVariantClasses()} ${

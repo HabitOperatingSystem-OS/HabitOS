@@ -140,7 +140,6 @@ export const journalAPI = {
 
     if (filters.startDate) params.append("start_date", filters.startDate);
     if (filters.endDate) params.append("end_date", filters.endDate);
-    if (filters.sentiment) params.append("sentiment", filters.sentiment);
     if (filters.includeAiData) params.append("include_ai_data", "true");
 
     const response = await api.get(`/journal/?${params.toString()}`);
@@ -165,19 +164,6 @@ export const journalAPI = {
 
   deleteJournalEntry: async (id) => {
     const response = await api.delete(`/journal/${id}`);
-    return response.data;
-  },
-
-  getSentiments: async () => {
-    const response = await api.get("/journal/sentiments");
-    return response.data;
-  },
-
-  analyzeSentiment: async (content, options = {}) => {
-    const response = await api.post("/journal/sentiment-analysis", {
-      content,
-      ...options,
-    });
     return response.data;
   },
 

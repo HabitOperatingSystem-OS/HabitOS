@@ -444,6 +444,73 @@
     display: none;
   }
 
+  /* Dashboard specific styles */
+  .chart-container {
+    position: relative;
+    overflow: hidden;
+    scroll-behavior: smooth;
+  }
+
+  .chart-container canvas {
+    max-width: 100%;
+    height: auto !important;
+  }
+
+  /* Chart hover effects */
+  .chart-container:hover {
+    cursor: grab;
+  }
+
+  .chart-container:active {
+    cursor: grabbing;
+  }
+
+  /* Progress donut animation */
+  .progress-donut {
+    transform-origin: center;
+  }
+
+  .progress-donut circle {
+    transition: stroke-dashoffset 1.5s ease-out;
+  }
+
+  /* Habit card hover effects */
+  .habit-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .habit-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
+      0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+
+  /* Mood chart animations */
+  .mood-chart {
+    transition: opacity 0.3s ease-in-out;
+  }
+
+  /* Responsive chart adjustments */
+  @media (max-width: 768px) {
+    .chart-container {
+      height: 200px !important;
+    }
+
+    .progress-donut {
+      transform: scale(0.8);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .chart-container {
+      height: 180px !important;
+    }
+
+    .progress-donut {
+      transform: scale(0.7);
+    }
+  }
+
   /* Dark mode utilities */
   .dark-mode-transition {
     transition: color 0.3s ease, background-color 0.3s ease,
