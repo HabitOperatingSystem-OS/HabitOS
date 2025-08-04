@@ -1,0 +1,79 @@
+services:
+  # Backend API Service
+  - type: web
+    name: habitos-backend
+    env: python
+    plan: starter
+    region: oregon
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: cd backend && gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 run:app
+    healthCheckPath: /health
+    envVars:
+      - key: FLASK_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: habitos-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: habitos-redis
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
+      - key: ENABLE_AI_INSIGHTS
+        value: true
+      - key: ENABLE_JOURNAL_PROMPTS
+        value: true
+      - key: ENABLE_SENTIMENT_ANALYSIS
+        value: true
+      - key: LOG_LEVEL
+        value: INFO
+
+  # Frontend Static Site
+  - type: web
+    name: habitos-frontend
+    env: static
+    plan: starter
+    region: oregon
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://habitos-backend.onrender.com
+      - key: VITE_APP_NAME
+        value: HabitOS
+      - key: VITE_APP_VERSION
+        value: 1.0.0
+
+# Database
+databases:
+  - name: habitos-db
+    databaseName: habitos
+    user: habitos_user
+    plan: starter
+    region: oregon
+
+# Redis Service
+services:
+  - type: redis
+    name: habitos-redis
+    plan: starter
+    region: oregon
+    maxmemoryPolicy: allkeys-lru
+    ipAllowList: [] 
