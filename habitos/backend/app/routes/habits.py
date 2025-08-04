@@ -67,13 +67,25 @@ def create_habit():
         if frequency not in [freq.value for freq in HabitFrequency]:
             return jsonify({'error': 'Invalid frequency'}), 400
         
+        # Validate occurrence_days for weekly and monthly habits
+        occurrence_days = data.get('occurrence_days', [])
+        frequency_count = data.get('frequency_count', 0) if data.get('frequency_count') != "" else 0
+        
+        if frequency in ['weekly', 'monthly']:
+            required_count = max(frequency_count, 1)  # At least 1
+            if len(occurrence_days) != required_count:
+                return jsonify({
+                    'error': f'For {frequency} habits, you must select exactly {required_count} day{"s" if required_count > 1 else ""}'
+                }), 400
+        
         # Create new habit instance with validated data
         habit = Habit(
             user_id=current_user_id,
             title=data['title'],
             category=HabitCategory(category),
             frequency=HabitFrequency(frequency),
-            frequency_count=data.get('frequency_count', 0) if data.get('frequency_count') != "" else 0  # Default to 0
+            frequency_count=data.get('frequency_count', 0) if data.get('frequency_count') != "" else 0,  # Default to 0
+            occurrence_days_list=data.get('occurrence_days', [])  # Default to empty list
         )
         
         # Save habit to database
@@ -148,6 +160,16 @@ def update_habit(habit_id):
         
         if 'frequency_count' in data:
             habit.frequency_count = data['frequency_count'] if data['frequency_count'] != "" else 0
+        
+        if 'occurrence_days' in data:
+            # Validate occurrence_days count matches frequency_count
+            if habit.frequency.value in ['weekly', 'monthly']:
+                required_count = max(habit.frequency_count, 1)
+                if len(data['occurrence_days']) != required_count:
+                    return jsonify({
+                        'error': f'For {habit.frequency.value} habits, you must select exactly {required_count} day{"s" if required_count > 1 else ""}'
+                    }), 400
+            habit.occurrence_days_list = data['occurrence_days']
         
         # Save changes to database
         db.session.commit()

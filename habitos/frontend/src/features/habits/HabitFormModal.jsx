@@ -1,6 +1,142 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { X, Target, Clock, Hash } from "lucide-react";
+import { X, Target, Clock, Hash, Calendar } from "lucide-react";
+
+// Day Selector Component for Weekly and Monthly habits
+const DaySelector = ({
+  frequency,
+  selectedDays,
+  onDaysChange,
+  frequencyCount = 1,
+}) => {
+  const weekDays = [
+    { value: "Monday", label: "Mon", short: "M" },
+    { value: "Tuesday", label: "Tue", short: "T" },
+    { value: "Wednesday", label: "Wed", short: "W" },
+    { value: "Thursday", label: "Thu", short: "T" },
+    { value: "Friday", label: "Fri", short: "F" },
+    { value: "Saturday", label: "Sat", short: "S" },
+    { value: "Sunday", label: "Sun", short: "S" },
+  ];
+
+  const monthDays = Array.from({ length: 31 }, (_, i) => i + 1);
+
+  const toggleDay = (day) => {
+    if (selectedDays.includes(day)) {
+      // Remove day
+      const newDays = selectedDays.filter((d) => d !== day);
+      onDaysChange(newDays);
+    } else {
+      // Add day - but only if we haven't reached the limit
+      if (selectedDays.length < frequencyCount) {
+        const newDays = [...selectedDays, day];
+        onDaysChange(newDays);
+      }
+    }
+  };
+
+  if (frequency === "weekly") {
+    return (
+      <div>
+        <label className="block text-sm font-medium text-zinc-800 dark:text-zinc-100 mb-3">
+          Select Days of the Week
+        </label>
+        <div className="grid grid-cols-7 gap-2">
+          {weekDays.map((day) => (
+            <button
+              key={day.value}
+              type="button"
+              onClick={() => toggleDay(day.value)}
+              className={`p-3 rounded-lg border-2 text-center transition-colors ${
+                selectedDays.includes(day.value)
+                  ? "border-primary-500 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300"
+                  : "border-zinc-200 dark:border-zinc-600 hover:border-zinc-300 dark:hover:border-zinc-500 bg-white dark:bg-zinc-800"
+              }`}
+            >
+              <div className="text-xs font-medium text-black dark:text-white">
+                {day.short}
+              </div>
+              <div className="text-xs text-zinc-500 dark:text-zinc-400">
+                {day.label}
+              </div>
+            </button>
+          ))}
+        </div>
+        {selectedDays.length === 0 && (
+          <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+            Select {frequencyCount} day{frequencyCount > 1 ? "s" : ""} of the
+            week
+          </p>
+        )}
+        {selectedDays.length > 0 && selectedDays.length < frequencyCount && (
+          <p className="mt-2 text-sm text-blue-600 dark:text-blue-400">
+            Select {frequencyCount - selectedDays.length} more day
+            {frequencyCount - selectedDays.length > 1 ? "s" : ""}
+          </p>
+        )}
+        {selectedDays.length === frequencyCount && (
+          <p className="mt-2 text-sm text-green-600 dark:text-green-400">
+            ✓ {frequencyCount} day{frequencyCount > 1 ? "s" : ""} selected
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  if (frequency === "monthly") {
+    return (
+      <div>
+        <label className="block text-sm font-medium text-zinc-800 dark:text-zinc-100 mb-3">
+          Select Days of the Month
+        </label>
+        <div className="grid grid-cols-7 gap-2 max-h-48 overflow-y-auto">
+          {monthDays.map((day) => (
+            <button
+              key={day}
+              type="button"
+              onClick={() => toggleDay(day)}
+              className={`p-2 rounded-lg border-2 text-center transition-colors ${
+                selectedDays.includes(day)
+                  ? "border-primary-500 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300"
+                  : "border-zinc-200 dark:border-zinc-600 hover:border-zinc-300 dark:hover:border-zinc-500 bg-white dark:bg-zinc-800"
+              }`}
+            >
+              <div className="text-sm font-medium text-black dark:text-white">
+                {day}
+              </div>
+            </button>
+          ))}
+        </div>
+        {selectedDays.length === 0 && (
+          <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+            Select {frequencyCount} day{frequencyCount > 1 ? "s" : ""} of the
+            month
+          </p>
+        )}
+        {selectedDays.length > 0 && selectedDays.length < frequencyCount && (
+          <p className="mt-2 text-sm text-blue-600 dark:text-blue-400">
+            Select {frequencyCount - selectedDays.length} more day
+            {frequencyCount - selectedDays.length > 1 ? "s" : ""}
+          </p>
+        )}
+        {selectedDays.length === frequencyCount && (
+          <p className="mt-2 text-sm text-green-600 dark:text-green-400">
+            ✓ {frequencyCount} day{frequencyCount > 1 ? "s" : ""} selected
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  return null;
+};
+
+DaySelector.propTypes = {
+  frequency: PropTypes.string.isRequired,
+  selectedDays: PropTypes.array.isRequired,
+  onDaysChange: PropTypes.func.isRequired,
+  frequencyCount: PropTypes.number,
+};
 
 const HabitFormModal = ({
   isOpen,
@@ -15,6 +151,7 @@ const HabitFormModal = ({
     frequency: "daily",
     frequency_count: "",
     goal: "",
+    occurrence_days: [],
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -47,6 +184,7 @@ const HabitFormModal = ({
         frequency_count:
           habit.frequency_count !== undefined ? habit.frequency_count : "",
         goal: habit.goal || "",
+        occurrence_days: habit.occurrence_days || [],
       });
     } else {
       setFormData({
@@ -55,6 +193,7 @@ const HabitFormModal = ({
         frequency: "daily",
         frequency_count: "",
         goal: "",
+        occurrence_days: [],
       });
     }
     setErrors({});
@@ -75,6 +214,21 @@ const HabitFormModal = ({
 
     if (formData.frequency_count !== "" && formData.frequency_count > 100) {
       newErrors.frequency_count = "Frequency count cannot exceed 100";
+    }
+
+    // Validate occurrence_days for weekly and monthly habits
+    if (formData.frequency === "weekly" || formData.frequency === "monthly") {
+      const requiredCount = formData.frequency_count || 1;
+
+      if (formData.occurrence_days.length === 0) {
+        newErrors.occurrence_days = `Please select ${requiredCount} day${
+          requiredCount > 1 ? "s" : ""
+        } for ${formData.frequency} habits`;
+      } else if (formData.occurrence_days.length !== requiredCount) {
+        newErrors.occurrence_days = `Please select exactly ${requiredCount} day${
+          requiredCount > 1 ? "s" : ""
+        } (currently selected: ${formData.occurrence_days.length})`;
+      }
     }
 
     setErrors(newErrors);
@@ -111,6 +265,40 @@ const HabitFormModal = ({
       setErrors((prev) => ({
         ...prev,
         [field]: "",
+      }));
+    }
+
+    // Reset occurrence_days when frequency changes
+    if (field === "frequency") {
+      setFormData((prev) => ({
+        ...prev,
+        [field]: value,
+        occurrence_days: [],
+      }));
+    }
+
+    // Trim occurrence_days when frequency_count is reduced
+    if (field === "frequency_count") {
+      const newCount = value || 1;
+      setFormData((prev) => ({
+        ...prev,
+        [field]: value,
+        occurrence_days: prev.occurrence_days.slice(0, newCount),
+      }));
+    }
+  };
+
+  const handleDaysChange = (days) => {
+    setFormData((prev) => ({
+      ...prev,
+      occurrence_days: days,
+    }));
+
+    // Clear error when user selects days
+    if (errors.occurrence_days) {
+      setErrors((prev) => ({
+        ...prev,
+        occurrence_days: "",
       }));
     }
   };
@@ -258,6 +446,25 @@ const HabitFormModal = ({
               )}
             </div>
           )}
+
+          {/* Day Selector for Weekly and Monthly */}
+          {(formData.frequency === "weekly" ||
+            formData.frequency === "monthly") && (
+            <div>
+              <DaySelector
+                frequency={formData.frequency}
+                selectedDays={formData.occurrence_days}
+                onDaysChange={handleDaysChange}
+                frequencyCount={formData.frequency_count || 1}
+              />
+              {errors.occurrence_days && (
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                  {errors.occurrence_days}
+                </p>
+              )}
+            </div>
+          )}
+
           {/* Form Actions */}
           <div className="flex items-center justify-end space-x-3 pt-4 border-t border-zinc-200 dark:border-zinc-700">
             <button
@@ -303,6 +510,7 @@ HabitFormModal.propTypes = {
     frequency: PropTypes.string,
     frequency_count: PropTypes.number,
     goal: PropTypes.string,
+    occurrence_days: PropTypes.array,
   }),
   mode: PropTypes.oneOf(["create", "edit"]),
 };

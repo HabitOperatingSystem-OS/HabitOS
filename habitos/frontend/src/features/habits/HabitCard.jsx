@@ -54,14 +54,26 @@ const getCategoryIcon = (category) => {
   return icons[category] || icons.other;
 };
 
-const getFrequencyText = (frequency, frequencyCount) => {
+const getFrequencyText = (frequency, frequencyCount, occurrenceDays = []) => {
   const texts = {
     daily: "Daily",
     weekly: frequencyCount > 0 ? `Weekly (${frequencyCount}x)` : "Weekly",
     monthly: frequencyCount > 0 ? `Monthly (${frequencyCount}x)` : "Monthly",
     custom: frequencyCount > 0 ? `Custom (${frequencyCount}x)` : "Custom",
   };
-  return texts[frequency] || "Daily";
+
+  let baseText = texts[frequency] || "Daily";
+
+  // Add occurrence days info for weekly and monthly habits
+  if (frequency === "weekly" && occurrenceDays.length > 0) {
+    const dayAbbreviations = occurrenceDays.map((day) => day.slice(0, 3));
+    baseText += ` • ${dayAbbreviations.join(", ")}`;
+  } else if (frequency === "monthly" && occurrenceDays.length > 0) {
+    const sortedDays = occurrenceDays.sort((a, b) => a - b);
+    baseText += ` • ${sortedDays.join(", ")}`;
+  }
+
+  return baseText;
 };
 
 const getFrequencyIcon = (frequency) => {
@@ -169,7 +181,8 @@ const HabitCard = ({ habit }) => {
                       <span>
                         {getFrequencyText(
                           habit.frequency,
-                          habit.frequency_count
+                          habit.frequency_count,
+                          habit.occurrence_days
                         )}
                       </span>
                     </div>
@@ -362,6 +375,7 @@ HabitCard.propTypes = {
     category: PropTypes.string.isRequired,
     frequency: PropTypes.string.isRequired,
     frequency_count: PropTypes.number,
+    occurrence_days: PropTypes.array,
     active: PropTypes.bool.isRequired,
     current_streak: PropTypes.number.isRequired,
     longest_streak: PropTypes.number.isRequired,
