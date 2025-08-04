@@ -302,7 +302,7 @@ const GoalsPage = () => {
 
       {/* Toast */}
       <Toast
-        show={toast.show}
+        isVisible={toast.show}
         message={toast.message}
         type={toast.type}
         onClose={() => setToast({ ...toast, show: false })}
