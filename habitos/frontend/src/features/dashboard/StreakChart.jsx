@@ -34,18 +34,23 @@ ChartJS.register(
 );
 
 const StreakChart = ({ data }) => {
-  // Enhanced chart configuration with better responsive design
+  // Enhanced chart configuration with better responsive design and mobile optimization
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
     interaction: {
-      mode: "index",
+      mode: "nearest",
+      axis: "x",
       intersect: false,
     },
     hover: {
-      mode: "index",
+      mode: "nearest",
+      axis: "x",
       intersect: false,
     },
+    // Disable click events to make chart non-interactive
+    onClick: null,
+    onHover: null,
 
     plugins: {
       legend: {
@@ -55,6 +60,7 @@ const StreakChart = ({ data }) => {
         display: false,
       },
       tooltip: {
+        enabled: true,
         backgroundColor: "rgba(0, 0, 0, 0.9)",
         titleColor: "white",
         bodyColor: "white",
@@ -69,16 +75,33 @@ const StreakChart = ({ data }) => {
         bodyFont: {
           size: 13,
         },
+        padding: 12,
+        // Enhanced tooltip callbacks
         callbacks: {
-          title: (context) => `Day ${context[0].label}`,
+          title: (context) => {
+            const day = context[0].label;
+            return `${day}`;
+          },
           label: (context) => {
             const value = context.parsed.y;
-            const day = context[0].label;
-            return `${value} habit${
-              value !== 1 ? "s" : ""
-            } completed on ${day}`;
+            return `${value} habit${value !== 1 ? "s" : ""} completed`;
+          },
+          afterLabel: (context) => {
+            const value = context.parsed.y;
+            if (value === 0) {
+              return "No habits completed";
+            } else if (value === 1) {
+              return "Great start!";
+            } else if (value >= 3) {
+              return "Excellent progress!";
+            }
+            return "Keep it up!";
           },
         },
+        // Improved tooltip positioning for mobile
+        position: "nearest",
+        xAlign: "center",
+        yAlign: "bottom",
       },
     },
 
@@ -90,16 +113,34 @@ const StreakChart = ({ data }) => {
         ticks: {
           color: "#6B7280",
           font: {
-            size: 11,
+            size: window.innerWidth < 768 ? 10 : 11,
             weight: "500",
           },
-          maxRotation: 45,
+          maxRotation: 0,
           minRotation: 0,
+          // Optimize label display for mobile
+          callback: function (value, index) {
+            const labels = this.getLabelForValue(value);
+            if (window.innerWidth < 640) {
+              // Show abbreviated labels on mobile
+              return labels.length > 4
+                ? labels.substring(0, 3) + "..."
+                : labels;
+            }
+            return labels;
+          },
+        },
+        // Improve mobile touch interaction
+        afterFit: function (scale) {
+          if (window.innerWidth < 768) {
+            scale.paddingLeft = 10;
+            scale.paddingRight = 10;
+          }
         },
       },
       y: {
         beginAtZero: true,
-        max: Math.max(...data.datasets[0].data) + 2,
+        max: Math.max(...data.datasets[0].data) + 1,
         grid: {
           color: "rgba(139, 92, 246, 0.1)",
           lineWidth: 1,
@@ -107,32 +148,45 @@ const StreakChart = ({ data }) => {
         ticks: {
           color: "#6B7280",
           font: {
-            size: 11,
+            size: window.innerWidth < 768 ? 10 : 11,
             weight: "500",
           },
           stepSize: 1,
+          // Ensure whole numbers
+          callback: function (value) {
+            return Math.floor(value) === value ? value : "";
+          },
+        },
+        // Optimize Y axis for mobile
+        afterFit: function (scale) {
+          if (window.innerWidth < 768) {
+            scale.paddingTop = 5;
+            scale.paddingBottom = 5;
+          }
         },
       },
     },
 
     elements: {
       point: {
-        radius: 8,
-        hoverRadius: 12,
+        radius: window.innerWidth < 768 ? 6 : 8,
+        hoverRadius: window.innerWidth < 768 ? 10 : 12,
         backgroundColor: "rgb(139, 92, 246)",
         borderColor: "white",
         borderWidth: 3,
         hoverBorderColor: "rgb(139, 92, 246)",
         hoverBorderWidth: 3,
         hoverBackgroundColor: "rgb(139, 92, 246)",
+        // Ensure points are not clickable
+        hitRadius: 0,
       },
       line: {
-        borderWidth: 4,
+        borderWidth: window.innerWidth < 768 ? 3 : 4,
         borderColor: "rgb(139, 92, 246)",
         backgroundColor: "rgba(139, 92, 246, 0.1)",
         fill: true,
         tension: 0.4,
-        hoverBorderWidth: 6,
+        hoverBorderWidth: window.innerWidth < 768 ? 4 : 6,
         hoverBorderColor: "rgb(139, 92, 246)",
       },
     },
@@ -170,10 +224,10 @@ const StreakChart = ({ data }) => {
       </CardHeader>
 
       <CardContent>
-        {/* Chart container */}
+        {/* Chart container with improved mobile responsiveness */}
         <div className="relative">
           <motion.div
-            className="h-80 relative"
+            className="h-64 sm:h-72 md:h-80 relative"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -185,48 +239,48 @@ const StreakChart = ({ data }) => {
           </motion.div>
         </div>
 
-        {/* Enhanced statistics */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Enhanced statistics with improved mobile layout */}
+        <div className="mt-6 sm:mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
           <motion.div
-            className="text-center p-4 bg-gradient-to-br from-primary-50/50 to-primary-100/50 dark:from-primary-900/20 dark:to-primary-800/20 rounded-xl border border-primary-200/50 dark:border-primary-800/50"
+            className="text-center p-3 sm:p-4 bg-gradient-to-br from-primary-50/50 to-primary-100/50 dark:from-primary-900/20 dark:to-primary-800/20 rounded-xl border border-primary-200/50 dark:border-primary-800/50"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
             whileHover={{ scale: 1.02 }}
           >
-            <Target className="w-6 h-6 text-primary-600 dark:text-primary-400 mx-auto mb-2" />
+            <Target className="w-5 h-5 sm:w-6 sm:h-6 text-primary-600 dark:text-primary-400 mx-auto mb-2" />
             <p className="text-xs text-muted-foreground mb-1">Daily Average</p>
-            <p className="text-2xl font-bold text-gradient-wellness">
+            <p className="text-xl sm:text-2xl font-bold text-gradient-wellness">
               {averageHabits}
             </p>
             <p className="text-xs text-muted-foreground">habits/day</p>
           </motion.div>
 
           <motion.div
-            className="text-center p-4 bg-gradient-to-br from-wellness-emerald/10 to-wellness-sage/10 rounded-xl border border-wellness-emerald/20"
+            className="text-center p-3 sm:p-4 bg-gradient-to-br from-wellness-emerald/10 to-wellness-sage/10 rounded-xl border border-wellness-emerald/20"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
             whileHover={{ scale: 1.02 }}
           >
-            <Award className="w-6 h-6 text-wellness-emerald mx-auto mb-2" />
+            <Award className="w-5 h-5 sm:w-6 sm:h-6 text-wellness-emerald mx-auto mb-2" />
             <p className="text-xs text-muted-foreground mb-1">Best Day</p>
-            <p className="text-2xl font-bold text-gradient-wellness">
+            <p className="text-xl sm:text-2xl font-bold text-gradient-wellness">
               {bestDay}
             </p>
             <p className="text-xs text-muted-foreground">habits completed</p>
           </motion.div>
 
           <motion.div
-            className="text-center p-4 bg-gradient-to-br from-wellness-lavender/10 to-wellness-indigo/10 rounded-xl border border-wellness-lavender/20"
+            className="text-center p-3 sm:p-4 bg-gradient-to-br from-wellness-lavender/10 to-wellness-indigo/10 rounded-xl border border-wellness-lavender/20"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
             whileHover={{ scale: 1.02 }}
           >
-            <TrendingUp className="w-6 h-6 text-wellness-lavender mx-auto mb-2" />
+            <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-wellness-lavender mx-auto mb-2" />
             <p className="text-xs text-muted-foreground mb-1">Weekly Total</p>
-            <p className="text-2xl font-bold text-gradient-wellness">
+            <p className="text-xl sm:text-2xl font-bold text-gradient-wellness">
               {totalHabits}
             </p>
             <p className="text-xs text-muted-foreground">habits completed</p>

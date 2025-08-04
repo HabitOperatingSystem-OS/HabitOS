@@ -26,7 +26,7 @@ const GoalFormModal = ({
   // Pre-fill form in edit mode
   useEffect(() => {
     if (mode === "edit" && initialGoal && isOpen) {
-      console.log("Pre-filling form with goal data:", initialGoal);
+      // Pre-fill form with goal data
       setFormData({
         habit_id: initialGoal.habit_id || "",
         title: initialGoal.title || "",

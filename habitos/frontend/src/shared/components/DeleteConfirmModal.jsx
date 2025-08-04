@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { X, AlertTriangle } from "lucide-react";
 
 const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, title, message }) => {
@@ -62,6 +63,14 @@ const DeleteConfirmModal = ({ isOpen, onClose, onConfirm, title, message }) => {
       </div>
     </div>
   );
+};
+
+DeleteConfirmModal.propTypes = {
+  isOpen: PropTypes.bool.isRequired,
+  onClose: PropTypes.func.isRequired,
+  onConfirm: PropTypes.func.isRequired,
+  title: PropTypes.string.isRequired,
+  message: PropTypes.string.isRequired,
 };
 
 export default DeleteConfirmModal;
