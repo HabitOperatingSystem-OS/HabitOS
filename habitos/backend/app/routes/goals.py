@@ -1,9 +1,12 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app import db
-from app.models.goal import Goal, GoalType, GoalStatus, GoalPriority
+from app.models.goal import Goal, GoalType, GoalStatus
 from app.models.habit import Habit
+from app.utils.validation import validate_goal_status, validate_goal_type, get_enum_values
 from datetime import datetime, date
+import traceback
+import sys
 
 # Create blueprint for goal management routes
 goals_bp = Blueprint('goals', __name__)
@@ -13,7 +16,7 @@ goals_bp = Blueprint('goals', __name__)
 def get_goals():
     """
     Get all goals for the current user with optional filters
-    Supports filtering by habit, status, and priority
+    Supports filtering by habit and status
     """
     # Extract user ID from JWT token
     current_user_id = get_jwt_identity()
@@ -22,8 +25,7 @@ def get_goals():
         # Extract query parameters for filtering
         habit_id = request.args.get('habit_id')  # Filter by specific habit
         status = request.args.get('status')  # Filter by goal status
-        priority = request.args.get('priority')  # Filter by goal priority
-        
+
         # Start building the query for current user's goals
         query = Goal.query.filter_by(user_id=current_user_id)
         
@@ -33,17 +35,13 @@ def get_goals():
         
         # Apply status filter if provided
         if status:
-            # Validate status enum value
-            if status not in [s.value for s in GoalStatus]:
-                return jsonify({'error': 'Invalid status'}), 400
-            query = query.filter_by(status=GoalStatus(status))
+            try:
+                # Validate status enum value
+                validated_status = validate_goal_status(status)
+                query = query.filter_by(status=GoalStatus(validated_status))
+            except ValueError as e:
+                return jsonify({'error': str(e)}), 400
         
-        # Apply priority filter if provided
-        if priority:
-            # Validate priority enum value
-            if priority not in [p.value for p in GoalPriority]:
-                return jsonify({'error': 'Invalid priority'}), 400
-            query = query.filter_by(priority=GoalPriority(priority))
         
         # Execute query with ordering (most recent first)
         goals = query.order_by(Goal.created_at.desc()).all()
@@ -86,14 +84,27 @@ def create_goal():
         if not habit:
             return jsonify({'error': 'Habit not found'}), 404
         
-        # Validate goal type enum value
-        if data['goal_type'] not in [gt.value for gt in GoalType]:
-            return jsonify({'error': 'Invalid goal type'}), 400
+        # Check if a goal already exists for this habit
+        existing_goal = Goal.query.filter_by(habit_id=data['habit_id'], user_id=current_user_id).first()
+        if existing_goal:
+            return jsonify({
+                'error': 'A goal already exists for this habit',
+                'existing_goal': existing_goal.to_dict()
+            }), 409
         
-        # Validate priority enum value (default to medium)
-        priority = data.get('priority', 'medium')
-        if priority not in [p.value for p in GoalPriority]:
-            return jsonify({'error': 'Invalid priority'}), 400
+        # Validate goal type enum value
+        try:
+            validated_goal_type = validate_goal_type(data['goal_type'])
+        except ValueError as e:
+            return jsonify({'error': str(e)}), 400
+        
+        
+        # Validate status enum value (default to in_progress)
+        status = data.get('status', 'in_progress')
+        try:
+            validated_status = validate_goal_status(status)
+        except ValueError as e:
+            return jsonify({'error': str(e)}), 400
         
         # Parse due date if provided
         due_date = None
@@ -109,10 +120,10 @@ def create_goal():
             habit_id=data['habit_id'],
             title=data['title'],
             description=data.get('description'),  # Optional field
-            goal_type=GoalType(data['goal_type']),
+            goal_type=GoalType(validated_goal_type),
             target_value=data['target_value'],
             target_unit=data.get('target_unit'),  # Optional field
-            priority=GoalPriority(priority),
+            status=GoalStatus(validated_status),  # Use validated status
             due_date=due_date,
             reminder_enabled=data.get('reminder_enabled', True),  # Default to enabled
             reminder_days_before=data.get('reminder_days_before', 1)  # Default to 1 day
@@ -154,7 +165,7 @@ def get_goal(goal_id):
     except Exception as e:
         return jsonify({'error': 'Failed to fetch goal', 'details': str(e)}), 500
 
-@goals_bp.route('/<goal_id>', methods=['PUT'])
+@goals_bp.route('/<goal_id>', methods=['PUT', 'PATCH'])
 @jwt_required()
 def update_goal(goal_id):
     """
@@ -185,21 +196,17 @@ def update_goal(goal_id):
         if 'target_unit' in data:
             goal.target_unit = data['target_unit']
         
-        if 'priority' in data:
-            # Validate priority enum value
-            if data['priority'] not in [p.value for p in GoalPriority]:
-                return jsonify({'error': 'Invalid priority'}), 400
-            goal.priority = GoalPriority(data['priority'])
-        
         if 'status' in data:
-            # Validate status enum value
-            if data['status'] not in [s.value for s in GoalStatus]:
-                return jsonify({'error': 'Invalid status'}), 400
-            goal.status = GoalStatus(data['status'])
-            
-            # Set completed_date if status is changed to completed
-            if data['status'] == 'completed' and not goal.completed_date:
-                goal.completed_date = date.today()
+            try:
+                # Validate status enum value
+                validated_status = validate_goal_status(data['status'])
+                goal.status = GoalStatus(validated_status)
+                
+                # Set completed_date if status is changed to completed
+                if validated_status == 'completed' and not goal.completed_date:
+                    goal.completed_date = date.today()
+            except ValueError as e:
+                return jsonify({'error': str(e)}), 400
         
         if 'due_date' in data:
             if data['due_date']:
@@ -226,6 +233,8 @@ def update_goal(goal_id):
         }), 200
         
     except Exception as e:
+        print('--- Exception in update_goal PATCH route ---', file=sys.stderr)
+        traceback.print_exc()
         # Rollback database changes on error
         db.session.rollback()
         return jsonify({'error': 'Failed to update goal', 'details': str(e)}), 500
@@ -281,7 +290,7 @@ def update_goal_progress(goal_id):
             goal.current_value = data['current_value']
             
             # Check if goal is completed based on current progress
-            if goal.current_value >= goal.target_value and goal.status == GoalStatus.ACTIVE:
+            if goal.current_value >= goal.target_value and goal.status == GoalStatus.IN_PROGRESS.value:
                 goal.status = GoalStatus.COMPLETED
                 goal.completed_date = date.today()
         
@@ -378,7 +387,8 @@ def get_goal_types():
     Returns list of valid goal type options
     """
     # Convert enum values to user-friendly format
-    goal_types = [{'value': gt.value, 'label': gt.value.title()} for gt in GoalType]
+    goal_type_values = get_enum_values(GoalType)
+    goal_types = [{'value': gt, 'label': gt.title()} for gt in goal_type_values]
     return jsonify({'goal_types': goal_types}), 200
 
 @goals_bp.route('/statuses', methods=['GET'])
@@ -389,16 +399,36 @@ def get_goal_statuses():
     Returns list of valid goal status options
     """
     # Convert enum values to user-friendly format
-    statuses = [{'value': s.value, 'label': s.value.title()} for s in GoalStatus]
+    status_values = get_enum_values(GoalStatus)
+    statuses = [{'value': s, 'label': s.title()} for s in status_values]
     return jsonify({'statuses': statuses}), 200
 
-@goals_bp.route('/priorities', methods=['GET'])
+@goals_bp.route('/habit/<habit_id>/check', methods=['GET'])
 @jwt_required()
-def get_goal_priorities():
+def check_habit_goal(habit_id):
     """
-    Get all available goal priorities
-    Returns list of valid goal priority options
+    Check if a habit has an existing goal
+    Returns goal information if exists, null if not
     """
-    # Convert enum values to user-friendly format
-    priorities = [{'value': p.value, 'label': p.value.title()} for p in GoalPriority]
-    return jsonify({'priorities': priorities}), 200
+    # Extract user ID from JWT token
+    current_user_id = get_jwt_identity()
+    
+    try:
+        # Verify that the habit exists and belongs to the current user
+        habit = Habit.query.filter_by(id=habit_id, user_id=current_user_id).first()
+        if not habit:
+            return jsonify({'error': 'Habit not found'}), 404
+        
+        # Check if a goal exists for this habit
+        goal = Goal.query.filter_by(habit_id=habit_id, user_id=current_user_id).first()
+        
+        return jsonify({
+            'habit_id': habit_id,
+            'has_goal': goal is not None,
+            'goal': goal.to_dict() if goal else None
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': 'Failed to check habit goal', 'details': str(e)}), 500
+
+

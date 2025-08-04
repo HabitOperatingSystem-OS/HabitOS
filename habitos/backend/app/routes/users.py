@@ -4,7 +4,7 @@ from app import db
 from app.models.user import User
 from app.models.habit import Habit
 from app.models.check_in import CheckIn
-from app.models.goal import Goal
+from app.models.goal import Goal, GoalStatus
 from app.models.journal_entry import JournalEntry
 from datetime import datetime, date, timedelta
 
@@ -33,7 +33,7 @@ def get_user_profile():
     except Exception as e:
         return jsonify({'error': 'Failed to fetch user profile', 'details': str(e)}), 500
 
-@users_bp.route('/profile', methods=['PUT'])
+@users_bp.route('/profile', methods=['PUT', 'PATCH'])
 @jwt_required()
 def update_user_profile():
     """
@@ -112,8 +112,8 @@ def get_user_stats():
         
         # Get goal statistics
         total_goals = Goal.query.filter_by(user_id=current_user_id).count()
-        active_goals = Goal.query.filter_by(user_id=current_user_id, status='active').count()
-        completed_goals = Goal.query.filter_by(user_id=current_user_id, status='completed').count()
+        active_goals = Goal.query.filter_by(user_id=current_user_id, status=GoalStatus.IN_PROGRESS.value).count()
+        completed_goals = Goal.query.filter_by(user_id=current_user_id, status=GoalStatus.COMPLETED.value).count()
         
         # Get journal entry statistics
         journal_entries = JournalEntry.query.filter(
@@ -179,7 +179,7 @@ def get_dashboard_data():
         ).all()
         
         # Get active goals
-        active_goals = Goal.query.filter_by(user_id=current_user_id, status='active').all()
+        active_goals = Goal.query.filter_by(user_id=current_user_id, status=GoalStatus.IN_PROGRESS.value).all()
         
         # Get recent journal entries (last 5)
         recent_journal_entries = JournalEntry.query.filter_by(
@@ -189,7 +189,7 @@ def get_dashboard_data():
         # Get overdue goals
         overdue_goals = Goal.query.filter(
             Goal.user_id == current_user_id,
-            Goal.status == 'active',
+            Goal.status == GoalStatus.IN_PROGRESS.value,
             Goal.due_date < today
         ).all()
         

@@ -6,7 +6,19 @@ from app.models.habit import Habit, HabitCategory, HabitFrequency
 # Create blueprint for habit management routes
 habits_bp = Blueprint('habits', __name__)
 
+@habits_bp.route('/', methods=['OPTIONS'])
+@habits_bp.route('', methods=['OPTIONS'])
+def handle_preflight():
+    """Handle preflight OPTIONS requests"""
+    response = jsonify({'status': 'ok'})
+    response.headers.add('Access-Control-Allow-Origin', 'http://localhost:3000')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS')
+    response.headers.add('Access-Control-Allow-Credentials', 'true')
+    return response, 200
+
 @habits_bp.route('/', methods=['GET'])
+@habits_bp.route('', methods=['GET'])
 @jwt_required()
 def get_habits():
     """
@@ -29,6 +41,7 @@ def get_habits():
         return jsonify({'error': 'Failed to fetch habits', 'details': str(e)}), 500
 
 @habits_bp.route('/', methods=['POST'])
+@habits_bp.route('', methods=['POST'])
 @jwt_required()
 def create_habit():
     """
@@ -54,13 +67,25 @@ def create_habit():
         if frequency not in [freq.value for freq in HabitFrequency]:
             return jsonify({'error': 'Invalid frequency'}), 400
         
+        # Validate occurrence_days for weekly and monthly habits
+        occurrence_days = data.get('occurrence_days', [])
+        frequency_count = data.get('frequency_count', 0) if data.get('frequency_count') != "" else 0
+        
+        if frequency in ['weekly', 'monthly']:
+            required_count = max(frequency_count, 1)  # At least 1
+            if len(occurrence_days) != required_count:
+                return jsonify({
+                    'error': f'For {frequency} habits, you must select exactly {required_count} day{"s" if required_count > 1 else ""}'
+                }), 400
+        
         # Create new habit instance with validated data
         habit = Habit(
             user_id=current_user_id,
             title=data['title'],
             category=HabitCategory(category),
             frequency=HabitFrequency(frequency),
-            frequency_count=data.get('frequency_count', 1)  # Default to 1
+            frequency_count=data.get('frequency_count', 0) if data.get('frequency_count') != "" else 0,  # Default to 0
+            occurrence_days_list=data.get('occurrence_days', [])  # Default to empty list
         )
         
         # Save habit to database
@@ -134,7 +159,17 @@ def update_habit(habit_id):
             habit.frequency = HabitFrequency(data['frequency'])
         
         if 'frequency_count' in data:
-            habit.frequency_count = data['frequency_count']
+            habit.frequency_count = data['frequency_count'] if data['frequency_count'] != "" else 0
+        
+        if 'occurrence_days' in data:
+            # Validate occurrence_days count matches frequency_count
+            if habit.frequency.value in ['weekly', 'monthly']:
+                required_count = max(habit.frequency_count, 1)
+                if len(data['occurrence_days']) != required_count:
+                    return jsonify({
+                        'error': f'For {habit.frequency.value} habits, you must select exactly {required_count} day{"s" if required_count > 1 else ""}'
+                    }), 400
+            habit.occurrence_days_list = data['occurrence_days']
         
         # Save changes to database
         db.session.commit()
@@ -231,3 +266,122 @@ def get_frequencies():
     frequencies = [{'value': freq.value, 'label': freq.value.title()} 
                    for freq in HabitFrequency]
     return jsonify({'frequencies': frequencies}), 200
+
+@habits_bp.route('/stats', methods=['GET'])
+@jwt_required()
+def get_habit_stats():
+    """
+    Get comprehensive statistics for all habits of the current user
+    Returns aggregated statistics for dashboard display
+    """
+    current_user_id = get_jwt_identity()
+    
+    try:
+        from datetime import date, timedelta
+        from sqlalchemy import func, and_
+        from app.models.check_in import CheckIn
+        
+        # Get all habits for the user
+        habits = Habit.query.filter_by(user_id=current_user_id).all()
+        
+        if not habits:
+            return jsonify({
+                'total_habits': 0,
+                'active_habits': 0,
+                'due_today': 0,
+                'best_streak': 0,
+                'total_completion_rate': 0,
+                'habits_with_streaks': 0,
+                'category_breakdown': {}
+            }), 200
+        
+        # Calculate basic stats
+        total_habits = len(habits)
+        active_habits = len([h for h in habits if h.active])
+        
+        # Calculate due today (habits that are due AND not completed today)
+        today = date.today()
+        due_today = 0
+        for habit in habits:
+            if habit.active and habit.is_due_today():
+                # Check if this habit has been completed today
+                today_check_in = CheckIn.query.filter(
+                    and_(
+                        CheckIn.habit_id == habit.id,
+                        CheckIn.user_id == current_user_id,
+                        CheckIn.date == today,
+                        CheckIn.completed == True
+                    )
+                ).first()
+                
+                # Only count as due if not completed today
+                if not today_check_in:
+                    due_today += 1
+        
+        best_streak = max([h.longest_streak for h in habits]) if habits else 0
+        habits_with_streaks = len([h for h in habits if h.current_streak > 0])
+        
+        # Calculate category breakdown
+        category_breakdown = {}
+        for habit in habits:
+            category = habit.category.value
+            if category not in category_breakdown:
+                category_breakdown[category] = 0
+            category_breakdown[category] += 1
+        
+        # Calculate overall completion rate (average of all active habits)
+        today = date.today()
+        start_date = today - timedelta(days=30)
+        
+        total_completion_rate = 0
+        active_habits_count = 0
+        
+        for habit in habits:
+            if habit.active:
+                # Get check-ins for this habit in the last 30 days
+                check_ins = CheckIn.query.filter(
+                    and_(
+                        CheckIn.habit_id == habit.id,
+                        CheckIn.user_id == current_user_id,
+                        CheckIn.date >= start_date,
+                        CheckIn.date <= today,
+                        CheckIn.completed == True
+                    )
+                ).count()
+                
+                # Calculate expected completions based on frequency
+                expected = 0
+                current_date = start_date
+                while current_date <= today:
+                    if current_date >= habit.start_date:
+                        if habit.frequency.value == 'daily':
+                            expected += 1
+                        elif habit.frequency.value == 'weekly':
+                            if current_date.weekday() == 0:  # Monday
+                                expected += max(habit.frequency_count, 1)
+                        elif habit.frequency.value == 'monthly':
+                            if current_date.day == 1:  # First of month
+                                expected += max(habit.frequency_count, 1)
+                        elif habit.frequency.value == 'custom':
+                            expected += max(habit.frequency_count, 1)
+                    current_date += timedelta(days=1)
+                
+                if expected > 0:
+                    completion_rate = min((check_ins / expected) * 100, 100)
+                    total_completion_rate += completion_rate
+                    active_habits_count += 1
+        
+        avg_completion_rate = round(total_completion_rate / active_habits_count) if active_habits_count > 0 else 0
+        
+        return jsonify({
+            'total_habits': total_habits,
+            'active_habits': active_habits,
+            'due_today': due_today,
+            'best_streak': best_streak,
+            'total_completion_rate': avg_completion_rate,
+            'habits_with_streaks': habits_with_streaks,
+            'category_breakdown': category_breakdown
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': 'Failed to fetch habit statistics', 'details': str(e)}), 500

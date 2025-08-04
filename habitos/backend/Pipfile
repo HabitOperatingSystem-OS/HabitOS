@@ -27,6 +27,8 @@ psutil = "*"
 redis = "*"
 requests = "*"
 flask-cors = "*"
+pytest = "*"
+google-generativeai = "*"
 
 [dev-packages]
 pytest = "~=7.4.2"
@@ -34,4 +36,4 @@ pytest-flask = "~=1.2.0"
 flask-testing = "~=0.8.1"
 
 [requires]
-python_version = "3.13"
+python_version = "3.11"

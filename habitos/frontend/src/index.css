@@ -1,0 +1,541 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 84% 4.9%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 94.1%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground transition-colors duration-300;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-gray-100 dark:bg-gray-800;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 dark:bg-gray-600 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-400 dark:bg-gray-500;
+  }
+
+  /* Dark mode transitions */
+  * {
+    transition-property: color, background-color, border-color,
+      text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 300ms;
+  }
+}
+
+@layer components {
+  /* Glassmorphism effects */
+  .glass {
+    @apply bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border border-white/20 dark:border-gray-800/20;
+  }
+
+  .glass-card {
+    @apply glass rounded-2xl shadow-glass;
+  }
+
+  .glass-nav {
+    @apply glass border-b border-white/20 dark:border-gray-800/20;
+  }
+
+  /* Premium button styles */
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-xl px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-xl px-6 py-3 text-sm font-semibold transition-all duration-200 bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-105 active:scale-95;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center rounded-xl px-6 py-3 text-sm font-semibold transition-all duration-200 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Premium card styles */
+  .card-premium {
+    @apply bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-premium hover:shadow-premium-lg transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1;
+  }
+
+  .card-glass {
+    @apply glass-card shadow-glass-sm hover:shadow-glass transition-all duration-300 transform hover:scale-[1.02] hover:-translate-y-1;
+  }
+
+  /* Premium input styles */
+  .input-premium {
+    @apply block w-full rounded-xl border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-4 py-3 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-primary-500 focus:ring-primary-500 focus:ring-2 focus:ring-offset-0 transition-all duration-200;
+  }
+
+  /* Fix autofill styling for dark mode */
+  .input-premium:-webkit-autofill,
+  .input-premium:-webkit-autofill:hover,
+  .input-premium:-webkit-autofill:focus,
+  .input-premium:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px rgb(31 41 55) inset !important;
+    -webkit-text-fill-color: rgb(243 244 246) !important;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+
+  /* Light mode autofill styling */
+  .input-premium:-webkit-autofill,
+  .input-premium:-webkit-autofill:hover,
+  .input-premium:-webkit-autofill:focus,
+  .input-premium:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px rgb(255 255 255) inset !important;
+    -webkit-text-fill-color: rgb(17 24 39) !important;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+
+  /* Dark mode specific autofill override */
+  .dark .input-premium:-webkit-autofill,
+  .dark .input-premium:-webkit-autofill:hover,
+  .dark .input-premium:-webkit-autofill:focus,
+  .dark .input-premium:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px rgb(31 41 55) inset !important;
+    -webkit-text-fill-color: rgb(243 244 246) !important;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+
+  /* Ensure password toggle button doesn't interfere with input styling */
+  .input-premium[type="password"],
+  .input-premium[type="text"] {
+    background-color: rgb(255 255 255);
+    color: rgb(17 24 39);
+  }
+
+  .dark .input-premium[type="password"],
+  .dark .input-premium[type="text"] {
+    background-color: rgb(31 41 55);
+    color: rgb(243 244 246);
+  }
+
+  /* Override any browser default styling for password inputs */
+  .input-premium[type="password"]::-ms-reveal,
+  .input-premium[type="password"]::-ms-clear {
+    display: none;
+  }
+
+  /* Additional input styling to prevent conflicts */
+  .input-premium {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+  }
+
+  /* Ensure consistent styling for all input types */
+  .input-premium[type="email"],
+  .input-premium[type="text"],
+  .input-premium[type="password"] {
+    background-image: none;
+    background-color: rgb(255 255 255);
+    color: rgb(17 24 39);
+  }
+
+  .dark .input-premium[type="email"],
+  .dark .input-premium[type="text"],
+  .dark .input-premium[type="password"] {
+    background-image: none;
+    background-color: rgb(31 41 55);
+    color: rgb(243 244 246);
+  }
+
+  /* Input field icon styling */
+  .input-field-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 5;
+    pointer-events: none;
+    transition: color 0.2s ease;
+  }
+
+  /* Password toggle button styling */
+  .password-toggle-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 0.375rem;
+    transition: all 0.2s ease;
+  }
+
+  .password-toggle-button:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+
+  .dark .password-toggle-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .password-toggle-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+  }
+
+  /* Validation icon styling */
+  .validation-icon {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 5;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Ensure input icons are visible and properly styled */
+  .input-field-icon svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+  }
+
+  /* Ensure icons are visible in all states */
+  .input-field-icon,
+  .validation-icon,
+  .password-toggle-button {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Prevent any unwanted styling when input type changes */
+  .input-premium[type="password"]:focus,
+  .input-premium[type="text"]:focus {
+    background-color: rgb(255 255 255);
+    color: rgb(17 24 39);
+  }
+
+  .dark .input-premium[type="password"]:focus,
+  .dark .input-premium[type="text"]:focus {
+    background-color: rgb(31 41 55);
+    color: rgb(243 244 246);
+  }
+
+  /* Ensure no green background appears */
+  .input-premium[type="password"],
+  .input-premium[type="text"] {
+    background-color: rgb(255 255 255) !important;
+    color: rgb(17 24 39) !important;
+  }
+
+  .dark .input-premium[type="password"],
+  .dark .input-premium[type="text"] {
+    background-color: rgb(31 41 55) !important;
+    color: rgb(243 244 246) !important;
+  }
+
+  /* Premium modal styles */
+  .modal-overlay {
+    @apply fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4;
+  }
+
+  .modal-content {
+    @apply bg-white dark:bg-gray-900 rounded-2xl shadow-premium-lg max-w-md w-full mx-auto transform transition-all duration-300 scale-95 opacity-0;
+  }
+
+  .modal-content.open {
+    @apply scale-100 opacity-100;
+  }
+
+  /* Premium navigation styles */
+  .nav-item {
+    @apply flex items-center px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 relative;
+  }
+
+  .nav-item.active {
+    @apply text-primary-700 dark:text-primary-300;
+  }
+
+  /* Premium loading states */
+  .skeleton {
+    @apply animate-pulse bg-gray-200 dark:bg-gray-700 rounded;
+  }
+
+  /* Premium animations */
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+
+  .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.4),
+      transparent
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+  }
+
+  /* Premium gradients */
+  .gradient-wellness {
+    @apply bg-gradient-wellness;
+  }
+
+  .gradient-premium {
+    @apply bg-gradient-premium;
+  }
+
+  /* Premium shadows */
+  .shadow-soft {
+    box-shadow: 0 2px 15px -3px rgba(0, 0, 0, 0.07),
+      0 10px 20px -2px rgba(0, 0, 0, 0.04);
+  }
+
+  .shadow-soft-lg {
+    box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.1),
+      0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+
+  /* Premium typography */
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary-600 to-primary-800 bg-clip-text text-transparent;
+  }
+
+  .text-gradient-wellness {
+    @apply bg-gradient-to-r from-wellness-lavender to-wellness-indigo bg-clip-text text-transparent;
+  }
+
+  /* Premium spacing */
+  .section-padding {
+    @apply px-4 sm:px-6 lg:px-8 py-8 lg:py-12;
+  }
+
+  .container-premium {
+    @apply max-w-7xl mx-auto;
+  }
+
+  /* Premium responsive grid */
+  .grid-premium {
+    @apply grid gap-6 lg:gap-8;
+  }
+
+  .grid-premium-2 {
+    @apply grid-premium grid-cols-1 lg:grid-cols-2;
+  }
+
+  .grid-premium-3 {
+    @apply grid-premium grid-cols-1 md:grid-cols-2 lg:grid-cols-3;
+  }
+
+  .grid-premium-4 {
+    @apply grid-premium grid-cols-1 md:grid-cols-2 lg:grid-cols-4;
+  }
+
+  /* Dark mode specific styles */
+  .dark .text-muted-foreground {
+    @apply text-gray-400;
+  }
+
+  .dark .border-border {
+    @apply border-gray-800;
+  }
+
+  .dark .bg-background {
+    @apply bg-gray-950;
+  }
+
+  .dark .text-foreground {
+    @apply text-gray-50;
+  }
+
+  /* Theme toggle styles */
+  .theme-toggle {
+    @apply transition-all duration-300 hover:scale-110;
+  }
+
+  .theme-toggle:hover {
+    @apply shadow-lg;
+  }
+}
+
+@layer utilities {
+  /* Premium utilities */
+  .backdrop-blur-glass {
+    backdrop-filter: blur(12px) saturate(180%);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Dashboard specific styles */
+  .chart-container {
+    position: relative;
+    overflow: hidden;
+    scroll-behavior: smooth;
+  }
+
+  .chart-container canvas {
+    max-width: 100%;
+    height: auto !important;
+  }
+
+  /* Chart hover effects */
+  .chart-container:hover {
+    cursor: grab;
+  }
+
+  .chart-container:active {
+    cursor: grabbing;
+  }
+
+  /* Progress donut animation */
+  .progress-donut {
+    transform-origin: center;
+  }
+
+  .progress-donut circle {
+    transition: stroke-dashoffset 1.5s ease-out;
+  }
+
+  /* Habit card hover effects */
+  .habit-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .habit-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1),
+      0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+
+  /* Mood chart animations */
+  .mood-chart {
+    transition: opacity 0.3s ease-in-out;
+  }
+
+  /* Responsive chart adjustments */
+  @media (max-width: 768px) {
+    .chart-container {
+      height: 200px !important;
+    }
+
+    .progress-donut {
+      transform: scale(0.8);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .chart-container {
+      height: 180px !important;
+    }
+
+    .progress-donut {
+      transform: scale(0.7);
+    }
+  }
+
+  /* Dark mode utilities */
+  .dark-mode-transition {
+    transition: color 0.3s ease, background-color 0.3s ease,
+      border-color 0.3s ease;
+  }
+
+  /* Date input styling for dark mode */
+  input[type="date"] {
+    @apply text-black dark:text-white;
+  }
+
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(0);
+  }
+
+  .dark input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+  }
+
+  input[type="date"]::-webkit-datetime-edit,
+  input[type="date"]::-webkit-datetime-edit-fields-wrapper,
+  input[type="date"]::-webkit-datetime-edit-text,
+  input[type="date"]::-webkit-datetime-edit-month-field,
+  input[type="date"]::-webkit-datetime-edit-day-field,
+  input[type="date"]::-webkit-datetime-edit-year-field {
+    @apply text-black dark:text-white;
+  }
+}
