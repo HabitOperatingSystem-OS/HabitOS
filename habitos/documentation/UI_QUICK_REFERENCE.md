@@ -143,8 +143,6 @@ const itemVariants = {
 /* Available as Tailwind classes */
 .wellness-lavender  /* #A78BFA */
 /* #A78BFA */
-/* #A78BFA */
-/* #A78BFA */
 .wellness-sage      /* #86EFAC */
 .wellness-coral     /* #FB7185 */
 .wellness-amber     /* #FCD34D */
@@ -227,8 +225,6 @@ All components automatically adapt to dark mode using Tailwind's `dark:` prefix:
 ```css
 .section-padding    /* py-20 */
 /* py-20 */
-/* py-20 */
-/* py-20 */
 .container-premium; /* max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 */
 ```
 
@@ -242,8 +238,6 @@ All components automatically adapt to dark mode using Tailwind's `dark:` prefix:
 
 ```css
 .backdrop-blur-glass /* backdrop-filter: blur(16px) */
-/* backdrop-filter: blur(16px) */
-/* backdrop-filter: blur(16px) */
 /* backdrop-filter: blur(16px) */
 .scrollbar-hide; /* Hide scrollbar */
 ```

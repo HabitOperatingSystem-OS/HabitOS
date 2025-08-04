@@ -2,7 +2,7 @@
 
 ## Overview
 
-The HabitOS application now supports comprehensive dark mode functionality across all components and pages. The implementation uses a centralized theme management system with automatic system preference detection and manual toggle capabilities.
+The HabitOS application now supports comprehensive dark mode functionality across all components and pages. This implementation uses a centralized theme management system with automatic system preference detection and manual toggle capabilities.
 
 ## Architecture
 
@@ -114,7 +114,7 @@ import ThemeToggle from "../components/ThemeToggle";
 ### 1. Navigation Component
 
 - Added theme toggle in desktop and mobile menus
-- Updated text colors for dark mode
+- Updated text colors for dark mode compatibility
 - Enhanced glassmorphism effects
 
 ### 2. AuthLayout Component
@@ -126,14 +126,14 @@ import ThemeToggle from "../components/ThemeToggle";
 ### 3. LoadingSpinner Component
 
 - Added dark mode variants for all spinner types
-- Updated border colors for dark mode
+- Updated border colors for dark mode compatibility
 - Enhanced wellness variant with dark mode support
 
 ### 4. All UI Components
 
 - Updated with proper dark mode classes
-- Consistent color schemes
-- Smooth transitions
+- Consistent color schemes across components
+- Smooth transitions between themes
 
 ## Color Palette
 
@@ -141,14 +141,14 @@ import ThemeToggle from "../components/ThemeToggle";
 
 - **Background**: `gray-50` to `purple-50` gradient
 - **Cards**: `white` with subtle borders
-- **Text**: `gray-900` for headings, `gray-600` for body
+- **Text**: `gray-900` for headings, `gray-600` for body text
 - **Borders**: `gray-200` to `gray-300`
 
 ### Dark Mode
 
 - **Background**: `gray-900` to `gray-800` gradient
 - **Cards**: `gray-900` with `gray-800` borders
-- **Text**: `gray-50` for headings, `gray-400` for body
+- **Text**: `gray-50` for headings, `gray-400` for body text
 - **Borders**: `gray-800` to `gray-700`
 
 ### Wellness Colors (Both Modes)
@@ -203,9 +203,9 @@ const MyComponent = () => {
 
 ### 1. Manual Testing
 
-- Toggle theme using navigation theme button
-- Check all pages and components
-- Verify smooth transitions
+- Toggle theme using the navigation theme button
+- Check all pages and components for proper rendering
+- Verify smooth transitions between themes
 - Test system preference detection
 
 ### 2. Automated Testing
@@ -232,22 +232,22 @@ test("theme toggle works", () => {
 
 - **Modern Browsers**: Full support
 - **CSS Custom Properties**: Required
-- **Media Queries**: Required for system preference
-- **JavaScript**: Required for theme toggle
+- **Media Queries**: Required for system preference detection
+- **JavaScript**: Required for theme toggle functionality
 
 ## Performance Considerations
 
-- **CSS Transitions**: Hardware accelerated
-- **Theme Context**: Minimal re-renders
-- **Hydration**: Prevents flash of unstyled content
-- **Bundle Size**: Minimal impact
+- **CSS Transitions**: Hardware accelerated for smooth performance
+- **Theme Context**: Minimal re-renders through optimized state management
+- **Hydration**: Prevents flash of unstyled content (FOUC)
+- **Bundle Size**: Minimal impact on application size
 
 ## Future Enhancements
 
-1. **Theme Persistence**: Local storage for user preference
+1. **Theme Persistence**: Local storage for user preference retention
 2. **Custom Themes**: User-defined color schemes
 3. **Auto-switching**: Time-based theme changes
-4. **Accessibility**: High contrast mode
+4. **Accessibility**: High contrast mode support
 5. **Animation Preferences**: Respect user motion preferences
 
 ## Troubleshooting
@@ -256,18 +256,18 @@ test("theme toggle works", () => {
 
 1. **Flash of Unstyled Content (FOUC)**
 
-   - Ensure ThemeProvider wraps the entire app
-   - Use mounted state to prevent hydration mismatch
+   - Ensure ThemeProvider wraps the entire application
+   - Use mounted state to prevent hydration mismatches
 
 2. **Inconsistent Colors**
 
    - Check for hard-coded color values
-   - Use semantic color classes
+   - Use semantic color classes consistently
    - Verify dark mode class application
 
 3. **Performance Issues**
    - Limit theme context re-renders
-   - Use CSS transitions instead of JavaScript
+   - Use CSS transitions instead of JavaScript animations
    - Optimize color calculations
 
 ### Debug Commands
