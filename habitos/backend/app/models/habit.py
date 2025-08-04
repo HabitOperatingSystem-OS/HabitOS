@@ -1,6 +1,7 @@
 from datetime import datetime, timezone, timedelta
 from enum import Enum
 import uuid
+import json
 from app import db
 
 class HabitCategory(Enum):
@@ -33,6 +34,7 @@ class Habit(db.Model):
     # Frequency and goal settings
     frequency = db.Column(db.Enum(HabitFrequency, values_callable=lambda obj: [e.value for e in obj]), nullable=False, default=HabitFrequency.DAILY)
     frequency_count = db.Column(db.Integer, default=0)
+    occurrence_days = db.Column(db.Text, default='[]')  # JSON array of selected days
     
     # Status and tracking
     current_streak = db.Column(db.Integer, default=0)
@@ -49,6 +51,19 @@ class Habit(db.Model):
     # Relationships
     check_ins = db.relationship('CheckIn', backref='habit', lazy=True, cascade='all, delete-orphan')
     goals = db.relationship('Goal', backref='habit', lazy=True, cascade='all, delete-orphan')
+    
+    @property
+    def occurrence_days_list(self):
+        """Get occurrence_days as a Python list"""
+        try:
+            return json.loads(self.occurrence_days) if self.occurrence_days else []
+        except (json.JSONDecodeError, TypeError):
+            return []
+    
+    @occurrence_days_list.setter
+    def occurrence_days_list(self, value):
+        """Set occurrence_days from a Python list"""
+        self.occurrence_days = json.dumps(value) if value else '[]'
     
     def calculate_completion_rate(self, days=30):
         """Calculate completion rate over the last N days"""
@@ -74,22 +89,38 @@ class Habit(db.Model):
                 if self.frequency == HabitFrequency.DAILY:
                     total_expected += 1
                 elif self.frequency == HabitFrequency.WEEKLY:
-                    # Count weeks in the period
-                    if current_date.weekday() == 0:  # Start of week (Monday)
-                        total_expected += max(self.frequency_count, 1)  # At least 1 expected per week
+                    # Check if today is one of the selected days
+                    if self._is_scheduled_day(current_date):
+                        total_expected += max(self.frequency_count, 1)
                 elif self.frequency == HabitFrequency.MONTHLY:
-                    # Count months in the period
-                    if current_date.day == 1:  # Start of month
-                        total_expected += max(self.frequency_count, 1)  # At least 1 expected per month
+                    # Check if today is one of the selected dates
+                    if self._is_scheduled_day(current_date):
+                        total_expected += max(self.frequency_count, 1)
                 elif self.frequency == HabitFrequency.CUSTOM:
                     # For custom frequency, treat as daily with custom count
-                    total_expected += max(self.frequency_count, 1)  # At least 1 expected per day
+                    total_expected += max(self.frequency_count, 1)
             current_date += timedelta(days=1)
         
         # Count completed check-ins
         completed = len([ci for ci in check_ins if ci.completed])
         
         return (completed / total_expected * 100) if total_expected > 0 else 0
+    
+    def _is_scheduled_day(self, date):
+        """Check if a given date is a scheduled day for this habit"""
+        if self.frequency == HabitFrequency.DAILY:
+            return True
+        elif self.frequency == HabitFrequency.WEEKLY:
+            # Check if the weekday is in occurrence_days
+            weekday_names = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+            current_weekday = weekday_names[date.weekday()]
+            return current_weekday in self.occurrence_days_list
+        elif self.frequency == HabitFrequency.MONTHLY:
+            # Check if the day of month is in occurrence_days
+            return date.day in self.occurrence_days_list
+        elif self.frequency == HabitFrequency.CUSTOM:
+            return True
+        return False
     
     def update_streak(self):
         """Update current streak based on recent check-ins"""
@@ -124,12 +155,7 @@ class Habit(db.Model):
     
     def is_due_today(self):
         """
-        Check if habit is due today based on frequency.
-        
-        For weekly/monthly habits, this checks if the user hasn't completed
-        the required number of check-ins for the current period yet.
-        This allows users to complete their habits on any day within the period,
-        not just on specific days like Monday or the 1st of the month.
+        Check if habit is due today based on frequency and occurrence_days.
         """
         today = datetime.now(timezone.utc).date()
         
@@ -139,6 +165,10 @@ class Habit(db.Model):
         if self.frequency == HabitFrequency.DAILY:
             return True
         elif self.frequency == HabitFrequency.WEEKLY:
+            # Check if today is one of the scheduled days
+            if not self._is_scheduled_day(today):
+                return False
+            
             # Check if we haven't completed this habit this week yet
             from .check_in import CheckIn
             
@@ -158,6 +188,10 @@ class Habit(db.Model):
             return this_week_check_ins < required_count
             
         elif self.frequency == HabitFrequency.MONTHLY:
+            # Check if today is one of the scheduled dates
+            if not self._is_scheduled_day(today):
+                return False
+            
             # Check if we haven't completed this habit this month yet
             from .check_in import CheckIn
             
@@ -173,7 +207,6 @@ class Habit(db.Model):
             ).count()
             
             # Allow if we haven't completed the required number of times this month
-            # Users can complete monthly habits on any day of the month
             required_count = max(self.frequency_count, 1)  # At least 1 per month
             return this_month_check_ins < required_count
             
@@ -231,6 +264,7 @@ class Habit(db.Model):
             'category': self.category.value,
             'frequency': self.frequency.value,
             'frequency_count': self.frequency_count,
+            'occurrence_days': self.occurrence_days_list,
             'current_streak': self.current_streak,
             'longest_streak': self.longest_streak,
             'active': self.active,
