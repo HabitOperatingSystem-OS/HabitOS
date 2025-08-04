@@ -302,15 +302,6 @@ const HabitsPage = () => {
                   ? "Try adjusting your search or filters"
                   : "Get started by creating your first habit"}
               </p>
-              {!searchTerm && selectedCategory === "all" && (
-                <button
-                  onClick={() => setShowCreateModal(true)}
-                  className="btn-primary"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Create Your First Habit
-                </button>
-              )}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

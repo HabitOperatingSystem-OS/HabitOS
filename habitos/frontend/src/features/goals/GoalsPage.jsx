@@ -254,13 +254,6 @@ const GoalsPage = () => {
               <p className="text-gray-600 dark:text-gray-400 mb-6">
                 Create your first goal to start tracking your progress
               </p>
-              <button
-                onClick={openCreateModal}
-                className="btn-primary flex items-center space-x-2 mx-auto"
-              >
-                <Plus className="w-4 h-4" />
-                <span>Create Your First Goal</span>
-              </button>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

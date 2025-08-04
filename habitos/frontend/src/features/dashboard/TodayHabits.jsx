@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import {
   CheckCircle,
   Circle,
@@ -227,6 +228,7 @@ const HabitCard = ({ habit, onToggle, index }) => {
 };
 
 const TodayHabits = ({ habits, onToggleHabit }) => {
+  const navigate = useNavigate();
   const completedCount = habits.filter((habit) => habit.completed).length;
   const totalCount = habits.length;
   const completionPercentage =
@@ -313,7 +315,11 @@ const TodayHabits = ({ habits, onToggleHabit }) => {
             <p className="text-muted-foreground mb-4">
               Add some habits to start your wellness journey!
             </p>
-            <Button variant="wellness" className="animate-float">
+            <Button
+              variant="wellness"
+              className="animate-float"
+              onClick={() => navigate("/habits")}
+            >
               <Target className="w-4 h-4 mr-2" />
               Create Your First Habit
             </Button>
