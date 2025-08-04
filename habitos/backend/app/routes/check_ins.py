@@ -4,7 +4,7 @@ from app import db
 from app.models.check_in import CheckIn
 from app.models.habit import Habit
 from app.models.goal import Goal, GoalStatus
-from app.models.journal_entry import JournalEntry, SentimentType
+from app.models.journal_entry import JournalEntry
 from datetime import datetime, date
 import openai
 

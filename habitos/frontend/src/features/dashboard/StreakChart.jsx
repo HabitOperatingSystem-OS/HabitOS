@@ -34,10 +34,18 @@ ChartJS.register(
 );
 
 const StreakChart = ({ data }) => {
-  // Chart configuration options for styling and behavior
+  // Enhanced chart configuration with better responsive design
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
+    interaction: {
+      mode: "index",
+      intersect: false,
+    },
+    hover: {
+      mode: "index",
+      intersect: false,
+    },
 
     plugins: {
       legend: {
@@ -63,7 +71,13 @@ const StreakChart = ({ data }) => {
         },
         callbacks: {
           title: (context) => `Day ${context[0].label}`,
-          label: (context) => `${context.parsed.y} habits completed`,
+          label: (context) => {
+            const value = context.parsed.y;
+            const day = context[0].label;
+            return `${value} habit${
+              value !== 1 ? "s" : ""
+            } completed on ${day}`;
+          },
         },
       },
     },
@@ -76,14 +90,16 @@ const StreakChart = ({ data }) => {
         ticks: {
           color: "#6B7280",
           font: {
-            size: 12,
+            size: 11,
             weight: "500",
           },
+          maxRotation: 45,
+          minRotation: 0,
         },
       },
       y: {
         beginAtZero: true,
-        max: 10,
+        max: Math.max(...data.datasets[0].data) + 2,
         grid: {
           color: "rgba(139, 92, 246, 0.1)",
           lineWidth: 1,
@@ -91,23 +107,24 @@ const StreakChart = ({ data }) => {
         ticks: {
           color: "#6B7280",
           font: {
-            size: 12,
+            size: 11,
             weight: "500",
           },
-          stepSize: 2,
+          stepSize: 1,
         },
       },
     },
 
     elements: {
       point: {
-        radius: 6,
-        hoverRadius: 8,
+        radius: 8,
+        hoverRadius: 12,
         backgroundColor: "rgb(139, 92, 246)",
         borderColor: "white",
         borderWidth: 3,
         hoverBorderColor: "rgb(139, 92, 246)",
-        hoverBorderWidth: 2,
+        hoverBorderWidth: 3,
+        hoverBackgroundColor: "rgb(139, 92, 246)",
       },
       line: {
         borderWidth: 4,
@@ -115,6 +132,8 @@ const StreakChart = ({ data }) => {
         backgroundColor: "rgba(139, 92, 246, 0.1)",
         fill: true,
         tension: 0.4,
+        hoverBorderWidth: 6,
+        hoverBorderColor: "rgb(139, 92, 246)",
       },
     },
   };
@@ -138,29 +157,33 @@ const StreakChart = ({ data }) => {
               Your habit completion journey over the past week
             </CardDescription>
           </div>
-          <motion.div
-            className="w-12 h-12 bg-gradient-to-br from-wellness-lavender to-wellness-indigo rounded-xl flex items-center justify-center shadow-lg"
-            whileHover={{ scale: 1.1, rotate: 5 }}
-            transition={{ type: "spring", stiffness: 400, damping: 10 }}
-          >
-            <TrendingUp className="w-6 h-6 text-white" />
-          </motion.div>
+          <div className="flex items-center space-x-3">
+            <motion.div
+              className="w-12 h-12 bg-gradient-to-br from-wellness-lavender to-wellness-indigo rounded-xl flex items-center justify-center shadow-lg"
+              whileHover={{ scale: 1.1, rotate: 5 }}
+              transition={{ type: "spring", stiffness: 400, damping: 10 }}
+            >
+              <TrendingUp className="w-6 h-6 text-white" />
+            </motion.div>
+          </div>
         </div>
       </CardHeader>
 
       <CardContent>
-        {/* Chart container with fixed height */}
-        <motion.div
-          className="h-80 relative"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <Line data={data} options={chartOptions} />
+        {/* Chart container */}
+        <div className="relative">
+          <motion.div
+            className="h-80 relative"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <Line data={data} options={chartOptions} />
 
-          {/* Gradient overlay for visual enhancement */}
-          <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-transparent via-transparent to-white/5 dark:to-gray-900/5 rounded-xl" />
-        </motion.div>
+            {/* Gradient overlay for visual enhancement */}
+            <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-transparent via-transparent to-white/5 dark:to-gray-900/5 rounded-xl" />
+          </motion.div>
+        </div>
 
         {/* Enhanced statistics */}
         <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -209,39 +232,6 @@ const StreakChart = ({ data }) => {
             <p className="text-xs text-muted-foreground">habits completed</p>
           </motion.div>
         </div>
-
-        {/* Progress indicator */}
-        <motion.div
-          className="mt-6 p-4 bg-gradient-to-br from-wellness-lavender/10 to-wellness-indigo/10 rounded-xl border border-wellness-lavender/20"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
-        >
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-wellness-lavender to-wellness-indigo rounded-xl flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h4 className="text-sm font-semibold text-gray-900 dark:text-white">
-                Streak Insight
-              </h4>
-              <p className="text-sm text-muted-foreground">
-                You're maintaining a strong{" "}
-                {averageHabits > 5
-                  ? "excellent"
-                  : averageHabits > 3
-                  ? "good"
-                  : "steady"}{" "}
-                habit completion rate.
-                {averageHabits > 5
-                  ? " Keep up the amazing work! 🚀"
-                  : averageHabits > 3
-                  ? " You're building great momentum! 💪"
-                  : " Every step counts! 🌱"}
-              </p>
-            </div>
-          </div>
-        </motion.div>
       </CardContent>
     </Card>
   );

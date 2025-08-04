@@ -198,15 +198,6 @@ const Navigation = () => {
             <div className="hidden lg:flex items-center space-x-4">
               <ThemeToggle variant="ghost" size="icon" />
 
-              <Button variant="ghost" size="icon" className="relative">
-                <Bell className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-wellness-rose rounded-full animate-pulse"></span>
-              </Button>
-
-              <Button variant="ghost" size="icon">
-                <Settings className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-              </Button>
-
               <div className="flex items-center space-x-3">
                 <Link
                   to="/profile"
@@ -408,7 +399,7 @@ const Navigation = () => {
                   </Link>
 
                   {/* Action Buttons */}
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 gap-3">
                     <Button
                       variant="ghost"
                       size="sm"
@@ -416,14 +407,6 @@ const Navigation = () => {
                     >
                       <Settings className="w-4 h-4 mr-3 text-gray-600 dark:text-gray-400" />
                       Settings
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="justify-start h-12 text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
-                    >
-                      <Bell className="w-4 h-4 mr-3 text-gray-600 dark:text-gray-400" />
-                      Notifications
                     </Button>
                   </div>
 

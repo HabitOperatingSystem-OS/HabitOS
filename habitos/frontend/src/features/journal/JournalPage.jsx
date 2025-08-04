@@ -29,7 +29,6 @@ const JournalPage = () => {
     loading,
     error,
     filters,
-    sentiments,
     updateFilters,
     clearFilters,
     deleteEntry,
@@ -143,13 +142,6 @@ const JournalPage = () => {
     return "text-gray-400";
   };
 
-  const getSentimentVariant = (sentiment) => {
-    if (sentiment === "positive") return "success";
-    if (sentiment === "negative") return "danger";
-    if (sentiment === "neutral") return "info";
-    return "info"; // Default
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 pt-20">
@@ -261,7 +253,6 @@ const JournalPage = () => {
           filters={filters}
           onUpdateFilters={updateFilters}
           onClearFilters={clearFilters}
-          sentiments={sentiments}
         />
 
         {/* Search and Sort Controls */}
@@ -340,7 +331,6 @@ const JournalPage = () => {
                 onDelete={() => handleDelete(entry.id)}
                 getMoodEmoji={getMoodEmoji}
                 getMoodColor={getMoodColor}
-                getSentimentVariant={getSentimentVariant}
               />
             ))}
           </div>

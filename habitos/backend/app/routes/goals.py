@@ -430,3 +430,5 @@ def check_habit_goal(habit_id):
         
     except Exception as e:
         return jsonify({'error': 'Failed to check habit goal', 'details': str(e)}), 500
+
+

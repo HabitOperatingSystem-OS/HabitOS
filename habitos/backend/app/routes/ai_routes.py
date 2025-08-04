@@ -17,6 +17,9 @@ def generate_monthly_summary():
         current_user_id = get_jwt_identity()
         data = request.get_json()
         month = data.get('month')  # Format: 'YYYY-MM'
+        force_refresh = data.get('force_refresh', False)
+        
+        print(f"DEBUG: Monthly summary request - User: {current_user_id}, Month: {month}, Force refresh: {force_refresh}")
         
         # Calculate date range for the month
         if month:
@@ -35,12 +38,16 @@ def generate_monthly_summary():
             else:
                 end_date = datetime(now.year, now.month + 1, 1).date()
         
+        print(f"DEBUG: Date range - Start: {start_date}, End: {end_date}")
+        
         # Get entries for the month
         entries = JournalEntry.query.filter(
             JournalEntry.user_id == current_user_id,
             JournalEntry.entry_date >= start_date,
             JournalEntry.entry_date < end_date
         ).order_by(JournalEntry.entry_date.desc()).all()
+        
+        print(f"DEBUG: Found {len(entries)} entries for user {current_user_id}")
         
         # Convert to dict format for AI service
         entries_data = []
@@ -56,9 +63,18 @@ def generate_monthly_summary():
                 'mood_rating': mood_rating
             })
         
+        print(f"DEBUG: Prepared {len(entries_data)} entries for AI service")
+        
         # Generate monthly summary
         ai_service = get_ai_service()
+        
+        # Clear cache if force refresh is requested
+        if force_refresh:
+            ai_service.clear_monthly_summary_cache()
+        
         summary_result = ai_service.generate_monthly_summary(entries_data)
+        
+        print(f"DEBUG: Summary result - Is fallback: {summary_result.get('is_fallback', False)}")
         
         return jsonify({
             "success": True,
@@ -68,6 +84,7 @@ def generate_monthly_summary():
         })
         
     except Exception as e:
+        print(f"DEBUG: Error in monthly summary: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
 @ai_routes_bp.route('/journal/prompts', methods=['GET'])
@@ -77,8 +94,14 @@ def get_journal_prompts():
     try:
         count = request.args.get('count', 5, type=int)
         count = min(count, 10)  # Limit to 10 prompts max
+        force_refresh = request.args.get('force_refresh', 'false').lower() == 'true'
         
         ai_service = get_ai_service()
+        
+        # Clear cache if force refresh is requested
+        if force_refresh:
+            ai_service.clear_prompt_cache()
+        
         prompts = ai_service.generate_prompts(count)
         
         return jsonify({

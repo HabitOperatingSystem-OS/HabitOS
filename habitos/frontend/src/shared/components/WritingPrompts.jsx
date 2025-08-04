@@ -5,8 +5,14 @@ import { motion } from "framer-motion";
 import { useAIWritingPrompts } from "../hooks/useAIWritingPrompts";
 
 const WritingPrompts = ({ onPromptSelected, className = "" }) => {
-  const { loading, error, prompts, generatePrompts, refreshPrompts } =
-    useAIWritingPrompts();
+  const {
+    loading,
+    error,
+    prompts,
+    generatePrompts,
+    refreshPrompts,
+    getTimeSinceLastRefresh,
+  } = useAIWritingPrompts();
 
   useEffect(() => {
     // Generate prompts when component mounts
@@ -21,6 +27,18 @@ const WritingPrompts = ({ onPromptSelected, className = "" }) => {
     if (onPromptSelected) {
       onPromptSelected(prompt);
     }
+  };
+
+  const formatTimeSinceRefresh = () => {
+    const timeSince = getTimeSinceLastRefresh();
+    if (!timeSince) return null;
+
+    const seconds = Math.floor(timeSince / 1000);
+    if (seconds < 60) return `${seconds}s ago`;
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    return `${hours}h ago`;
   };
 
   if (error) {
@@ -46,11 +64,16 @@ const WritingPrompts = ({ onPromptSelected, className = "" }) => {
           <h3 className="text-sm font-medium text-blue-800 dark:text-blue-200">
             Writing Inspiration
           </h3>
+          {formatTimeSinceRefresh() && (
+            <span className="text-xs text-blue-600 dark:text-blue-400">
+              • {formatTimeSinceRefresh()}
+            </span>
+          )}
         </div>
         <button
           onClick={handleRefresh}
           disabled={loading}
-          className="p-1 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors rounded"
+          className="p-1 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors rounded hover:bg-blue-100 dark:hover:bg-blue-800/30"
           title="Refresh prompts"
         >
           <RefreshCw className={`h-3 w-3 ${loading ? "animate-spin" : ""}`} />
@@ -62,12 +85,12 @@ const WritingPrompts = ({ onPromptSelected, className = "" }) => {
         {loading ? (
           <div className="flex items-center space-x-2 text-blue-700 dark:text-blue-300">
             <RefreshCw className="h-3 w-3 animate-spin" />
-            <span className="text-sm italic">Generating prompts...</span>
+            <span className="text-sm italic">Generating fresh prompts...</span>
           </div>
         ) : prompts.length > 0 ? (
           prompts.map((prompt, index) => (
             <motion.button
-              key={index}
+              key={`${prompt.text || prompt}-${index}`}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}

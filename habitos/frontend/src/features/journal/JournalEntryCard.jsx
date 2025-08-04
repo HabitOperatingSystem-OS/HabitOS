@@ -36,23 +36,6 @@ const JournalEntryCard = ({ entry, onEdit, onDelete }) => {
     return "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800";
   };
 
-  const getSentimentVariant = (sentiment) => {
-    switch (sentiment) {
-      case "very_positive":
-        return "sentiment.very_positive";
-      case "positive":
-        return "sentiment.positive";
-      case "neutral":
-        return "sentiment.neutral";
-      case "negative":
-        return "sentiment.negative";
-      case "very_negative":
-        return "sentiment.very_negative";
-      default:
-        return "default";
-    }
-  };
-
   const formatDate = (dateString) => {
     if (!dateString) return "";
     const [year, month, day] = dateString.split("-");
@@ -171,14 +154,6 @@ const JournalEntryCard = ({ entry, onEdit, onDelete }) => {
 
           {/* Right: Actions and Tags */}
           <div className="flex items-center space-x-2">
-            {entry.sentiment && (
-              <Tag variant={getSentimentVariant(entry.sentiment)} size="sm">
-                {entry.sentiment
-                  .replace("_", " ")
-                  .replace(/\b\w/g, (l) => l.toUpperCase())}
-              </Tag>
-            )}
-
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -254,7 +229,7 @@ JournalEntryCard.propTypes = {
     title: PropTypes.string,
     content: PropTypes.string.isRequired,
     mood_rating: PropTypes.number,
-    sentiment: PropTypes.string,
+
     tags: PropTypes.arrayOf(PropTypes.string),
     ai_summary: PropTypes.string,
     entry_date: PropTypes.string.isRequired,

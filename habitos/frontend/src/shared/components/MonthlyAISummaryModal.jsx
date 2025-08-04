@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import {
   X,
@@ -17,8 +17,24 @@ const MonthlyAISummaryModal = ({ isOpen, onClose, month }) => {
     useAIMonthlySummary();
   const [currentMonth, setCurrentMonth] = useState(month);
 
-  const handleGenerate = async () => {
-    await generateMonthlySummary(currentMonth);
+  // Update current month when prop changes
+  useEffect(() => {
+    setCurrentMonth(month);
+  }, [month]);
+
+  // Generate summary when modal opens
+  useEffect(() => {
+    if (isOpen && !summary && !loading) {
+      handleGenerate();
+    }
+  }, [isOpen, currentMonth]);
+
+  const handleGenerate = async (forceRefresh = false) => {
+    try {
+      await generateMonthlySummary(currentMonth, { forceRefresh });
+    } catch (error) {
+      console.error("Failed to generate monthly summary:", error);
+    }
   };
 
   const handleClose = () => {
@@ -73,10 +89,10 @@ const MonthlyAISummaryModal = ({ isOpen, onClose, month }) => {
             </div>
             <div className="flex items-center space-x-2">
               <button
-                onClick={handleGenerate}
+                onClick={() => handleGenerate(true)}
                 disabled={loading}
-                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
-                title="Generate summary"
+                className="p-2 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800/30"
+                title="Force refresh summary (bypass cache)"
               >
                 <RefreshCw
                   className={`h-5 w-5 ${loading ? "animate-spin" : ""}`}
@@ -132,17 +148,21 @@ const MonthlyAISummaryModal = ({ isOpen, onClose, month }) => {
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 flex items-center">
                     <TrendingUp className="h-5 w-5 text-primary-600 mr-2" />
                     Monthly Overview
+                    {summary.is_fallback && (
+                      <span className="ml-2 px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">
+                        Fallback Mode
+                      </span>
+                    )}
                   </h3>
                   <div className="p-4 bg-gradient-to-r from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20 border border-primary-200 dark:border-primary-800 rounded-xl">
                     <p className="text-gray-800 dark:text-gray-200 leading-relaxed">
-                      {typeof summary.summary === "string"
-                        ? summary.summary
-                        : "No summary available"}
+                      {summary.summary || "No summary available"}
                     </p>
                     {summary.generated_at && (
                       <p className="text-xs text-primary-600 dark:text-primary-400 mt-3">
                         Generated{" "}
                         {new Date(summary.generated_at).toLocaleString()}
+                        {summary.is_fallback && " (Fallback mode)"}
                       </p>
                     )}
                   </div>

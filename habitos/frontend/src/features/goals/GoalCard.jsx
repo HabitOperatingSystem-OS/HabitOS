@@ -301,7 +301,7 @@ const GoalCard = ({ goal, habit, onEdit, onDelete }) => {
       whileHover="hover"
       whileTap="tap"
       transition={{ duration: 0.3, ease: "easeOut" }}
-      className="group relative bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out overflow-hidden min-h-[280px] max-h-[320px] flex flex-col"
+      className="group relative bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-2xl transition-all duration-300 ease-in-out overflow-hidden min-h-[300px] max-h-[400px] flex flex-col"
     >
       {/* Category-based gradient background overlay */}
       <div
@@ -312,7 +312,7 @@ const GoalCard = ({ goal, habit, onEdit, onDelete }) => {
         {/* Header Section */}
         <div className="flex items-start justify-between mb-4">
           {/* Left: Category Icon and Title */}
-          <div className="flex items-center space-x-3 flex-1 min-w-0">
+          <div className="flex items-start space-x-3 flex-1 min-w-0">
             <motion.div
               whileHover={{ rotate: 5, scale: 1.1 }}
               transition={{ duration: 0.2 }}
@@ -322,7 +322,7 @@ const GoalCard = ({ goal, habit, onEdit, onDelete }) => {
             </motion.div>
 
             <div className="flex-1 min-w-0">
-              <div className="flex items-center space-x-2 mb-1">
+              <div className="flex items-center space-x-2 mb-2">
                 <span className="text-lg">{categoryConfig.emoji}</span>
                 <span
                   className={`text-xs font-medium ${categoryConfig.textClass} ${categoryConfig.badgeClass} px-2 py-1 rounded-full`}
@@ -330,21 +330,21 @@ const GoalCard = ({ goal, habit, onEdit, onDelete }) => {
                   {categoryConfig.name}
                 </span>
               </div>
-              <h3 className="font-bold text-gray-900 dark:text-white text-lg mb-1 truncate">
+              <h3 className="font-bold text-gray-900 dark:text-white text-lg mb-2 leading-tight break-words">
                 {goal.title}
               </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
+              <p className="text-sm text-gray-600 dark:text-gray-400 break-words">
                 {habit?.title || "Unknown Habit"}
               </p>
             </div>
           </div>
 
           {/* Right: Status Badge and Menu */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-start space-x-1 flex-shrink-0 ml-2">
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
-              className={`flex items-center space-x-1 px-3 py-1 rounded-full text-xs font-semibold border ${statusConfig.bgClass} ${statusConfig.textClass} ${statusConfig.borderClass}`}
+              className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-semibold border ${statusConfig.bgClass} ${statusConfig.textClass} ${statusConfig.borderClass}`}
             >
               {statusConfig.icon}
               <span>{statusConfig.text}</span>
@@ -356,7 +356,7 @@ const GoalCard = ({ goal, habit, onEdit, onDelete }) => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setShowMenu(!showMenu)}
-                className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all duration-300 ease-in-out"
+                className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all duration-300 ease-in-out"
               >
                 <MoreVertical className="w-4 h-4" />
               </motion.button>
@@ -398,7 +398,7 @@ const GoalCard = ({ goal, habit, onEdit, onDelete }) => {
         </div>
 
         {/* Progress Section */}
-        <div className="mb-4 flex-1">
+        <div className="mb-3 flex-1">
           <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400 mb-2">
             <span className="flex items-center space-x-1">
               <Target className="w-4 h-4" />
@@ -430,7 +430,7 @@ const GoalCard = ({ goal, habit, onEdit, onDelete }) => {
 
         {/* Due Date */}
         {hasValidDueDate && (
-          <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-4">
+          <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-3">
             <Calendar className="w-4 h-4 mr-2" />
             <span>Due: {formatDate(goal.due_date)}</span>
           </div>
