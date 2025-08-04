@@ -19,7 +19,7 @@ RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 # Copy Pipfile and Pipfile.lock
-COPY Pipfile Pipfile.lock ./
+COPY backend/Pipfile backend/Pipfile.lock ./
 
 # Install Python dependencies
 RUN pip install pipenv && \
@@ -48,7 +48,7 @@ RUN groupadd -r habitos && useradd -r -g habitos habitos
 WORKDIR /app
 
 # Copy application code
-COPY --chown=habitos:habitos . .
+COPY --chown=habitos:habitos backend/ .
 
 # Create logs directory
 RUN mkdir -p logs && chown -R habitos:habitos logs
