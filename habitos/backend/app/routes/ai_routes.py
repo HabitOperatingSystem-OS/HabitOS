@@ -65,16 +65,17 @@ def generate_monthly_summary():
         
         print(f"DEBUG: Prepared {len(entries_data)} entries for AI service")
         
-        # Generate monthly summary
-        ai_service = get_ai_service()
+        # Generate monthly summary - always create a fresh AI service instance
+        from app.utils.ai_service import AIService
+        ai_service = AIService()
         
-        # Clear cache if force refresh is requested
-        if force_refresh:
-            ai_service.clear_monthly_summary_cache()
+        # Always clear cache to ensure fresh results
+        ai_service.clear_monthly_summary_cache()
         
         summary_result = ai_service.generate_monthly_summary(entries_data)
         
-        print(f"DEBUG: Summary result - Is fallback: {summary_result.get('is_fallback', False)}")
+        print(f"DEBUG: Summary result keys: {list(summary_result.keys())}")
+        print(f"DEBUG: Is fallback in result: {summary_result.get('is_fallback', 'NOT SET')}")
         
         return jsonify({
             "success": True,
