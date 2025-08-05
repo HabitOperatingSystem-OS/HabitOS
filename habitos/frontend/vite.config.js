@@ -22,6 +22,6 @@ export default defineConfig({
     sourcemap: true,
   },
   resolve: {
-    extensions: ['.js', '.jsx', '.ts', '.tsx'],
+    extensions: [".js", ".jsx", ".ts", ".tsx"],
   },
 });
