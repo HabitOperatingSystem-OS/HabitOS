@@ -51,7 +51,7 @@ services:
     env: static
     plan: starter
     region: oregon
-    buildCommand: cd frontend && npm install && npm run build
+    buildCommand: cd frontend && npm install && ./build.sh
     staticPublishPath: frontend/dist
     envVars:
       - key: VITE_API_URL
