@@ -55,7 +55,7 @@ services:
     staticPublishPath: frontend/dist
     envVars:
       - key: VITE_API_URL
-        value: https://habitos-backend.onrender.com
+        value: https://habitos-2mvo.onrender.com
       - key: VITE_APP_NAME
         value: HabitOS
       - key: VITE_APP_VERSION
