@@ -7,12 +7,16 @@ import json
 
 ai_routes_bp = Blueprint('ai_routes', __name__)
 
-
+@ai_routes_bp.route('/test', methods=['GET'])
+def test_ai_routes():
+    """Test route to verify AI routes are working"""
+    return jsonify({"message": "AI routes are working!", "status": "ok"})
 
 @ai_routes_bp.route('/journal/monthly-summary', methods=['POST'])
 @jwt_required()
 def generate_monthly_summary():
     """Generate monthly summary from journal entries"""
+    print("DEBUG: Monthly summary route hit!")
     try:
         current_user_id = get_jwt_identity()
         data = request.get_json()
@@ -65,41 +69,22 @@ def generate_monthly_summary():
         
         print(f"DEBUG: Prepared {len(entries_data)} entries for AI service")
         
-        # Generate monthly summary - always create a fresh AI service instance
-        try:
-            from app.utils.ai_service import AIService
-            ai_service = AIService()
-            
-            # Always clear cache to ensure fresh results
-            ai_service.clear_monthly_summary_cache()
-            
-            summary_result = ai_service.generate_monthly_summary(entries_data)
-            
-            print(f"DEBUG: Summary result keys: {list(summary_result.keys())}")
-            print(f"DEBUG: Is fallback in result: {summary_result.get('is_fallback', 'NOT SET')}")
-            
-            return jsonify({
-                "success": True,
-                "summary": summary_result,
-                "month": month or f"{now.year}-{now.month:02d}",
-                "entry_count": len(entries)
-            })
-        except Exception as ai_error:
-            print(f"DEBUG: AI service error: {str(ai_error)}")
-            # Return fallback response instead of crashing
-            return jsonify({
-                "success": True,
-                "summary": {
-                    "summary": "Unable to generate AI summary at this time. Please try again later.",
-                    "is_fallback": True,
-                    "generated_at": datetime.utcnow().isoformat()
-                },
-                "month": month or f"{now.year}-{now.month:02d}",
-                "entry_count": len(entries)
-            })
+        # For now, return a simple response without AI service to test the route
+        return jsonify({
+            "success": True,
+            "summary": {
+                "summary": f"Found {len(entries)} journal entries for {month or 'current month'}. AI summary generation is being tested.",
+                "is_fallback": True,
+                "generated_at": datetime.utcnow().isoformat()
+            },
+            "month": month or f"{now.year}-{now.month:02d}",
+            "entry_count": len(entries)
+        })
         
     except Exception as e:
         print(f"DEBUG: Error in monthly summary: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
 @ai_routes_bp.route('/journal/prompts', methods=['GET'])
