@@ -35,7 +35,7 @@ services:
       - key: GOOGLE_CLIENT_SECRET
         sync: false
       - key: CORS_ORIGINS
-        sync: false
+        value: https://habitos-frontend.onrender.com,http://localhost:3000
       - key: ENABLE_AI_INSIGHTS
         value: true
       - key: ENABLE_JOURNAL_PROMPTS
