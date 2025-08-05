@@ -142,6 +142,16 @@ def create_app(config_name=None):
             'request_headers': dict(request.headers)
         })
     
+    @app.route('/debug/env')
+    def debug_env():
+        return jsonify({
+            'database_url': app.config.get('SQLALCHEMY_DATABASE_URI', 'NOT_SET'),
+            'flask_env': app.config.get('FLASK_ENV', 'NOT_SET'),
+            'cors_origins': app.config.get('CORS_ORIGINS', []),
+            'has_database_url': bool(os.getenv('DATABASE_URL')),
+            'database_url_env': os.getenv('DATABASE_URL', 'NOT_SET')[:50] + '...' if os.getenv('DATABASE_URL') else 'NOT_SET'
+        })
+    
     # Error handlers
     @app.errorhandler(404)
     def not_found(error):
