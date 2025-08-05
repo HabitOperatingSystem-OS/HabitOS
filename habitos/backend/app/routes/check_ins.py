@@ -132,7 +132,7 @@ def create_check_in():
                 content=reflection,
                 entry_date=check_in_date
             )
-            journal_entry.analyze_sentiment()
+            # Sentiment analysis removed - analyze_sentiment() method no longer exists
             db.session.add(journal_entry)
 
         db.session.commit()
@@ -489,40 +489,7 @@ def create_bulk_check_in():
                 entry_date=check_in_date
             )
             
-            # Analyze sentiment if OpenAI is configured
-            if hasattr(db, 'app') and db.app.config.get('OPENAI_API_KEY'):
-                try:
-                    client = openai.OpenAI(api_key=db.app.config['OPENAI_API_KEY'])
-                    response = client.chat.completions.create(
-                        model=db.app.config.get('OPENAI_MODEL', 'gpt-3.5-turbo'),
-                        messages=[
-                            {
-                                "role": "system",
-                                "content": "Analyze the sentiment of the following journal entry. Respond with only one word: 'positive', 'negative', or 'neutral'."
-                            },
-                            {
-                                "role": "user",
-                                "content": data['journal_content']
-                            }
-                        ],
-                        max_tokens=10
-                    )
-                    sentiment = response.choices[0].message.content.strip().lower()
-                    
-                    # Map sentiment to enum values
-                    sentiment_map = {
-                        'positive': SentimentType.POSITIVE,
-                        'negative': SentimentType.NEGATIVE,
-                        'neutral': SentimentType.NEUTRAL
-                    }
-                    
-                    if sentiment in sentiment_map:
-                        journal_entry.sentiment = sentiment_map[sentiment]
-                        journal_entry.sentiment_score = 0.7 if sentiment == 'positive' else (-0.5 if sentiment == 'negative' else 0.0)
-                    
-                except Exception as e:
-                    # Log error but don't fail the request
-                    print(f"OpenAI sentiment analysis failed: {e}")
+            # Sentiment analysis removed - OpenAI integration disabled
             
             db.session.add(journal_entry)
             print("Created journal entry")
@@ -564,8 +531,7 @@ def create_bulk_check_in():
             'message': 'Bulk check-in created successfully',
             'created_count': len(created_check_ins),
             'updated_count': len(updated_check_ins),
-            'journal_created': journal_entry is not None,
-            'sentiment': journal_entry.sentiment.value if journal_entry and journal_entry.sentiment else None
+            'journal_created': journal_entry is not None
         }
         
         print(f"Returning response: {response_data}")

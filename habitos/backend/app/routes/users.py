@@ -287,8 +287,8 @@ def get_goals_summary():
 @jwt_required()
 def get_journal_summary():
     """
-    Get summary of user's journal entries with sentiment analysis
-    Returns journal summary with sentiment distribution
+    Get summary of user's journal entries
+    Returns journal summary
     """
     # Extract user ID from JWT token
     current_user_id = get_jwt_identity()
@@ -304,21 +304,9 @@ def get_journal_summary():
             JournalEntry.entry_date >= start_date
         ).all()
         
-        # Calculate sentiment distribution
-        sentiment_counts = {}
-        for entry in entries:
-            if entry.sentiment:
-                sentiment = entry.sentiment.value
-                sentiment_counts[sentiment] = sentiment_counts.get(sentiment, 0) + 1
-        
-        # Calculate average sentiment score
-        sentiment_scores = [entry.sentiment_score for entry in entries if entry.sentiment_score is not None]
-        avg_sentiment_score = sum(sentiment_scores) / len(sentiment_scores) if sentiment_scores else None
-        
+        # Sentiment analysis removed - simplified journal summary
         journal_summary = {
             'total_entries': len(entries),
-            'sentiment_distribution': sentiment_counts,
-            'average_sentiment_score': round(avg_sentiment_score, 2) if avg_sentiment_score else None,
             'period_days': days
         }
         
