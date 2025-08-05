@@ -4,11 +4,12 @@ HabitOS Flask Application Factory
 
 import os
 import logging
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
+from datetime import datetime
 
 # Initialize extensions
 db = SQLAlchemy()
@@ -69,11 +70,30 @@ def create_app(config_name=None):
         }), 401
     
     # Setup CORS with proper preflight handling
+    cors_origins = app.config.get('CORS_ORIGINS', ['http://localhost:3000'])
+    app.logger.info(f"CORS Origins configured: {cors_origins}")
+    
     CORS(app, 
-         origins=app.config.get('CORS_ORIGINS', ['http://localhost:3000']),
+         origins=cors_origins,
          supports_credentials=True,
          methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-         allow_headers=['Content-Type', 'Authorization', 'X-Requested-With'])
+         allow_headers=['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+         expose_headers=['Content-Type', 'Authorization'],
+         max_age=86400)  # Cache preflight for 24 hours
+    
+    # Manual CORS preflight handler for additional security
+    @app.before_request
+    def handle_preflight():
+        if request.method == "OPTIONS":
+            origin = request.headers.get('Origin')
+            if origin in cors_origins:
+                response = make_response()
+                response.headers.add("Access-Control-Allow-Origin", origin)
+                response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization,X-Requested-With,Accept,Origin")
+                response.headers.add("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS,PATCH")
+                response.headers.add("Access-Control-Allow-Credentials", "true")
+                response.headers.add("Access-Control-Max-Age", "86400")
+                return response
     
     # Register blueprints
     from app.routes.auth import auth_bp
@@ -107,12 +127,20 @@ def create_app(config_name=None):
     # Health check endpoint
     @app.route('/health')
     def health_check():
-        """Health check endpoint for monitoring"""
-        return {
+        return jsonify({
             'status': 'healthy',
-            'service': 'HabitOS API',
-            'version': '1.0.0'
-        }
+            'timestamp': datetime.now().isoformat(),
+            'environment': app.config.get('FLASK_ENV', 'unknown')
+        })
+    
+    @app.route('/debug/cors')
+    def debug_cors():
+        return jsonify({
+            'cors_origins': app.config.get('CORS_ORIGINS', []),
+            'request_origin': request.headers.get('Origin'),
+            'request_method': request.method,
+            'request_headers': dict(request.headers)
+        })
     
     # Error handlers
     @app.errorhandler(404)
