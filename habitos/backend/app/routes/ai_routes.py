@@ -66,23 +66,37 @@ def generate_monthly_summary():
         print(f"DEBUG: Prepared {len(entries_data)} entries for AI service")
         
         # Generate monthly summary - always create a fresh AI service instance
-        from app.utils.ai_service import AIService
-        ai_service = AIService()
-        
-        # Always clear cache to ensure fresh results
-        ai_service.clear_monthly_summary_cache()
-        
-        summary_result = ai_service.generate_monthly_summary(entries_data)
-        
-        print(f"DEBUG: Summary result keys: {list(summary_result.keys())}")
-        print(f"DEBUG: Is fallback in result: {summary_result.get('is_fallback', 'NOT SET')}")
-        
-        return jsonify({
-            "success": True,
-            "summary": summary_result,
-            "month": month or f"{now.year}-{now.month:02d}",
-            "entry_count": len(entries)
-        })
+        try:
+            from app.utils.ai_service import AIService
+            ai_service = AIService()
+            
+            # Always clear cache to ensure fresh results
+            ai_service.clear_monthly_summary_cache()
+            
+            summary_result = ai_service.generate_monthly_summary(entries_data)
+            
+            print(f"DEBUG: Summary result keys: {list(summary_result.keys())}")
+            print(f"DEBUG: Is fallback in result: {summary_result.get('is_fallback', 'NOT SET')}")
+            
+            return jsonify({
+                "success": True,
+                "summary": summary_result,
+                "month": month or f"{now.year}-{now.month:02d}",
+                "entry_count": len(entries)
+            })
+        except Exception as ai_error:
+            print(f"DEBUG: AI service error: {str(ai_error)}")
+            # Return fallback response instead of crashing
+            return jsonify({
+                "success": True,
+                "summary": {
+                    "summary": "Unable to generate AI summary at this time. Please try again later.",
+                    "is_fallback": True,
+                    "generated_at": datetime.utcnow().isoformat()
+                },
+                "month": month or f"{now.year}-{now.month:02d}",
+                "entry_count": len(entries)
+            })
         
     except Exception as e:
         print(f"DEBUG: Error in monthly summary: {str(e)}")

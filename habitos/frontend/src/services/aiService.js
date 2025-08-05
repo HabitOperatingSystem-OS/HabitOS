@@ -36,10 +36,38 @@ export const aiService = {
           force_refresh: options.forceRefresh || false,
         }),
       });
-      return await response.json();
+
+      // Check if response has content before trying to parse JSON
+      const responseText = await response.text();
+
+      if (!responseText || responseText.trim() === "") {
+        throw new Error("Empty response from server");
+      }
+
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error("Failed to parse JSON response:", responseText);
+        throw new Error("Invalid JSON response from server");
+      }
+
+      // Check if the response indicates an error
+      if (!response.ok) {
+        throw new Error(
+          data.error || `HTTP ${response.status}: ${response.statusText}`
+        );
+      }
+
+      return data;
     } catch (error) {
       console.error("Error generating monthly summary:", error);
-      throw error;
+      // Ensure we only throw serializable error information
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      } else {
+        throw new Error("Failed to generate monthly summary");
+      }
     }
   },
 };

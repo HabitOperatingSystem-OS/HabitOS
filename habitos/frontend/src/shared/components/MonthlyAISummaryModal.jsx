@@ -34,6 +34,10 @@ const MonthlyAISummaryModal = ({ isOpen, onClose, month }) => {
       await generateMonthlySummary(currentMonth, { forceRefresh });
     } catch (error) {
       console.error("Failed to generate monthly summary:", error);
+      // Log the error type and structure to help debug circular reference issues
+      console.log("Error type:", typeof error);
+      console.log("Error constructor:", error?.constructor?.name);
+      console.log("Error keys:", error ? Object.keys(error) : "No keys");
     }
   };
 

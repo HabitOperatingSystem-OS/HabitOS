@@ -47,7 +47,21 @@ export const useAIMonthlySummary = () => {
       setSummary(summaryData);
       return summaryData;
     } catch (err) {
-      const errorMessage = err.message || "Failed to generate monthly summary";
+      // Extract only the error message to avoid circular reference issues
+      let errorMessage = "Failed to generate monthly summary";
+
+      if (err && typeof err === "object") {
+        if (err.message) {
+          errorMessage = err.message;
+        } else if (err.error) {
+          errorMessage = err.error;
+        } else if (typeof err === "string") {
+          errorMessage = err;
+        }
+      } else if (typeof err === "string") {
+        errorMessage = err;
+      }
+
       setError(errorMessage);
       console.error("Monthly summary generation error:", err);
       throw new Error(errorMessage);
