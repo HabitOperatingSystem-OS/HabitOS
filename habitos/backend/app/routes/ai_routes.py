@@ -12,6 +12,33 @@ def test_ai_routes():
     """Test route to verify AI routes are working"""
     return jsonify({"message": "AI routes are working!", "status": "ok"})
 
+@ai_routes_bp.route('/health', methods=['GET'])
+def ai_health_check():
+    """Health check for AI routes"""
+    try:
+        from app.utils.ai_service import AIService
+        ai_service = AIService()
+        
+        return jsonify({
+            "status": "healthy",
+            "routes": ["/test", "/health", "/journal/monthly-summary", "/journal/prompts"],
+            "ai_service": {
+                "enabled": ai_service.enabled,
+                "api_key_configured": bool(ai_service.api_key),
+                "model": ai_service.model_name,
+                "max_tokens": ai_service.max_tokens,
+                "temperature": ai_service.temperature
+            },
+            "timestamp": datetime.utcnow().isoformat()
+        })
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "error": str(e),
+            "routes": ["/test", "/health", "/journal/monthly-summary", "/journal/prompts"],
+            "timestamp": datetime.utcnow().isoformat()
+        })
+
 @ai_routes_bp.route('/journal/monthly-summary', methods=['POST'])
 @jwt_required()
 def generate_monthly_summary():
@@ -69,17 +96,49 @@ def generate_monthly_summary():
         
         print(f"DEBUG: Prepared {len(entries_data)} entries for AI service")
         
-        # For now, return a simple response without AI service to test the route
-        return jsonify({
-            "success": True,
-            "summary": {
-                "summary": f"Found {len(entries)} journal entries for {month or 'current month'}. AI summary generation is being tested.",
-                "is_fallback": True,
-                "generated_at": datetime.utcnow().isoformat()
-            },
-            "month": month or f"{now.year}-{now.month:02d}",
-            "entry_count": len(entries)
-        })
+        # Try to use the AI service
+        try:
+            from app.utils.ai_service import AIService
+            print("DEBUG: Importing AIService...")
+            ai_service = AIService()
+            print(f"DEBUG: AI Service initialized - Enabled: {ai_service.enabled}")
+            print(f"DEBUG: API Key configured: {bool(ai_service.api_key)}")
+            print(f"DEBUG: Model: {ai_service.model_name}")
+            
+            if not ai_service.enabled:
+                print("DEBUG: AI Service is disabled, using fallback")
+                raise Exception("AI Service is disabled")
+            
+            # Always clear cache to ensure fresh results
+            ai_service.clear_monthly_summary_cache()
+            
+            print("DEBUG: Generating monthly summary with AI...")
+            summary_result = ai_service.generate_monthly_summary(entries_data)
+            
+            print(f"DEBUG: Summary result keys: {list(summary_result.keys())}")
+            print(f"DEBUG: Is fallback in result: {summary_result.get('is_fallback', 'NOT SET')}")
+            
+            return jsonify({
+                "success": True,
+                "summary": summary_result,
+                "month": month or f"{now.year}-{now.month:02d}",
+                "entry_count": len(entries)
+            })
+        except Exception as ai_error:
+            print(f"DEBUG: AI service error: {str(ai_error)}")
+            import traceback
+            traceback.print_exc()
+            # Return fallback response instead of crashing
+            return jsonify({
+                "success": True,
+                "summary": {
+                    "summary": f"Found {len(entries)} journal entries for {month or 'current month'}. AI summary generation failed: {str(ai_error)}",
+                    "is_fallback": True,
+                    "generated_at": datetime.utcnow().isoformat()
+                },
+                "month": month or f"{now.year}-{now.month:02d}",
+                "entry_count": len(entries)
+            })
         
     except Exception as e:
         print(f"DEBUG: Error in monthly summary: {str(e)}")

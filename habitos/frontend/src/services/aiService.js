@@ -25,6 +25,10 @@ export const aiService = {
   // Generate monthly AI summary
   generateMonthlySummary: async (month, options = {}) => {
     try {
+      console.log("DEBUG: Making request to monthly summary API");
+      console.log("DEBUG: Month:", month);
+      console.log("DEBUG: Options:", options);
+
       const response = await fetch(`/api/ai/journal/monthly-summary`, {
         method: "POST",
         headers: {
@@ -37,8 +41,13 @@ export const aiService = {
         }),
       });
 
+      console.log("DEBUG: Response status:", response.status);
+      console.log("DEBUG: Response headers:", response.headers);
+
       // Check if response has content before trying to parse JSON
       const responseText = await response.text();
+
+      console.log("DEBUG: Response text:", responseText);
 
       if (!responseText || responseText.trim() === "") {
         throw new Error("Empty response from server");
