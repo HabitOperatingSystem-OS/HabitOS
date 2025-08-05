@@ -72,6 +72,8 @@ def create_app(config_name=None):
     # Setup CORS with proper preflight handling
     cors_origins = app.config.get('CORS_ORIGINS', ['http://localhost:3000'])
     app.logger.info(f"CORS Origins configured: {cors_origins}")
+    app.logger.info(f"Flask Environment: {app.config.get('FLASK_ENV', 'unknown')}")
+    app.logger.info(f"Database URL set: {bool(app.config.get('SQLALCHEMY_DATABASE_URI', '').startswith('postgresql://'))}")
     
     CORS(app, 
          origins=cors_origins,
@@ -86,14 +88,22 @@ def create_app(config_name=None):
     def handle_preflight():
         if request.method == "OPTIONS":
             origin = request.headers.get('Origin')
-            if origin in cors_origins:
+            app.logger.info(f"OPTIONS request from origin: {origin}")
+            app.logger.info(f"Allowed origins: {cors_origins}")
+            
+            # Allow the request if origin is in our list or if it's the production frontend
+            allowed_origins = cors_origins + ['https://habitos-frontend.onrender.com']
+            if origin in allowed_origins:
                 response = make_response()
                 response.headers.add("Access-Control-Allow-Origin", origin)
                 response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization,X-Requested-With,Accept,Origin")
                 response.headers.add("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS,PATCH")
                 response.headers.add("Access-Control-Allow-Credentials", "true")
                 response.headers.add("Access-Control-Max-Age", "86400")
+                app.logger.info(f"CORS preflight allowed for origin: {origin}")
                 return response
+            else:
+                app.logger.warning(f"CORS preflight denied for origin: {origin}")
     
     # Register blueprints
     from app.routes.auth import auth_bp

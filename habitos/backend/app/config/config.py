@@ -17,7 +17,13 @@ class Config:
     # =============================================================================
     # Database Configuration
     # =============================================================================
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'postgresql://azim:123@localhost:5432/habitos')
+    # Handle Render's database URL format
+    database_url = os.getenv('DATABASE_URL')
+    if database_url and database_url.startswith('postgres://'):
+        # Render uses postgres:// but SQLAlchemy expects postgresql://
+        database_url = database_url.replace('postgres://', 'postgresql://', 1)
+    
+    SQLALCHEMY_DATABASE_URI = database_url or 'postgresql://azim:123@localhost:5432/habitos'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # Database connection pooling (production)
@@ -72,7 +78,19 @@ class Config:
     # =============================================================================
     # Security Configuration
     # =============================================================================
-    CORS_ORIGINS = os.getenv('CORS_ORIGINS', 'http://localhost:3000,http://localhost:5173').split(',')
+    # More explicit CORS configuration with better fallbacks
+    cors_origins_env = os.getenv('CORS_ORIGINS', '')
+    if cors_origins_env:
+        CORS_ORIGINS = [origin.strip() for origin in cors_origins_env.split(',') if origin.strip()]
+    else:
+        # Fallback for development
+        CORS_ORIGINS = ['http://localhost:3000', 'http://localhost:5173']
+    
+    # Add production frontend URL if not already included
+    if os.getenv('FLASK_ENV') == 'production':
+        production_frontend = 'https://habitos-frontend.onrender.com'
+        if production_frontend not in CORS_ORIGINS:
+            CORS_ORIGINS.append(production_frontend)
     
     # =============================================================================
     # Feature Flags
