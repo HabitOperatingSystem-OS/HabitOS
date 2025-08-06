@@ -34,7 +34,7 @@ const Signup = () => {
         onSubmit={handleSubmit}
         loading={loading}
         error={error}
-        showSocialLogin={true}
+        showSocialLogin={false}
       />
 
       {/* Sign in link */}
