@@ -45,4 +45,4 @@ The fastest way to get started is using Docker Compose, which will set up all se
    - Frontend: http://localhost:3000
    - Backend API: http://localhost:5001
 
-# **Happy Habit Building! 🎯**
+# **Happy Habit Building!**
