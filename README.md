@@ -4,7 +4,7 @@
 
 - I built HabitOS to address the challenges students and early professionals face in maintaining healthy routines while balancing work, school, and mental health. The platform encourages users to stay consistent through achieving small wins, growing self-awareness, and documenting daily reflections. 
   
-- HabitOS was built for students, young professionals, and self-improvement enthusiasts aged 18–35 who want to develop meaningful, consistent habits, and gain better emotional clarity.
+- HabitOS was built for students, young professionals, and self-improvement enthusiasts in their 20s or 30s who want to develop meaningful, consistent habits, and gain better emotional clarity.
 
 <img width="1050" height="1180" alt="Screenshot 2025-08-13 at 12 34 51 PM" src="https://github.com/user-attachments/assets/a1c88e6f-dd51-48d7-aa7c-e3f44f62032e" />
   
