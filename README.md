@@ -1,15 +1,12 @@
 # About the Project [(Deployed Link)](https://habitos-frontend.onrender.com/)
 
-<img width="1050" height="1180" alt="Screenshot 2025-08-13 at 12 34 51 PM" src="https://github.com/user-attachments/assets/a1c88e6f-dd51-48d7-aa7c-e3f44f62032e" />
-
-## What
 - HabitOS is a mindful self-development web app designed to help users build consistent habits, track emotional well-being, and visualize progress over time. It combines habit streak tracking, mood journaling, interactive dashboards, and optional AI insights to promote long-term behavioral and emotional growth.
 
-## Why
-- Students and early professionals often struggle to maintain productive routines while balancing work, school, and mental health. HabitOS helps users stay consistent with small wins while fostering self-awareness and reflection without relying on gamification or oversimplification.
+- I built HabitOS to address the challenges students and early professionals face in maintaining healthy routines while balancing work, school, and mental health. The platform encourages users to stay consistent through achieving small wins, growing self-awareness, and documenting daily reflections. 
   
-## Who
-- Target users are students, young professionals, and self-improvement enthusiasts aged 18–35 who seek to build meaningful, consistent habits and better emotional clarity.
+- HabitOS was built for students, young professionals, and self-improvement enthusiasts aged 18–35 who want to develop meaningful, consistent habits, and gain better emotional clarity.
+
+<img width="1050" height="1180" alt="Screenshot 2025-08-13 at 12 34 51 PM" src="https://github.com/user-attachments/assets/a1c88e6f-dd51-48d7-aa7c-e3f44f62032e" />
   
 ## Project Tech Stack 
 - **Backend:** Python, Flask, SQLAlchemy, Alembic, PostgreSQL, Google Gemini API
