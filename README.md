@@ -1,6 +1,6 @@
 # About the Project [(Deployed Link)](https://habitos-frontend.onrender.com/)
 
-- HabitOS is a mindful self-development web app designed to help users build consistent habits, track emotional well-being, and visualize progress over time. It combines habit streak tracking, mood journaling, interactive dashboards, and optional AI insights to promote long-term behavioral and emotional growth.
+- HabitOS is a mindful self-development web app designed to help users build consistent habits, track emotional well-being, and visualize progress over time. It combines habit streak tracking, mood journaling, interactive dashboards, and AI insights to promote long-term behavioral and emotional growth.
 
 - I built HabitOS to address the challenges students and early professionals face in maintaining healthy routines while balancing work, school, and mental health. The platform encourages users to stay consistent through achieving small wins, growing self-awareness, and documenting daily reflections. 
   
